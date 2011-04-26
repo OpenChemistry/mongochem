@@ -1,3 +1,7 @@
+#include <QtGui/QApplication>
+
+#include "mainwindow.h"
+
 #include <iostream>
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
@@ -14,8 +18,18 @@ using std::endl;
 QString m_fileName = "/home/marcus/ssd/src/avogadro/testfiles/benzene.mold";
 QFileInfo info(m_fileName);
 
-int main()
+int main(int argc, char *argv[])
 {
+  QCoreApplication::setOrganizationName("Kitware");
+  QCoreApplication::setOrganizationDomain("kitware.com");
+  QCoreApplication::setApplicationName("MoleQueue");
+  QCoreApplication::setApplicationVersion("0.1.0");
+  QApplication app(argc, argv);
+
+  ChemData::MainWindow window;
+  window.show();
+  return app.exec();
+
   DBClientConnection c;
   try {
     c.connect("localhost");
@@ -25,7 +39,7 @@ int main()
     cout << "caught " << e.what() << endl;
     return 1;
   }
-
+/*
   QFile file("/home/marcus/SBIR_chem_data.csv");
   file.open(QIODevice::ReadOnly);
   file.readLine();
@@ -63,10 +77,10 @@ int main()
              .obj();
   c.insert("tutorial.persons", p);
   c.insert("tutorial.persons", b);
-
+*/
   cout << "count: " << c.count("tutorial.persons") << endl;
   auto_ptr<DBClientCursor> cursor =
-    c.query("tutorial.persons", QUERY("age" << 33));
+    c.query("tutorial.persons");//QUERY("age" << 33));
   while (cursor->more())
     cout << cursor->next().toString() << endl;
 }
