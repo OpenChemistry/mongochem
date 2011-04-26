@@ -5,9 +5,9 @@ project(ChemData)
 set(CMAKE_MODULE_PATH ${ChemData_SOURCE_DIR}/cmake)
 
 find_package(MongoDB)
-include_directories(${MongoDB_INCLUDE_DIRS})
+include_directories(${MongoDB_INCLUDE_DIR})
 # MongoDB uses several boost components we need to link in
-find_package(Boost COMPONENTS thread filesystem program_options)
+find_package(Boost COMPONENTS thread filesystem program_options system)
 find_package(Qt4 4.7 REQUIRED QtCore QtGui)
 
 qt4_wrap_cpp(moc_srcs mainwindow.h)
