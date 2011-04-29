@@ -38,7 +38,6 @@ public:
 
   ~Private()
   {
-
   }
 
   bool connect(const QString &host)
@@ -63,8 +62,8 @@ public:
       return &m_rowObjects[index];
     }
     else {
-      while (index > m_rowObjects.size() && m_cursor->more())
-        m_rowObjects.push_back(m_cursor->next());
+      while (index >= m_rowObjects.size() && m_cursor->more())
+        m_rowObjects.push_back(m_cursor->next().getOwned());
       // If there are enough objects, return the one requested
       if (index < m_rowObjects.size())
         return &m_rowObjects[index];
@@ -96,19 +95,23 @@ int MongoModel::rowCount(const QModelIndex &parent) const
 
 int MongoModel::columnCount(const QModelIndex &parent) const
 {
-  return 2;
+  return 4;
 }
 
 QVariant MongoModel::data(const QModelIndex &index, int role) const
 {
   if (index.internalPointer()) {
     BSONObj *obj = static_cast<BSONObj *>(index.internalPointer());
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole && obj) {
       switch (index.column()) {
       case 0:
         return QVariant(QString(obj->getField("CAS").str().c_str()));
       case 1:
         return QVariant(QString(obj->getField("Set").str().c_str()));
+      case 2:
+        return QVariant(obj->getField("Observed").number());
+      case 3:
+        return QVariant(obj->getField("Predicted log Sw (MLR)").number());
       }
     }
   }
