@@ -17,17 +17,22 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "mongomodel.h"
+
 namespace ChemData {
 
 MainWindow::MainWindow()
 {
   m_ui = new Ui::MainWindow;
   m_ui->setupUi(this);
-
+  m_model = new MongoModel(this);
+  m_ui->tableView->setModel(m_model);
 }
 
 MainWindow::~MainWindow()
 {
+  delete m_model;
+  m_model = 0;
   delete m_ui;
   m_ui = 0;
 }

@@ -10,12 +10,14 @@ include_directories(${MongoDB_INCLUDE_DIR})
 find_package(Boost COMPONENTS thread filesystem program_options system)
 find_package(Qt4 4.7 REQUIRED QtCore QtGui)
 
-qt4_wrap_cpp(moc_srcs mainwindow.h)
+set(chemdata_srcs main.cxx mainwindow.cxx mongomodel.cxx)
+
+qt4_wrap_cpp(moc_srcs mainwindow.h mongomodel.h)
 qt4_wrap_ui(ui_srcs mainwindow.ui)
 
 # Need to add current binary dir to include path for UI file headers
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(chemdata main.cxx mainwindow.cxx ${moc_srcs} ${ui_srcs})
+add_executable(chemdata ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})

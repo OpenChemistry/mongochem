@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
     cout << "caught " << e.what() << endl;
     return 1;
   }
-/*
-  QFile file("/home/marcus/SBIR_chem_data.csv");
+
+  QFile file("/Users/marcus/Downloads/SBIR_chem_data.csv");
   file.open(QIODevice::ReadOnly);
   file.readLine();
   while (!file.atEnd()) {
@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
              .obj();
   c.insert("tutorial.persons", p);
   c.insert("tutorial.persons", b);
-*/
+
   cout << "count: " << c.count("tutorial.persons") << endl;
   auto_ptr<DBClientCursor> cursor =
     c.query("tutorial.persons");//QUERY("age" << 33));

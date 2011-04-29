@@ -14,22 +14,20 @@
 
 ******************************************************************************/
 
-#ifndef QUEUEITEMMODEL_H
-#define QUEUEITEMMODEL_H
+#ifndef MongoModel_H
+#define MongoModel_H
 
 #include <QtCore/QModelIndex>
 #include <QtCore/QList>
 
-namespace MoleQueue {
+namespace ChemData {
 
-class Queue;
-
-class QueueItemModel : public QAbstractItemModel
+class MongoModel : public QAbstractItemModel
 {
   Q_OBJECT
 
 public:
-  explicit QueueItemModel(QList<Queue *> *queueList, QObject *parent = 0);
+  explicit MongoModel(QObject *parent = 0);
 
   QModelIndex parent(const QModelIndex & index) const;
   int rowCount(const QModelIndex & parent = QModelIndex()) const;
@@ -45,13 +43,10 @@ public:
   void clear();
 
 private:
-  QList<Queue *> *m_queueList;
+  class Private;
+  Private *d;
 
 private slots:
-  void add(Queue *queue);
-  void remove(Queue *queue);
-
-  void queuesChanged();
 };
 
 } // End namespace
