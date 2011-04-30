@@ -20,6 +20,8 @@
 #include <QtCore/QModelIndex>
 #include <QtCore/QList>
 
+class vtkTable;
+
 namespace ChemData {
 
 class MongoModel : public QAbstractItemModel
@@ -32,6 +34,8 @@ public:
   QModelIndex parent(const QModelIndex & index) const;
   int rowCount(const QModelIndex & parent = QModelIndex()) const;
   int columnCount(const QModelIndex & parent = QModelIndex()) const;
+  QVariant headerData(int section, Qt::Orientation orientation,
+                      int role = Qt::DisplayRole) const;
   QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
   bool setData(const QModelIndex & index, const QVariant & value,
                int role = Qt::EditRole);
@@ -41,6 +45,9 @@ public:
                     const QModelIndex & parent = QModelIndex()) const;
 
   void clear();
+
+  /*! Fill the supplied vtkTable with the values from the result of the query. */
+  bool results(vtkTable *table);
 
 private:
   class Private;

@@ -20,6 +20,7 @@ QFileInfo info(m_fileName);
 
 int main(int argc, char *argv[])
 {
+
   QCoreApplication::setOrganizationName("Kitware");
   QCoreApplication::setOrganizationDomain("kitware.com");
   QCoreApplication::setApplicationName("MoleQueue");
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  QFile file("/Users/marcus/Downloads/SBIR_chem_data.csv");
+  QFile file("/home/marcus/SBIR_chem_data.csv");
   file.open(QIODevice::ReadOnly);
   file.readLine();
   while (!file.atEnd()) {
@@ -53,7 +54,7 @@ int main(int argc, char *argv[])
                                   .append("Set", cmp[1].trimmed().toStdString())
                                   .append("Observed", cmp[2].toDouble())
                                   .append("Predicted log Sw (MLR)", cmp[3].toDouble())
-                                  .append("Predicted log Sw (MLR)", cmp[4].toDouble())
+                                  .append("Predicted log Sw (RF)", cmp[4].toDouble())
                                   .obj();
       c.insert("chem.import", p);
     }

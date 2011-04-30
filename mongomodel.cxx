@@ -24,6 +24,11 @@
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
 
+#include <vtkNew.h>
+#include <vtkTable.h>
+#include <vtkFloatArray.h>
+#include <vtkStringArray.h>
+
 using namespace mongo;
 
 namespace ChemData {
@@ -95,7 +100,30 @@ int MongoModel::rowCount(const QModelIndex &parent) const
 
 int MongoModel::columnCount(const QModelIndex &parent) const
 {
-  return 4;
+  return 5;
+}
+
+QVariant MongoModel::headerData(int section, Qt::Orientation orientation,
+                                int role) const
+{
+  if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+    switch(section) {
+    case 0:
+      return QVariant("CAS");
+    case 1:
+      return QVariant("Set");
+    case 2:
+      return QVariant("Observed log(Sw)");
+    case 3:
+      return QVariant("Predicted log(Sw) (MLR)");
+    case 4:
+      return QVariant("Predicted log(Sw) (RF)");
+    }
+  }
+  else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
+    return QVariant(section);
+  }
+  return QVariant();
 }
 
 QVariant MongoModel::data(const QModelIndex &index, int role) const
@@ -112,6 +140,8 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
         return QVariant(obj->getField("Observed").number());
       case 3:
         return QVariant(obj->getField("Predicted log Sw (MLR)").number());
+      case 4:
+        return QVariant(obj->getField("Predicted log Sw (RF)").number());
       }
     }
   }
@@ -119,7 +149,7 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
 }
 
 bool MongoModel::setData(const QModelIndex &index, const QVariant &value,
-                             int role)
+                         int role)
 {
   return false;
 }
@@ -144,6 +174,38 @@ QModelIndex MongoModel::index(int row, int column,
 
 void MongoModel::clear()
 {
+}
+
+bool MongoModel::results(vtkTable *table)
+{
+  vtkNew<vtkStringArray> CAS;
+  CAS->SetName("CAS");
+  CAS->SetNumberOfTuples(d->m_rows);
+  vtkNew<vtkStringArray> set;
+  set->SetName("Set");
+  set->SetNumberOfTuples(d->m_rows);
+  vtkNew<vtkFloatArray> observed;
+  observed->SetName("Observed");
+  observed->SetNumberOfTuples(d->m_rows);
+  vtkNew<vtkFloatArray> mlr;
+  mlr->SetName("Predicted log Sw (MLR)");
+  mlr->SetNumberOfTuples(d->m_rows);
+  vtkNew<vtkFloatArray> rf;
+  rf->SetName("Predicted log Sw (RF)");
+  rf->SetNumberOfTuples(d->m_rows);
+  for (int i = 0; i < d->m_rows; ++i) {
+    BSONObj *obj = d->getRecord(i);
+    CAS->SetValue(i, obj->getField("CAS").str().c_str());
+    set->SetValue(i, obj->getField("Set").str().c_str());
+    observed->SetValue(i, obj->getField("Observed").number());
+    mlr->SetValue(i, obj->getField("Predicted log Sw (MLR)").number());
+    rf->SetValue(i, obj->getField("Predicted log Sw (RF)").number());
+  }
+  table->AddColumn(CAS.GetPointer());
+  table->AddColumn(set.GetPointer());
+  table->AddColumn(observed.GetPointer());
+  table->AddColumn(mlr.GetPointer());
+  table->AddColumn(rf.GetPointer());
 }
 
 } // End of namespace

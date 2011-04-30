@@ -19,6 +19,12 @@
 
 #include <QtGui/QMainWindow>
 
+#include <vtkNew.h>
+
+class QVTKWidget;
+class vtkContextView;
+class vtkAnnotationLink;
+
 namespace Ui {
 class MainWindow;
 }
@@ -38,6 +44,14 @@ public:
 protected:
   MongoModel *m_model;
   Ui::MainWindow *m_ui;
+
+  vtkNew<vtkAnnotationLink> m_link;
+
+  QVTKWidget *m_vtkWidget;
+  vtkNew<vtkContextView> m_chartView;
+
+  QVTKWidget *m_vtkWidget2;
+  vtkNew<vtkContextView> m_chartView2;
 
 };
 
