@@ -89,8 +89,9 @@ MongoModel::MongoModel(QObject *parent)
   d = new MongoModel::Private("localhost");
 }
 
-QModelIndex MongoModel::parent(const QModelIndex &index) const
+QModelIndex MongoModel::parent(const QModelIndex &) const
 {
+  return QModelIndex();
 }
 
 int MongoModel::rowCount(const QModelIndex &parent) const

@@ -24,6 +24,11 @@
 class QVTKWidget;
 class vtkContextView;
 class vtkAnnotationLink;
+class vtkEventQtSlotConnect;
+class vtkExtractSelectedRows;
+class vtkChartXY;
+class vtkObject;
+class vtkCommand;
 
 namespace Ui {
 class MainWindow;
@@ -52,6 +57,22 @@ protected:
 
   QVTKWidget *m_vtkWidget2;
   vtkNew<vtkContextView> m_chartView2;
+
+  QVTKWidget *m_vtkWidget3;
+  vtkNew<vtkContextView> m_chartView3;
+  vtkChartXY *m_chart3;
+
+  vtkNew<vtkEventQtSlotConnect> Connector;
+  vtkNew<vtkEventQtSlotConnect> Connector2;
+  vtkNew<vtkExtractSelectedRows> m_extract;
+
+  QDialog *m_dialog;
+
+protected slots:
+  void selectionChanged();
+
+  void chartPointClicked(vtkObject *caller, unsigned long vtk_event,
+                         void* client_data, void *client_data2, vtkCommand*);
 
 };
 
