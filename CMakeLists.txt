@@ -12,7 +12,6 @@ find_package(Qt4 4.7 REQUIRED QtCore QtGui)
 find_package(VTK REQUIRED NO_MODULE)
 
 set(chemdata_srcs main.cxx mainwindow.cxx mongomodel.cxx)
-
 qt4_wrap_cpp(moc_srcs mainwindow.h mongomodel.h)
 qt4_wrap_ui(ui_srcs mainwindow.ui)
 
@@ -22,3 +21,5 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${VTK_INCLUDE_DIRS})
 add_executable(chemdata ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} vtkCharts QVTK)
+
+add_subdirectory(descriptors)
