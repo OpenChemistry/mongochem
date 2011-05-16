@@ -4,22 +4,26 @@ project(ChemData)
 
 set(CMAKE_MODULE_PATH ${ChemData_SOURCE_DIR}/cmake)
 
-find_package(MongoDB)
-include_directories(${MongoDB_INCLUDE_DIR})
-# MongoDB uses several boost components we need to link in
-find_package(Boost COMPONENTS thread filesystem program_options system)
-find_package(Qt4 4.7 REQUIRED QtCore QtGui)
-find_package(VTK REQUIRED NO_MODULE)
+# Set up our directory structure for output libraries and binaries
+if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
+if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+  if(UNIX)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+  else()
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+  endif()
+endif()
 
-set(chemdata_srcs main.cxx mainwindow.cxx mongomodel.cxx)
-qt4_wrap_cpp(moc_srcs mainwindow.h mongomodel.h)
-qt4_wrap_ui(ui_srcs mainwindow.ui)
+# Set a default build type if none was specified
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to 'Debug' as none was specified.")
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
+    "MinSizeRel" "RelWithDebInfo")
+endif()
 
-# Need to add current binary dir to include path for UI file headers
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${VTK_INCLUDE_DIRS})
-
-add_executable(chemdata ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
-target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
-  ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} vtkCharts QVTK)
-
+add_subdirectory(chemdata)
 add_subdirectory(descriptors)
