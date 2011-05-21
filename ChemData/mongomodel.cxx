@@ -23,6 +23,7 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
 #include <QtCore/QDebug>
+#include <QtGui/QColor>
 
 #include <vtkNew.h>
 #include <vtkTable.h>
@@ -36,7 +37,7 @@ namespace ChemData {
 class MongoModel::Private
 {
 public:
-  Private(const QString &host)
+  Private(const QString &host) : m_namespace("chem.import"), m_rows(0)
   {
   this->connect(host);
   }
@@ -50,15 +51,25 @@ public:
     try {
       m_db.connect(host.toStdString());
       cout << "connected OK" << endl;
-
-      m_rows = m_db.count("chem.import");
-      m_cursor = m_db.query("chem.import");//, QUERY("ago" << 33));
-      return true;
+      return query();
     }
     catch (DBException &e) {
       cout << "caught " << e.what() << endl;
       return false;
     }
+  }
+
+  bool query()
+  {
+    if (m_db.isFailed())
+      return false;
+    m_rowObjects.resize(0);
+    m_rows = m_db.count(m_namespace.toStdString());
+    m_rowObjects.reserve(m_rows);
+    BSONObj empty;
+    m_cursor = m_db.query(m_namespace.toStdString(), Query().sort("Observed"));
+    //, QUERY("ago" << 33));
+    return true;
   }
 
   BSONObj * getRecord(unsigned int index)
@@ -79,14 +90,27 @@ public:
 
   DBClientConnection m_db;
   auto_ptr<DBClientCursor> m_cursor;
+  QString m_namespace;
   std::vector<BSONObj> m_rowObjects;
   int m_rows;
+
+  QStringList m_fields;
+  QMap<QString, QString> m_titles;
 };
 
 MongoModel::MongoModel(QObject *parent)
   : QAbstractItemModel(parent)
 {
   d = new MongoModel::Private("localhost");
+
+  d->m_fields << "CAS" << "Set"
+              << "Molecular Weight"
+              << "Observed"
+              << "Predicted log Sw (MLR)"
+              << "Predicted log Sw (RF)";
+  d->m_titles["Observed"] = "Observed log(Sw)";
+  d->m_titles["Predicted log Sw (MLR)"] = "log(Sw) (MLR)";
+  d->m_titles["Predicted log Sw (RF)"] = "log(Sw) (RF)";
 }
 
 QModelIndex MongoModel::parent(const QModelIndex &) const
@@ -101,25 +125,17 @@ int MongoModel::rowCount(const QModelIndex &parent) const
 
 int MongoModel::columnCount(const QModelIndex &parent) const
 {
-  return 5;
+  return d->m_fields.size();
 }
 
 QVariant MongoModel::headerData(int section, Qt::Orientation orientation,
                                 int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
-    switch(section) {
-    case 0:
-      return QVariant("CAS");
-    case 1:
-      return QVariant("Set");
-    case 2:
-      return QVariant("Observed log(Sw)");
-    case 3:
-      return QVariant("Predicted log(Sw) (MLR)");
-    case 4:
-      return QVariant("Predicted log(Sw) (RF)");
-    }
+    if (d->m_titles.contains(d->m_fields[section]))
+      return d->m_titles[d->m_fields[section]];
+    else
+      return d->m_fields[section];
   }
   else if (orientation == Qt::Vertical && role == Qt::DisplayRole) {
     return QVariant(section);
@@ -131,20 +147,49 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
 {
   if (index.internalPointer()) {
     BSONObj *obj = static_cast<BSONObj *>(index.internalPointer());
-    if (role == Qt::DisplayRole && obj) {
-      switch (index.column()) {
-      case 0:
-        return QVariant(QString(obj->getField("CAS").str().c_str()));
-      case 1:
-        return QVariant(QString(obj->getField("Set").str().c_str()));
-      case 2:
-        return QVariant(obj->getField("Observed").number());
-      case 3:
-        return QVariant(obj->getField("Predicted log Sw (MLR)").number());
-      case 4:
-        return QVariant(obj->getField("Predicted log Sw (RF)").number());
+    if (obj) {
+      if (role == Qt::DisplayRole) {
+        BSONElement e = obj->getField(d->m_fields[index.column()].toStdString());
+        if (e.isNumber())
+          return QVariant(e.number());
+        else if (e.isNull())
+          return QVariant();
+        else
+          return e.str().c_str();
+      }
+      else if (role == Qt::DecorationRole) {
+        if (d->m_fields[index.column()] == "CAS") {
+          if (obj->getField("InChIKey").eoo())
+            return Qt::red;
+          else
+            return Qt::green;
+        }
+      }
+      else if (role == Qt::ToolTipRole) {
+        if (d->m_fields[index.column()] == "CAS") {
+          BSONElement iupac = obj->getField("IUPAC");
+          if (iupac.eoo())
+            return "<b>Unknown</b>";
+          else
+            return iupac.str().c_str();
+        }
+        else if (d->m_fields[index.column()] == "Molecular Weight") {
+          BSONElement e = obj->getField("Formula");
+          if (!e.eoo()) {
+            QStringList parts = QString(e.str().c_str()).split(" ",
+                                                               QString::SkipEmptyParts);
+            QString formula;
+            for (int i = 0; i < parts.size(); i += 2) {
+              formula += parts[i];
+              if (parts[i+1].toInt() > 1)
+                formula += "<sub>" + parts[i+1] + "</sub>";
+            }
+            return formula;
+          }
+        }
       }
     }
+
   }
   return QVariant();
 }
@@ -177,6 +222,56 @@ void MongoModel::clear()
 {
 }
 
+bool MongoModel::addIdentifiers(int row, const QString &identifiers)
+{
+  BSONObj *obj = d->getRecord(row);
+  BSONObjBuilder b;
+  QStringList lines = identifiers.split("\n", QString::SkipEmptyParts);
+  for (int i = 0; i < lines.size(); ++i) {
+    if (lines[i].trimmed() == "[Formula]")
+      b << "Formula" << lines[++i].trimmed().toStdString();
+    else if (lines[i].trimmed() == "[Molecular weight]")
+      b << "Molecular Weight" << lines[++i].trimmed().toDouble();
+    else if (lines[i].trimmed() == "[smiles]")
+      b << "SMILES" << lines[++i].trimmed().toStdString();
+    else if (lines[i].trimmed() == "[canonical smiles]")
+      b << "Canonical SMILES" << lines[++i].trimmed().toStdString();
+    else if (lines[i].trimmed() == "[inchi]")
+      b << "InChI" << lines[++i].trimmed().toStdString();
+    else if (lines[i].trimmed() == "[inchikey]")
+      b << "InChIKey" << lines[++i].trimmed().toStdString();
+    else if (lines[i].trimmed() == "[XYZ]") {
+      // Read in all of the XYZ file
+      QString file = lines[++i] + "\n";
+      while (lines[++i].trimmed() != "[end]")
+        file += lines[i] + "\n";
+      b << "XYZ File" << file.toStdString();
+    }
+    else if (lines[i].trimmed() == "[CML]") {
+      // Read in all of the CML file
+      QString file = lines[++i] + "\n";
+      while (lines[++i].trimmed() != "[end]")
+        file += lines[i] + "\n";
+      b << "CML File" << file.toStdString();
+    }
+  }
+  BSONObjBuilder updateSet;
+  updateSet << "$set" << b.obj();
+  d->m_db.update(d->m_namespace.toStdString(), *obj, updateSet.obj());
+  d->query();
+}
+
+bool MongoModel::setIUPACName(int row, const QString &name)
+{
+  BSONObj *obj = d->getRecord(row);
+  BSONObjBuilder b;
+  b << "IUPAC" << name.toStdString();
+  BSONObjBuilder updateSet;
+  updateSet << "$set" << b.obj();
+  d->m_db.update(d->m_namespace.toStdString(), *obj, updateSet.obj());
+  d->query();
+}
+
 bool MongoModel::results(vtkTable *table)
 {
   vtkNew<vtkStringArray> CAS;
@@ -189,10 +284,10 @@ bool MongoModel::results(vtkTable *table)
   observed->SetName("Observed");
   observed->SetNumberOfTuples(d->m_rows);
   vtkNew<vtkFloatArray> mlr;
-  mlr->SetName("Predicted log Sw (MLR)");
+  mlr->SetName("log(Sw) (MLR)");
   mlr->SetNumberOfTuples(d->m_rows);
   vtkNew<vtkFloatArray> rf;
-  rf->SetName("Predicted log Sw (RF)");
+  rf->SetName("log(Sw) (RF)");
   rf->SetNumberOfTuples(d->m_rows);
   for (int i = 0; i < d->m_rows; ++i) {
     BSONObj *obj = d->getRecord(i);
@@ -207,6 +302,7 @@ bool MongoModel::results(vtkTable *table)
   table->AddColumn(observed.GetPointer());
   table->AddColumn(mlr.GetPointer());
   table->AddColumn(rf.GetPointer());
+  return true;
 }
 
 } // End of namespace

@@ -39,7 +39,11 @@ protected slots:
   /** This slot is fired when the job results should be opened in Avogadro. */
   void openInAvogadro();
 
+  /** Attempt to fetch the structure of a CAS number from the NIH resolver. */
   void fetchByCas();
+
+  /** Attempt to fetch the IUPAC name of a structure from the NIH resolver. */
+  void fetchIUPAC();
 
   /** Retrieving structures from remote databases! */
   void replyFinished(QNetworkReply*);
@@ -48,6 +52,7 @@ protected:
   /** Used for fetching data from web services. */
   QNetworkAccessManager *m_network;
   QString m_moleculeName;
+  int m_row;
 };
 
 } // End of namespace

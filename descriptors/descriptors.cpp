@@ -53,18 +53,24 @@ int main(int argc, char *argv[])
   std::cout << "[inchi]\n";
   conv.SetOutFormat("inchi");
   conv.Write(&mol);
+  std::cout << "[inchikey]\n";
+  conv.SetOptions("K", conv.OUTOPTIONS);
+  conv.Write(&mol);
   std::cout << "[XYZ]\n";
   conv.SetOutFormat("xyz");
   conv.Write(&mol);
+  std::cout << "[end]\n";
   std::cout << "[CML]\n";
   conv.SetOutFormat("cml");
   conv.Write(&mol);
+  std::cout << "[end]\n";
   std::cout << "[SVG]\n";
   conv.SetOutFormat("svg");
   conv.Write(&mol);
+  std::cout << "[end]\n";
 
   // Let them know we are finished, should be done after all output is complete.
-  std::cout << "[end]" << std::endl;
+  std::cout << "[complete]" << std::endl;
 
   conv.WriteFile(&mol, std::string(argv[1]) + ".svg");
   conv.CloseOutFile();

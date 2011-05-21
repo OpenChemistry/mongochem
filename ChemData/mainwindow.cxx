@@ -133,8 +133,8 @@ void MainWindow::setupCharts()
   parallel->SetColumnVisibilityAll(false);
   parallel->SetColumnVisibility("Set", true);
   parallel->SetColumnVisibility("Observed", true);
-  parallel->SetColumnVisibility("Predicted log Sw (MLR)", true);
-  parallel->SetColumnVisibility("Predicted log Sw (RF)", true);
+  parallel->SetColumnVisibility("log(Sw) (MLR)", true);
+  parallel->SetColumnVisibility("log(Sw) (RF)", true);
   parallel->Update();
   parallel->GetAxis(2)->SetTitle("MLR");
   parallel->GetAxis(3)->SetTitle("RF");

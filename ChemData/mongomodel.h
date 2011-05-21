@@ -46,7 +46,13 @@ public:
 
   void clear();
 
-  /*! Fill the supplied vtkTable with the values from the result of the query. */
+  /** Update a record with new identifiers we downloaded for it. */
+  bool addIdentifiers(int row, const QString &identifiers);
+
+  /** Update a record with its IUPAC name. */
+  bool setIUPACName(int row, const QString &name);
+
+  /** Fill the supplied vtkTable with the values from the result of the query. */
   bool results(vtkTable *table);
 
 private:
