@@ -67,6 +67,17 @@ int main(int argc, char *argv[])
   std::cout << "[end]" << std::endl;
 
   conv.WriteFile(&mol, std::string(argv[1]) + ".svg");
+  conv.CloseOutFile();
+
+  in.open(argv[1]);
+  conv.SetInStream(&in);
+  std::ofstream cml;
+  cml.open((std::string(argv[1]) + ".cml").c_str());
+  conv.SetOutStream(&cml);
+  conv.SetOutFormat("cml");
+  conv.Convert();
+  cml.close();
+  in.close();
 
   return 0;
 }

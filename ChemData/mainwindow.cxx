@@ -21,6 +21,7 @@
 #include <QtGui/QDialog>
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QDebug>
+#include <QtCore/QProcess>
 
 #include <QVTKWidget.h>
 #include <QVTKInteractor.h>
@@ -47,6 +48,22 @@ MainWindow::MainWindow()
 {
   m_ui = new Ui::MainWindow;
   m_ui->setupUi(this);
+
+  setupTable();
+  setupCharts();
+  m_dialog->show();
+}
+
+MainWindow::~MainWindow()
+{
+  delete m_model;
+  m_model = 0;
+  delete m_ui;
+  m_ui = 0;
+}
+
+void MainWindow::setupTable()
+{
   m_model = new MongoModel(this);
   m_ui->tableView->setModel(m_model);
 
@@ -59,9 +76,14 @@ MainWindow::MainWindow()
   m_ui->tableView->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
   m_ui->tableView->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
   m_ui->tableView->horizontalHeader()->setStretchLastSection(true);
+}
 
+void MainWindow::setupCharts()
+{
   // Create a widget for the charts to live on, with a splitter.
   m_dialog = new QDialog(this);
+  m_dialog->setWindowTitle("Property Graphs");
+  m_dialog->setModal(false);
   QSplitter *splitter = new QSplitter(m_dialog);
   QVBoxLayout *layout = new QVBoxLayout;
   m_dialog->setLayout(layout);
@@ -169,6 +191,11 @@ MainWindow::MainWindow()
                      this, SLOT(chartPointClicked(vtkObject*,ulong,void*,
                                                   void*, vtkCommand*))
                      );
+  Connector->Connect(chart2.GetPointer(),
+                     vtkCommand::InteractionEvent,
+                     this, SLOT(chartPointClicked(vtkObject*,ulong,void*,
+                                                  void*, vtkCommand*))
+                     );
 
   splitter2->addWidget(m_vtkWidget);
   splitter2->addWidget(m_vtkWidget2);
@@ -179,16 +206,6 @@ MainWindow::MainWindow()
   splitter->addWidget(splitter3);
 
   splitter->setOrientation(Qt::Vertical);
-
-  m_dialog->show();
-}
-
-MainWindow::~MainWindow()
-{
-  delete m_model;
-  m_model = 0;
-  delete m_ui;
-  m_ui = 0;
 }
 
 void MainWindow::selectionChanged()
@@ -210,6 +227,8 @@ void MainWindow::chartPointClicked(vtkObject *, unsigned long,
   vtkChartPlotData *plot = static_cast<vtkChartPlotData*>(client_data2);
   qDebug() << "Series Name:" << plot->SeriesName.c_str()
            << "Index:" << plot->Index;
+
+  m_ui->tableView->selectRow(plot->Index);
 
 /*  emit pointClicked(QString(plot->SeriesName.c_str()),
                     Vector2f(plot->Position.GetData()),

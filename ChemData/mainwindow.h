@@ -47,6 +47,9 @@ public:
   ~MainWindow();
 
 protected:
+  void setupTable();
+  void setupCharts();
+
   MongoModel *m_model;
   Ui::MainWindow *m_ui;
 
@@ -73,7 +76,6 @@ protected slots:
 
   void chartPointClicked(vtkObject *caller, unsigned long vtk_event,
                          void* client_data, void *client_data2, vtkCommand*);
-
 };
 
 }

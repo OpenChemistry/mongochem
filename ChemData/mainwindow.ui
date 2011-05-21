@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QTableView" name="tableView"/>
+     <widget class="ChemData::MongoTableView" name="tableView"/>
     </item>
    </layout>
   </widget>
@@ -50,6 +50,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ChemData::MongoTableView</class>
+   <extends>QTableView</extends>
+   <header location="global">ChemData/MongoTableView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

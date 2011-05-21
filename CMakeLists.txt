@@ -25,5 +25,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     "MinSizeRel" "RelWithDebInfo")
 endif()
 
-add_subdirectory(chemdata)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+add_subdirectory(ChemData)
 add_subdirectory(descriptors)
