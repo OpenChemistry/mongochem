@@ -26,4 +26,19 @@ DetailDialog::DetailDialog(QWidget *parent) : QDialog(parent), m_model(0),
 
 }
 
+void DetailDialog::setModel(MongoModel *model)
+{
+  m_model = model;
+}
+
+void DetailDialog::setRow(int row)
+{
+  m_row = row;
+}
+
+void DetailDialog::showEvent(QShowEvent *event)
+{
+  QDialog::showEvent(event);
+}
+
 } // End namespace

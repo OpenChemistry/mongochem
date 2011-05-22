@@ -55,6 +55,9 @@ public:
   /** Update a record with a 2D depiction. */
   bool setImage2D(int row, const QByteArray &image);
 
+  /** Update a record with a 2D depiction. */
+  bool addOutputFile(const QString &fileName, const QString &input = QString());
+
   /** Fill the supplied vtkTable with the values from the result of the query. */
   bool results(vtkTable *table);
 

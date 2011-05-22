@@ -30,10 +30,12 @@ class DetailDialog : public QDialog
 public:
   DetailDialog(QWidget *parent = 0);
 
-  void setModel(MongoModel *model) { m_model = model; }
-  void setRow(int row) { m_row = row; }
+  void setModel(MongoModel *model);
+  void setRow(int row);
 
 protected:
+  virtual void showEvent(QShowEvent * event);
+
   MongoModel *m_model;
   int m_row;
 };

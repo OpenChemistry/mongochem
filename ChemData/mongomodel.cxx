@@ -304,6 +304,35 @@ bool MongoModel::setImage2D(int row, const QByteArray &image)
   d->query();
 }
 
+bool MongoModel::addOutputFile(const QString &outputFile,
+                               const QString &inputFile)
+{
+  qDebug() << "output" << outputFile << "input" << inputFile;
+  BSONObjBuilder b;
+  b.genOID();
+  QFile output(outputFile);
+  if (output.open(QIODevice::ReadOnly)) {
+    QByteArray out = output.readAll();
+    qDebug() << "GAMESS log file" << out;
+    b.append("gamout", out.data());
+    output.close();
+  }
+  else {
+    qDebug() << "Failed to open output file:" << outputFile;
+    return false;
+  }
+  if (!inputFile.isEmpty()) {
+    QFile input(inputFile);
+    if (input.open(QIODevice::ReadOnly)) {
+      QByteArray in = input.readAll();
+      b.append("gaminp", in.data());
+      input.close();
+    }
+  }
+  d->m_db.insert("chem.gamess", b.obj());
+  return true;
+}
+
 bool MongoModel::results(vtkTable *table)
 {
   vtkNew<vtkStringArray> CAS;

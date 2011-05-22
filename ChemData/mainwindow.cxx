@@ -16,6 +16,7 @@
 
 #include "mainwindow.h"
 
+#include "mongomodel.h"
 #include "DetailDialog.h"
 
 #include "ui_mainwindow.h"
@@ -43,8 +44,6 @@
 #include <vtkExtractSelectedRows.h>
 #include <vtkEventQtSlotConnect.h>
 #include <vtkSelection.h>
-
-#include "mongomodel.h"
 
 namespace ChemData {
 
@@ -230,7 +229,10 @@ void MainWindow::showDetails()
 
 void MainWindow::addNewRecord()
 {
-
+  QString fileName = QFileDialog::getOpenFileName(this, "Output file to store");
+  if (!fileName.isEmpty()) {
+    m_model->addOutputFile(fileName);
+  }
 }
 
 void MainWindow::selectionChanged()
