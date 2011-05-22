@@ -1,6 +1,6 @@
 /******************************************************************************
 
-  This source file is part of the MoleQueue project.
+  This source file is part of the ChemData project.
 
   Copyright 2011 Kitware, Inc.
 
@@ -51,6 +51,7 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
     mongo::BSONElement inchi = obj->getField("InChI");
     mongo::BSONElement iupac = obj->getField("IUPAC");
     mongo::BSONElement cml = obj->getField("CML File");
+    mongo::BSONElement png = obj->getField("2D PNG");
 
     if (inchi.eoo()) {
       action = menu->addAction("&Fetch chemical structure");
@@ -68,6 +69,13 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
       action = menu->addAction("&Fetch IUPAC name");
       action->setData(inchi.str().c_str());
       connect(action, SIGNAL(triggered()), this, SLOT(fetchIUPAC()));
+    }
+
+    if (!inchi.eoo()) {// && png.eoo()) {
+      // The field exists, there is more we can do here!
+      action = menu->addAction("&Fetch 2D depiction");
+      action->setData(inchi.str().c_str());
+      connect(action, SIGNAL(triggered()), this, SLOT(fetchImage()));
     }
 
     if (!cml.eoo()) {
@@ -139,6 +147,28 @@ void MongoTableView::fetchIUPAC()
   m_moleculeName = "IUPAC";
 }
 
+void MongoTableView::fetchImage()
+{
+  if (!m_network) {
+    m_network = new QNetworkAccessManager(this);
+    connect(m_network, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(replyFinished(QNetworkReply*)));
+  }
+  QAction *action = static_cast<QAction*>(sender());
+  // Prompt for a chemical structure name
+  QString inchi = action->data().toString();
+  if (inchi.isEmpty())
+    return;
+
+  // Fetch the IUPAC name from the NIH database
+  QString url = "http://cactus.nci.nih.gov/chemical/structure/" + inchi
+      + "/image?format=png";
+  m_network->get(QNetworkRequest(QUrl(url)));
+  qDebug() << url;
+
+  m_moleculeName = "image";
+}
+
 void MongoTableView::replyFinished(QNetworkReply *reply)
 {
   // Read in all the data
@@ -162,12 +192,19 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
     return;
   }
   qDebug() << "Structure:" << data;
-  QFile file(m_moleculeName);
+
   if (m_moleculeName == "IUPAC") {
     qDebug() << "IUPAC Name:" << data;
     model->setIUPACName(m_row, data);
     return;
   }
+  else if (m_moleculeName == "image") {
+    qDebug() << "Image:" << data;
+    model->setImage2D(m_row, data);
+    return;
+  }
+
+  QFile file(m_moleculeName);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     return;
   file.write(data);

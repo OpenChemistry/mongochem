@@ -22,8 +22,10 @@
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
 #include <QtCore/QFile>
+#include <QtCore/QSize>
 #include <QtCore/QDebug>
 #include <QtGui/QColor>
+#include <QtGui/QPixmap>
 
 #include <vtkNew.h>
 #include <vtkTable.h>
@@ -101,7 +103,8 @@ public:
 MongoModel::MongoModel(QObject *parent)
   : QAbstractItemModel(parent)
 {
-  d = new MongoModel::Private("localhost");
+  //d = new MongoModel::Private("localhost");
+  d = new MongoModel::Private("londinium.kitwarein.com");
 
   d->m_fields << "CAS" << "Set"
               << "Molecular Weight"
@@ -157,12 +160,29 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
         else
           return e.str().c_str();
       }
+      else if (role == Qt::SizeHintRole) {
+        if (obj->getField("2D PNG").eoo())
+          return QVariant(QSize(10, 20));
+        else
+          return QVariant(QSize(250, 250));
+      }
       else if (role == Qt::DecorationRole) {
         if (d->m_fields[index.column()] == "CAS") {
           if (obj->getField("InChIKey").eoo())
             return Qt::red;
           else
             return Qt::green;
+        }
+        else if (d->m_fields[index.column()] == "Molecular Weight") {
+          BSONElement image = obj->getField("2D PNG");
+          if (!image.eoo()) {
+            int length;
+            const char *data = image.binData(length);
+            QByteArray inData(data, length);
+            QImage in = QImage::fromData(inData, "PNG");
+            QPixmap pix = QPixmap::fromImage(in);
+            return QVariant(pix);
+          }
         }
       }
       else if (role == Qt::ToolTipRole) {
@@ -266,6 +286,18 @@ bool MongoModel::setIUPACName(int row, const QString &name)
   BSONObj *obj = d->getRecord(row);
   BSONObjBuilder b;
   b << "IUPAC" << name.toStdString();
+  BSONObjBuilder updateSet;
+  updateSet << "$set" << b.obj();
+  d->m_db.update(d->m_namespace.toStdString(), *obj, updateSet.obj());
+  d->query();
+}
+
+bool MongoModel::setImage2D(int row, const QByteArray &image)
+{
+  BSONObj *obj = d->getRecord(row);
+  BSONObjBuilder b;
+  qDebug() << "Image data:" << image.length() << image;
+  b.appendBinData("2D PNG", image.length(), mongo::BinDataGeneral, image.data());
   BSONObjBuilder updateSet;
   updateSet << "$set" << b.obj();
   d->m_db.update(d->m_namespace.toStdString(), *obj, updateSet.obj());

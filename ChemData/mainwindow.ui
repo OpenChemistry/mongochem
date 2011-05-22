@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -34,12 +34,27 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionAddNewData"/>
-    <addaction name="action_Quit"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="actionGraphs"/>
+    <addaction name="actionDetail"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
    </widget>
    <addaction name="menu_File"/>
+   <addaction name="menu_View"/>
+   <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action_Quit">
+  <action name="actionQuit">
    <property name="text">
     <string>&amp;Quit</string>
    </property>
@@ -47,6 +62,21 @@
   <action name="actionAddNewData">
    <property name="text">
     <string>&amp;Add New Data</string>
+   </property>
+  </action>
+  <action name="actionGraphs">
+   <property name="text">
+    <string>&amp;Graphs</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionDetail">
+   <property name="text">
+    <string>&amp;Detail</string>
    </property>
   </action>
  </widget>
@@ -60,7 +90,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>action_Quit</sender>
+   <sender>actionQuit</sender>
    <signal>activated()</signal>
    <receiver>MainWindow</receiver>
    <slot>close()</slot>

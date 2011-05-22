@@ -15,11 +15,15 @@
 ******************************************************************************/
 
 #include "mainwindow.h"
+
+#include "DetailDialog.h"
+
 #include "ui_mainwindow.h"
 
 #include <QtGui/QSplitter>
 #include <QtGui/QDialog>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QFileDialog>
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
 
@@ -44,7 +48,7 @@
 
 namespace ChemData {
 
-MainWindow::MainWindow()
+MainWindow::MainWindow() : m_detail(0)
 {
   m_ui = new Ui::MainWindow;
   m_ui->setupUi(this);
@@ -52,6 +56,10 @@ MainWindow::MainWindow()
   setupTable();
   setupCharts();
   m_dialog->show();
+
+  connect(m_ui->actionGraphs, SIGNAL(activated()), SLOT(showGraphs()));
+  connect(m_ui->actionDetail, SIGNAL(activated()), SLOT(showDetails()));
+  connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
 }
 
 MainWindow::~MainWindow()
@@ -71,11 +79,12 @@ void MainWindow::setupTable()
   m_ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
   m_ui->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
+  m_ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
   //m_ui->tableView->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
   //m_ui->tableView->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
-  m_ui->tableView->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
-  m_ui->tableView->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
-  m_ui->tableView->horizontalHeader()->setStretchLastSection(true);
+  //m_ui->tableView->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
+  //m_ui->tableView->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
+  //m_ui->tableView->horizontalHeader()->setStretchLastSection(true);
 }
 
 void MainWindow::setupCharts()
@@ -138,7 +147,6 @@ void MainWindow::setupCharts()
   parallel->Update();
   parallel->GetAxis(2)->SetTitle("MLR");
   parallel->GetAxis(3)->SetTitle("RF");
-
 
   m_vtkWidget3 = new QVTKWidget();
   m_chartView3->SetInteractor(m_vtkWidget3->GetInteractor());
@@ -206,6 +214,23 @@ void MainWindow::setupCharts()
   splitter->addWidget(splitter3);
 
   splitter->setOrientation(Qt::Vertical);
+}
+
+void MainWindow::showGraphs()
+{
+  m_dialog->show();
+}
+
+void MainWindow::showDetails()
+{
+  if (!m_detail)
+    m_detail = new DetailDialog(this);
+  m_detail->show();
+}
+
+void MainWindow::addNewRecord()
+{
+
 }
 
 void MainWindow::selectionChanged()

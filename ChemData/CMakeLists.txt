@@ -5,8 +5,17 @@ find_package(Boost COMPONENTS thread filesystem program_options system)
 find_package(Qt4 4.7 REQUIRED QtCore QtGui QtNetwork)
 find_package(VTK REQUIRED NO_MODULE)
 
-set(chemdata_srcs chemdata.cxx mainwindow.cxx mongomodel.cxx MongoTableView.cxx)
-qt4_wrap_cpp(moc_srcs mainwindow.h mongomodel.h MongoTableView.h)
+set(chemdata_srcs
+  chemdata.cxx
+  DetailDialog.cxx
+  mainwindow.cxx
+  mongomodel.cxx
+  MongoTableView.cxx)
+qt4_wrap_cpp(moc_srcs
+  DetailDialog.h
+  mainwindow.h
+  mongomodel.h
+  MongoTableView.h)
 qt4_wrap_ui(ui_srcs mainwindow.ui)
 
 # Need to add current binary dir to include path for UI file headers

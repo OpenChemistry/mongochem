@@ -52,6 +52,9 @@ public:
   /** Update a record with its IUPAC name. */
   bool setIUPACName(int row, const QString &name);
 
+  /** Update a record with a 2D depiction. */
+  bool setImage2D(int row, const QByteArray &image);
+
   /** Fill the supplied vtkTable with the values from the result of the query. */
   bool results(vtkTable *table);
 

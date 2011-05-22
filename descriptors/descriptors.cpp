@@ -64,26 +64,13 @@ int main(int argc, char *argv[])
   conv.SetOutFormat("cml");
   conv.Write(&mol);
   std::cout << "[end]\n";
-  std::cout << "[SVG]\n";
-  conv.SetOutFormat("svg");
-  conv.Write(&mol);
-  std::cout << "[end]\n";
+  //std::cout << "[SVG]\n";
+  //conv.SetOutFormat("svg");
+  //conv.Write(&mol);
+  //std::cout << "[end]\n";
 
   // Let them know we are finished, should be done after all output is complete.
   std::cout << "[complete]" << std::endl;
-
-  conv.WriteFile(&mol, std::string(argv[1]) + ".svg");
-  conv.CloseOutFile();
-
-  in.open(argv[1]);
-  conv.SetInStream(&in);
-  std::ofstream cml;
-  cml.open((std::string(argv[1]) + ".cml").c_str());
-  conv.SetOutStream(&cml);
-  conv.SetOutFormat("cml");
-  conv.Convert();
-  cml.close();
-  in.close();
 
   return 0;
 }

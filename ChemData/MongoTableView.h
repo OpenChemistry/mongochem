@@ -1,6 +1,6 @@
 /******************************************************************************
 
-  This source file is part of the MoleQueue project.
+  This source file is part of the ChemData project.
 
   Copyright 2011 Kitware, Inc.
 
@@ -44,6 +44,9 @@ protected slots:
 
   /** Attempt to fetch the IUPAC name of a structure from the NIH resolver. */
   void fetchIUPAC();
+
+  /** Attempt to fetch a PNG of the molecule. */
+  void fetchImage();
 
   /** Retrieving structures from remote databases! */
   void replyFinished(QNetworkReply*);

@@ -36,6 +36,7 @@ class MainWindow;
 
 namespace ChemData{
 
+class DetailDialog;
 class MongoModel;
 
 class MainWindow : public QMainWindow
@@ -70,8 +71,18 @@ protected:
   vtkNew<vtkExtractSelectedRows> m_extract;
 
   QDialog *m_dialog;
+  DetailDialog *m_detail;
 
 protected slots:
+  /** Show the graphs dialog. */
+  void showGraphs();
+
+  /** Show the record detail dialog. */
+  void showDetails();
+
+  /** Show the manual record addition dialog. */
+  void addNewRecord();
+
   void selectionChanged();
 
   void chartPointClicked(vtkObject *caller, unsigned long vtk_event,
