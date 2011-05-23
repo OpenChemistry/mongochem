@@ -9,12 +9,14 @@ set(chemdata_srcs
   chemdata.cxx
   DetailDialog.cxx
   mainwindow.cxx
-  mongomodel.cxx
+  MongoModel.cxx
+  MongoRecordModel.cxx
   MongoTableView.cxx)
 qt4_wrap_cpp(moc_srcs
   DetailDialog.h
   mainwindow.h
-  mongomodel.h
+  MongoModel.h
+  MongoRecordModel.h
   MongoTableView.h)
 qt4_wrap_ui(ui_srcs mainwindow.ui)
 

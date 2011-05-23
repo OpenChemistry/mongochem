@@ -16,7 +16,7 @@
 
 #include "MongoTableView.h"
 
-#include "mongomodel.h"
+#include "MongoModel.h"
 
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>

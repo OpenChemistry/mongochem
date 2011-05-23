@@ -16,7 +16,7 @@
 
 #include "mainwindow.h"
 
-#include "mongomodel.h"
+#include "MongoModel.h"
 #include "DetailDialog.h"
 
 #include "ui_mainwindow.h"
@@ -54,7 +54,6 @@ MainWindow::MainWindow() : m_detail(0)
 
   setupTable();
   setupCharts();
-  m_dialog->show();
 
   connect(m_ui->actionGraphs, SIGNAL(activated()), SLOT(showGraphs()));
   connect(m_ui->actionDetail, SIGNAL(activated()), SLOT(showDetails()));
@@ -78,7 +77,11 @@ void MainWindow::setupTable()
   m_ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
   m_ui->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
-  m_ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+  //m_ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+
+  m_ui->tableView->setSortingEnabled(false);
+  m_ui->tableView->resizeColumnsToContents();
+  m_ui->tableView->resizeRowsToContents();
   //m_ui->tableView->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
   //m_ui->tableView->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
   //m_ui->tableView->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
@@ -222,8 +225,11 @@ void MainWindow::showGraphs()
 
 void MainWindow::showDetails()
 {
-  if (!m_detail)
+  if (!m_detail) {
     m_detail = new DetailDialog(this);
+    connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)),
+            m_detail, SLOT(setActiveRecord(QModelIndex)));
+  }
   m_detail->show();
 }
 

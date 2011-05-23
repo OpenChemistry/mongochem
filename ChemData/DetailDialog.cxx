@@ -16,24 +16,51 @@
 
 #include "DetailDialog.h"
 
+#include "MongoRecordModel.h"
+
 #include <mongo/client/dbclient.h>
+
+#include <QtCore/QDebug>
+#include <QtCore/QModelIndex>
+#include <QtGui/QVBoxLayout>
+#include <QtGui/QTreeView>
 
 namespace ChemData {
 
-DetailDialog::DetailDialog(QWidget *parent) : QDialog(parent), m_model(0),
+DetailDialog::DetailDialog(QWidget *parent) : QDialog(parent),
+  m_model(new MongoRecordModel(this)),
   m_row(-1)
 {
-
+  QVBoxLayout *layout = new QVBoxLayout(this);
+  QTreeView *tree = new QTreeView(this);
+  tree->setModel(m_model);
+  layout->addWidget(tree);
+  setLayout(layout);
 }
 
 void DetailDialog::setModel(MongoModel *model)
 {
-  m_model = model;
+
 }
 
 void DetailDialog::setRow(int row)
 {
   m_row = row;
+}
+
+void DetailDialog::setActiveRecord(const QModelIndex &index)
+{
+  qDebug() << "set record called!";
+  mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(index.internalPointer());
+
+  mongo::BSONElement inchi = obj->getField("InChI");
+  mongo::BSONElement iupac = obj->getField("IUPAC");
+  mongo::BSONElement cml = obj->getField("CML File");
+  mongo::BSONElement png = obj->getField("2D PNG");
+
+  m_model->setBSONObj(obj);
+
+  qDebug() << index.row() << inchi.str().c_str();
 }
 
 void DetailDialog::showEvent(QShowEvent *event)

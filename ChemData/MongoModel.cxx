@@ -14,7 +14,7 @@
 
 ******************************************************************************/
 
-#include "mongomodel.h"
+#include "MongoModel.h"
 
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
@@ -116,6 +116,11 @@ MongoModel::MongoModel(QObject *parent)
   d->m_titles["Predicted log Sw (RF)"] = "log(Sw) (RF)";
 }
 
+MongoModel::~MongoModel()
+{
+  delete d;
+}
+
 QModelIndex MongoModel::parent(const QModelIndex &) const
 {
   return QModelIndex();
@@ -161,10 +166,13 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
           return e.str().c_str();
       }
       else if (role == Qt::SizeHintRole) {
-        if (obj->getField("2D PNG").eoo())
-          return QVariant(QSize(10, 20));
-        else
+        if (d->m_fields[index.column()] == "Molecular Weight" &&
+            !obj->getField("2D PNG").eoo()) {
           return QVariant(QSize(250, 250));
+        }
+        else {
+          return QVariant(QSize(120, 20));
+        }
       }
       else if (role == Qt::DecorationRole) {
         if (d->m_fields[index.column()] == "CAS") {

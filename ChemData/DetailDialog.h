@@ -19,9 +19,12 @@
 
 #include <QtGui/QDialog>
 
+class QModelIndex;
+
 namespace ChemData {
 
 class MongoModel;
+class MongoRecordModel;
 
 class DetailDialog : public QDialog
 {
@@ -33,10 +36,13 @@ public:
   void setModel(MongoModel *model);
   void setRow(int row);
 
+public slots:
+  void setActiveRecord(const QModelIndex &index);
+
 protected:
   virtual void showEvent(QShowEvent * event);
 
-  MongoModel *m_model;
+  MongoRecordModel *m_model;
   int m_row;
 };
 

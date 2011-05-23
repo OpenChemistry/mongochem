@@ -14,22 +14,26 @@
 
 ******************************************************************************/
 
-#ifndef MongoModel_H
-#define MongoModel_H
+#ifndef MongoRecordModel_H
+#define MongoRecordModel_H
 
 #include <QtCore/QModelIndex>
 #include <QtCore/QList>
 
-class vtkTable;
+namespace mongo {
+class DBClientConnection;
+class BSONObj;
+}
 
 namespace ChemData {
 
-class MongoModel : public QAbstractItemModel
+class MongoRecordModel : public QAbstractItemModel
 {
   Q_OBJECT
 
 public:
-  explicit MongoModel(QObject *parent = 0);
+  explicit MongoRecordModel(QObject *parent = 0);
+  ~MongoRecordModel();
 
   QModelIndex parent(const QModelIndex & index) const;
   int rowCount(const QModelIndex & parent = QModelIndex()) const;
@@ -46,26 +50,13 @@ public:
 
   void clear();
 
-  /** Update a record with new identifiers we downloaded for it. */
-  bool addIdentifiers(int row, const QString &identifiers);
+  void setBSONObj(mongo::BSONObj *obj);
 
-  /** Update a record with its IUPAC name. */
-  bool setIUPACName(int row, const QString &name);
-
-  /** Update a record with a 2D depiction. */
-  bool setImage2D(int row, const QByteArray &image);
-
-  /** Update a record with a 2D depiction. */
-  bool addOutputFile(const QString &fileName, const QString &input = QString());
-
-  /** Fill the supplied vtkTable with the values from the result of the query. */
-  bool results(vtkTable *table);
+  void setDBConnection(mongo::DBClientConnection *db);
 
 private:
   class Private;
   Private *d;
-
-private slots:
 };
 
 } // End namespace
