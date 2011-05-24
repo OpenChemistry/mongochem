@@ -20,6 +20,7 @@
 #include <QtGui/QDialog>
 
 class QModelIndex;
+class QTreeView;
 
 namespace ChemData {
 
@@ -42,6 +43,7 @@ public slots:
 protected:
   virtual void showEvent(QShowEvent * event);
 
+  QTreeView        *m_treeView;
   MongoRecordModel *m_model;
   int m_row;
 };

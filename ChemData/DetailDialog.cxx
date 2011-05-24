@@ -32,9 +32,9 @@ DetailDialog::DetailDialog(QWidget *parent) : QDialog(parent),
   m_row(-1)
 {
   QVBoxLayout *layout = new QVBoxLayout(this);
-  QTreeView *tree = new QTreeView(this);
-  tree->setModel(m_model);
-  layout->addWidget(tree);
+  m_treeView = new QTreeView(this);
+  m_treeView->setModel(m_model);
+  layout->addWidget(m_treeView);
   setLayout(layout);
 }
 

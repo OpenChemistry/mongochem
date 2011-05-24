@@ -45,6 +45,7 @@ public:
 
   DBClientConnection *m_db;
   BSONObj *m_obj;
+  std::vector<std::string> m_fields;
 };
 
 MongoRecordModel::MongoRecordModel(QObject *parent)
@@ -64,10 +65,12 @@ QModelIndex MongoRecordModel::parent(const QModelIndex &) const
 
 int MongoRecordModel::rowCount(const QModelIndex &parent) const
 {
-  if (parent.isValid())
-    return d->m_obj ? d->m_obj->nFields() : 0;
+  int rows;
+  if (!parent.isValid())
+    rows =  d->m_fields.size();
   else
-    return 0;
+    rows = 0;
+  return rows;
 }
 
 int MongoRecordModel::columnCount(const QModelIndex &) const
@@ -92,8 +95,42 @@ QVariant MongoRecordModel::headerData(int section, Qt::Orientation orientation,
 
 QVariant MongoRecordModel::data(const QModelIndex &index, int role) const
 {
-  if (index.internalPointer()) {
-    BSONObj *obj = static_cast<BSONObj *>(index.internalPointer());
+  if (d->m_obj) {
+    if (role == Qt::DisplayRole) {
+      BSONElement e = d->m_obj->getField(d->m_fields[index.row()]);
+      if (index.column() == 0)
+        return QVariant(QString(d->m_fields[index.row()].c_str()));
+      else {
+        if (e.isNumber())
+          return QVariant(e.number());
+        else if (e.isNull())
+          return QVariant();
+        else
+          return e.str().c_str();
+      }
+    }
+/*    else if (role == Qt::SizeHintRole) {
+      if (d->m_fields[index.column()] == "2D PNG" &&
+          !d->m_obj->getField("2D PNG").eoo()) {
+        return QVariant(QSize(250, 250));
+      }
+      else {
+        return QVariant(QSize(120, 20));
+      }
+    } */
+    else if (role == Qt::DecorationRole) {
+      if (d->m_fields[index.row()] == "2D PNG" && index.column() == 1) {
+        BSONElement image = d->m_obj->getField("2D PNG");
+        if (!image.eoo()) {
+          int length;
+          const char *data = image.binData(length);
+          QByteArray inData(data, length);
+          QImage in = QImage::fromData(inData, "PNG");
+          QPixmap pix = QPixmap::fromImage(in);
+          return QVariant(pix);
+        }
+      }
+    }
   }
   return QVariant();
 }
@@ -115,7 +152,7 @@ Qt::ItemFlags MongoRecordModel::flags(const QModelIndex &index) const
 QModelIndex MongoRecordModel::index(int row, int column,
                               const QModelIndex &parent) const
 {
-  if (row >= 0 && row < 9) {
+  if (row >= 0 && row < d->m_fields.size()) {
     return createIndex(row, column, 0);
   }
   return QModelIndex();
@@ -128,6 +165,15 @@ void MongoRecordModel::clear()
 void MongoRecordModel::setBSONObj(mongo::BSONObj *obj)
 {
   d->m_obj = obj;
+  // It is much simpler to enforce an ordered list so we can access fields for display
+  d->m_fields.clear();;
+  std::set<std::string> fields;
+  d->m_obj->getFieldNames(fields);
+  for (std::set<std::string>::const_iterator i = fields.begin();
+       i != fields.end(); ++i) {
+    d->m_fields.push_back(*i);
+  }
+  reset();
 }
 
 } // End of namespace
