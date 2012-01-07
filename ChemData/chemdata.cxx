@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
   QCoreApplication::setOrganizationName("Kitware");
   QCoreApplication::setOrganizationDomain("kitware.com");
-  QCoreApplication::setApplicationName("MoleQueue");
+  QCoreApplication::setApplicationName("ChemData");
   QCoreApplication::setApplicationVersion("0.1.0");
   QApplication app(argc, argv);
 
