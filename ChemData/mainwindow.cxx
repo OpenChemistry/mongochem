@@ -1,6 +1,6 @@
 /******************************************************************************
 
-  This source file is part of the MoleQueue project.
+  This source file is part of the ChemData project.
 
   Copyright 2011 Kitware, Inc.
 
