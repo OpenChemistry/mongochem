@@ -5,6 +5,10 @@ find_package(Boost COMPONENTS thread filesystem program_options system)
 find_package(Qt4 4.7 REQUIRED QtCore QtGui QtNetwork)
 find_package(VTK REQUIRED NO_MODULE)
 
+# find qt
+find_package(Qt4 4.6 COMPONENTS QtCore QtGui REQUIRED)
+include(${QT_USE_FILE})
+
 set(chemdata_srcs
   chemdata.cxx
   DetailDialog.cxx
