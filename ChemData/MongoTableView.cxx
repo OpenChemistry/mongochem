@@ -51,7 +51,6 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
     mongo::BSONElement inchi = obj->getField("InChI");
     mongo::BSONElement iupac = obj->getField("IUPAC");
     mongo::BSONElement cml = obj->getField("CML File");
-    mongo::BSONElement png = obj->getField("2D PNG");
 
     if (inchi.eoo()) {
       action = menu->addAction("&Fetch chemical structure");
