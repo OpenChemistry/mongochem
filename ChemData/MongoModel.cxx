@@ -106,11 +106,14 @@ MongoModel::MongoModel(QObject *parent)
   d = new MongoModel::Private("localhost");
 //  d = new MongoModel::Private("londinium.kitwarein.com");
 
-  d->m_fields << "CAS" << "Set"
+  d->m_fields << "CAS"
+              << "Set"
+              << "2D PNG"
               << "Molecular Weight"
               << "Observed"
               << "Predicted log Sw (MLR)"
               << "Predicted log Sw (RF)";
+  d->m_titles["2D PNG"] = "Diagram";
   d->m_titles["Observed"] = "Observed log(Sw)";
   d->m_titles["Predicted log Sw (MLR)"] = "log(Sw) (MLR)";
   d->m_titles["Predicted log Sw (RF)"] = "log(Sw) (RF)";
@@ -181,7 +184,7 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
           else
             return Qt::green;
         }
-        else if (d->m_fields[index.column()] == "Molecular Weight") {
+        else if (d->m_fields[index.column()] == "2D PNG") {
           BSONElement image = obj->getField("2D PNG");
           if (!image.eoo()) {
             int length;
