@@ -98,7 +98,7 @@ void MongoTableView::openInAvogadro()
       return;
     file.write(action->data().toByteArray());
     file.close();
-    QProcess::startDetached("/home/marcus/ssd/build/avogadro-squared/prefix/bin/avogadro " + m_moleculeName);
+    QProcess::startDetached("avogadro " + m_moleculeName);
   }
 }
 
