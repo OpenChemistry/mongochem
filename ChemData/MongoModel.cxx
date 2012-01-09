@@ -103,8 +103,8 @@ public:
 MongoModel::MongoModel(QObject *parent)
   : QAbstractItemModel(parent)
 {
-  //d = new MongoModel::Private("localhost");
-  d = new MongoModel::Private("londinium.kitwarein.com");
+  d = new MongoModel::Private("localhost");
+//  d = new MongoModel::Private("londinium.kitwarein.com");
 
   d->m_fields << "CAS" << "Set"
               << "Molecular Weight"
