@@ -169,7 +169,7 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
           return e.str().c_str();
       }
       else if (role == Qt::SizeHintRole) {
-        if (d->m_fields[index.column()] == "Molecular Weight" &&
+        if (d->m_fields[index.column()] == "2D PNG" &&
             !obj->getField("2D PNG").eoo()) {
           return QVariant(QSize(250, 250));
         }

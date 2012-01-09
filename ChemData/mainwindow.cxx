@@ -81,6 +81,7 @@ void MainWindow::setupTable()
 
   m_ui->tableView->setSortingEnabled(false);
   m_ui->tableView->resizeColumnsToContents();
+  m_ui->tableView->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   m_ui->tableView->resizeRowsToContents();
   //m_ui->tableView->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
   //m_ui->tableView->horizontalHeader()->setResizeMode(1, QHeaderView::Stretch);
