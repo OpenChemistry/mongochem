@@ -20,6 +20,8 @@
 #include <QtCore/QModelIndex>
 #include <QtCore/QList>
 
+#include <mongo/client/dbclient.h>
+
 class vtkTable;
 
 namespace ChemData {
@@ -29,7 +31,7 @@ class MongoModel : public QAbstractItemModel
   Q_OBJECT
 
 public:
-  explicit MongoModel(QObject *parent = 0);
+  explicit MongoModel(mongo::DBClientConnection *db, QObject *parent = 0);
   ~MongoModel();
 
   QModelIndex parent(const QModelIndex & index) const;
@@ -46,21 +48,6 @@ public:
                     const QModelIndex & parent = QModelIndex()) const;
 
   void clear();
-
-  /** Update a record with new identifiers we downloaded for it. */
-  bool addIdentifiers(int row, const QString &identifiers);
-
-  /** Update a record with its IUPAC name. */
-  bool setIUPACName(int row, const QString &name);
-
-  /** Update a record with a 2D depiction. */
-  bool setImage2D(int row, const QByteArray &image);
-
-  /** Update a record with a 2D depiction. */
-  bool addOutputFile(const QString &fileName, const QString &input = QString());
-
-  /** Fill the supplied vtkTable with the values from the result of the query. */
-  bool results(vtkTable *table);
 
 private:
   class Private;

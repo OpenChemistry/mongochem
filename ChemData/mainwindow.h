@@ -18,8 +18,11 @@
 #define MAINWINDOW_H
 
 #include <QtGui/QMainWindow>
+#include <QtCore/QModelIndex>
 
 #include <vtkNew.h>
+
+#include <mongo/client/dbclient.h>
 
 class QVTKWidget;
 class vtkContextView;
@@ -72,13 +75,14 @@ protected:
 
   QDialog *m_dialog;
   DetailDialog *m_detail;
+  mongo::DBClientConnection m_db;
 
 protected slots:
   /** Show the graphs dialog. */
   void showGraphs();
 
   /** Show the record detail dialog. */
-  void showDetails();
+  void showDetails(const QModelIndex &index);
 
   /** Show the manual record addition dialog. */
   void addNewRecord();

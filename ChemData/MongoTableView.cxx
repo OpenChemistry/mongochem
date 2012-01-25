@@ -194,12 +194,12 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
 
   if (m_moleculeName == "IUPAC") {
     qDebug() << "IUPAC Name:" << data;
-    model->setIUPACName(m_row, data);
+//    model->setIUPACName(m_row, data);
     return;
   }
   else if (m_moleculeName == "image") {
     qDebug() << "Image:" << data;
-    model->setImage2D(m_row, data);
+//    model->setImage2D(m_row, data);
     return;
   }
 
@@ -217,7 +217,7 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
     return;
   }
   QByteArray result = descriptors.readAllStandardOutput();
-  model->addIdentifiers(m_row, result);
+//  model->addIdentifiers(m_row, result);
 }
 
 } // End of namespace
