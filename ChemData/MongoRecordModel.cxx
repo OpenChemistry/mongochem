@@ -110,8 +110,8 @@ QVariant MongoRecordModel::data(const QModelIndex &index, int role) const
       }
     }
 /*    else if (role == Qt::SizeHintRole) {
-      if (d->m_fields[index.column()] == "2D PNG" &&
-          !d->m_obj->getField("2D PNG").eoo()) {
+      if (d->m_fields[index.column()] == "diagram" &&
+          !d->m_obj->getField("diagram").eoo()) {
         return QVariant(QSize(250, 250));
       }
       else {
@@ -119,8 +119,8 @@ QVariant MongoRecordModel::data(const QModelIndex &index, int role) const
       }
     } */
     else if (role == Qt::DecorationRole) {
-      if (d->m_fields[index.row()] == "2D PNG" && index.column() == 1) {
-        BSONElement image = d->m_obj->getField("2D PNG");
+      if (d->m_fields[index.row()] == "diagram" && index.column() == 1) {
+        BSONElement image = d->m_obj->getField("diagram");
         if (!image.eoo()) {
           int length;
           const char *data = image.binData(length);

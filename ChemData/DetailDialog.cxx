@@ -50,17 +50,9 @@ void DetailDialog::setRow(int row)
 
 void DetailDialog::setActiveRecord(const QModelIndex &index)
 {
-  qDebug() << "set record called!";
   mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(index.internalPointer());
 
-  mongo::BSONElement inchi = obj->getField("InChI");
-  mongo::BSONElement iupac = obj->getField("IUPAC");
-  mongo::BSONElement cml = obj->getField("CML File");
-  mongo::BSONElement png = obj->getField("2D PNG");
-
   m_model->setBSONObj(obj);
-
-  qDebug() << index.row() << inchi.str().c_str();
 }
 
 void DetailDialog::showEvent(QShowEvent *event)
