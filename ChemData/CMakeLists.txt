@@ -15,14 +15,16 @@ set(chemdata_srcs
   mainwindow.cxx
   MongoModel.cxx
   MongoRecordModel.cxx
-  MongoTableView.cxx)
+  MongoTableView.cxx
+  quickquerywidget.cpp)
 qt4_wrap_cpp(moc_srcs
   DetailDialog.h
   mainwindow.h
   MongoModel.h
   MongoRecordModel.h
-  MongoTableView.h)
-qt4_wrap_ui(ui_srcs mainwindow.ui)
+  MongoTableView.h
+  quickquerywidget.h)
+qt4_wrap_ui(ui_srcs mainwindow.ui quickquerywidget.ui)
 
 # Need to add current binary dir to include path for UI file headers
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${VTK_INCLUDE_DIRS})

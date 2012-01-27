@@ -33,6 +33,8 @@ class vtkChartXY;
 class vtkObject;
 class vtkCommand;
 
+class QuickQueryWidget;
+
 namespace Ui {
 class MainWindow;
 }
@@ -76,6 +78,7 @@ protected:
   QDialog *m_dialog;
   DetailDialog *m_detail;
   mongo::DBClientConnection m_db;
+  QuickQueryWidget *m_queryWidget;
 
 protected slots:
   /** Show the graphs dialog. */
@@ -91,6 +94,8 @@ protected slots:
 
   void chartPointClicked(vtkObject *caller, unsigned long vtk_event,
                          void* client_data, void *client_data2, vtkCommand*);
+
+  void runQuery();
 };
 
 }

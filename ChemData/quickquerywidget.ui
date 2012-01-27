@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>QuickQueryWidget</class>
+ <widget class="QWidget" name="QuickQueryWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QComboBox" name="fieldComboBox">
+     <item>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Formula</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>InChI</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>InChIKey</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="modeComboBox">
+     <item>
+      <property name="text">
+       <string>is</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>contains</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="queryLineEdit"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="queryButton">
+     <property name="text">
+      <string>Query</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

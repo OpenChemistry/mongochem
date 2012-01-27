@@ -2,7 +2,7 @@
 
   This source file is part of the ChemData project.
 
-  Copyright 2011 Kitware, Inc.
+  Copyright 2011-2012 Kitware, Inc.
 
   This source code is released under the New BSD License, (the "License").
 
@@ -31,6 +31,7 @@
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QTextDocument>
 #include <QtGui/QAbstractTextDocumentLayout>
+#include <QtGui/QDockWidget>
 
 #include <QVTKWidget.h>
 #include <QVTKInteractor.h>
@@ -49,6 +50,7 @@
 #include <vtkEventQtSlotConnect.h>
 #include <vtkSelection.h>
 
+#include "quickquerywidget.h"
 
 namespace {
 
@@ -119,6 +121,15 @@ MainWindow::MainWindow() : m_detail(0)
 {
   m_ui = new Ui::MainWindow;
   m_ui->setupUi(this);
+
+  // add query dock widget
+  m_queryWidget = new QuickQueryWidget;
+  connect(m_queryWidget, SIGNAL(queryClicked()), SLOT(runQuery()));
+  QDockWidget *queryDockWidget = new QDockWidget("Query", this);
+  m_ui->menu_View->addAction(queryDockWidget->toggleViewAction());
+  queryDockWidget->setWidget(m_queryWidget);
+  addDockWidget(Qt::TopDockWidgetArea, queryDockWidget);
+  queryDockWidget->hide();
 
   // connect to database
   std::string host = "localhost";
@@ -213,6 +224,16 @@ void MainWindow::chartPointClicked(vtkObject *, unsigned long,
                     Vector2f(plot->Position.GetData()),
                     Vector2i(plot->ScreenPosition.GetData()),
                     plot->Index); */
+}
+
+void MainWindow::runQuery()
+{
+  m_ui->tableView->setModel(0);
+
+  m_model->setQuery(m_queryWidget->query());
+
+  m_ui->tableView->setModel(m_model);
+  m_ui->tableView->resizeColumnsToContents();
 }
 
 }

@@ -68,6 +68,7 @@ public:
 
   QStringList m_fields;
   QMap<QString, QString> m_titles;
+  DBClientConnection *db;
   auto_ptr<DBClientCursor> cursor;
 };
 
@@ -75,13 +76,10 @@ MongoModel::MongoModel(mongo::DBClientConnection *db, QObject *parent)
   : QAbstractItemModel(parent)
 {
   d = new MongoModel::Private;
-  d->cursor = db->query("chem.molecules");
+  d->db = db;
 
-  while(d->cursor->more()){
-    d->m_rowObjects.push_back(d->cursor->next().copy());
-  }
-
-  qDebug() << "Loaded: " << d->m_rowObjects.size() << "rows";
+  // show entire database by default
+  setQuery(Query());
 
   d->m_fields << "diagram"
               << "name"
@@ -96,6 +94,19 @@ MongoModel::MongoModel(mongo::DBClientConnection *db, QObject *parent)
 MongoModel::~MongoModel()
 {
   delete d;
+}
+
+void MongoModel::setQuery(const mongo::Query &query)
+{
+  d->m_rowObjects.clear();
+
+  d->cursor = d->db->query("chem.molecules", query);
+
+  while(d->cursor->more()){
+    d->m_rowObjects.push_back(d->cursor->next().copy());
+  }
+
+  qDebug() << "Loaded: " << d->m_rowObjects.size() << "rows";
 }
 
 QModelIndex MongoModel::parent(const QModelIndex &) const
