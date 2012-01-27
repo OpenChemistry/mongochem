@@ -173,6 +173,7 @@ void MainWindow::showDetails(const QModelIndex &index)
 {
   if (!m_detail) {
     m_detail = new DetailDialog(this);
+    m_detail->resize(600, 400);
   }
   m_detail->setActiveRecord(index);
   m_detail->show();
