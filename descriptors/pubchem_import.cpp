@@ -38,12 +38,23 @@ int main(int argc, char *argv[])
 
   // drop the current molecules collection
   db.dropCollection("chem.molecules");
+  db.dropCollection("chem.descriptors.vabc");
+  db.dropCollection("chem.descriptors.xlogp3");
+  db.dropCollection("chem.descriptors.mass");
+  db.dropCollection("chem.descriptors.tpsa");
 
   // index on inchikey
   db.ensureIndex("chem.molecules", BSON("inchikey" << 1), /* unique = */ true);
 
   // index on heavy atom count
   db.ensureIndex("chem.molecules", BSON("heavyAtomCount" << 1), /* unique = */ false);
+
+  // index on value for the descriptors
+  db.ensureIndex("chemkit.descriptors.vabc", BSON("value" << 1), /* unique = */ false);
+  db.ensureIndex("chemkit.descriptors.xlogp3", BSON("value" << 1), /* unique = */ false);
+  db.ensureIndex("chemkit.descriptors.mass", BSON("value" << 1), /* unique = */ false);
+  db.ensureIndex("chemkit.descriptors.tpsa", BSON("value" << 1), /* unique = */ false);
+
 
   size_t count = 0;
   foreach(const boost::shared_ptr<Molecule> &molecule, file.molecules()){
@@ -67,6 +78,30 @@ int main(int argc, char *argv[])
                    "atomCount" << atomCount <<
                    "heavyAtomCount" << heavyAtomCount
               ));
+
+    // add descriptors
+    db.update("chem.descriptors.mass",
+              QUERY("id" << id),
+              BSON("$set" << BSON("value" << mass)),
+              true);
+
+    double tpsa = molecule->data("PUBCHEM_CACTVS_TPSA").toDouble();
+    db.update("chem.descriptors.tpsa",
+              QUERY("id" << id),
+              BSON("$set" << BSON("value" << tpsa)),
+              true);
+
+    double xlogp3 = molecule->data("PUBCHEM_XLOGP3_AA").toDouble();
+    db.update("chem.descriptors.xlogp3",
+              QUERY("id" << id),
+              BSON("$set" << BSON("value" << xlogp3)),
+              true);
+
+    double vabc = molecule->descriptor("vabc").toDouble();
+    db.update("chem.descriptors.vabc",
+              QUERY("id" << id),
+              BSON("$set" << BSON("value" << vabc)),
+              true);
 
     // only import the first 5000 molecules
     if(count++ > 5000){

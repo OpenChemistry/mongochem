@@ -51,6 +51,7 @@
 #include <vtkEventQtSlotConnect.h>
 #include <vtkSelection.h>
 
+#include "graphdialog.h"
 #include "quickquerywidget.h"
 
 namespace {
@@ -178,7 +179,9 @@ void MainWindow::setupTable()
 
 void MainWindow::showGraphs()
 {
-  m_dialog->show();
+  GraphDialog dialog(this);
+
+  dialog.exec();
 }
 
 void MainWindow::showDetails(const QModelIndex &index)
