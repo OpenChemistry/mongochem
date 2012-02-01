@@ -33,6 +33,8 @@ public:
   explicit QuickQueryWidget(QWidget *parent = 0);
   ~QuickQueryWidget();
 
+  QString field() const;
+  QString value() const;
   mongo::Query query() const;
 
 signals:

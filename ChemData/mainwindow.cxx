@@ -18,6 +18,7 @@
 
 #include "MongoModel.h"
 #include "DetailDialog.h"
+#include "substructurefiltermodel.h"
 
 #include "ui_mainwindow.h"
 
@@ -228,11 +229,30 @@ void MainWindow::chartPointClicked(vtkObject *, unsigned long,
 
 void MainWindow::runQuery()
 {
+  // delete the old model if it is not the main model (e.g. it
+  // is a filter model such as SubstructureFilterModel)
+  if(m_ui->tableView->model() != m_model){
+    m_ui->tableView->model()->deleteLater();
+  }
+
   m_ui->tableView->setModel(0);
+
+  // update the ui to show an empty table while the
+  // query is performed
+  qApp->processEvents();
 
   m_model->setQuery(m_queryWidget->query());
 
-  m_ui->tableView->setModel(m_model);
+  if(m_queryWidget->field() == "Structure"){
+    SubstructureFilterModel *model = new SubstructureFilterModel;
+    model->setSmiles(m_queryWidget->value());
+    model->setSourceModel(m_model);
+    m_ui->tableView->setModel(model);
+  }
+  else{
+    m_ui->tableView->setModel(m_model);
+  }
+
   m_ui->tableView->resizeColumnsToContents();
 }
 

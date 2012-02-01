@@ -3,6 +3,7 @@
 
 #include <mongo/client/dbclient.h>
 
+#include <chemkit/atom.h>
 #include <chemkit/foreach.h>
 #include <chemkit/molecule.h>
 #include <chemkit/moleculefile.h>
@@ -39,29 +40,33 @@ int main(int argc, char *argv[])
   db.dropCollection("chem.molecules");
 
   // index on inchikey
-  db.ensureIndex("chem.molecules", BSON("inchikey" << 1), true);
+  db.ensureIndex("chem.molecules", BSON("inchikey" << 1), /* unique = */ true);
+
+  // index on heavy atom count
+  db.ensureIndex("chem.molecules", BSON("heavyAtomCount" << 1), /* unique = */ false);
 
   size_t count = 0;
-  foreach(const Molecule *molecule, file.molecules()){
+  foreach(const boost::shared_ptr<Molecule> &molecule, file.molecules()){
     std::string name = molecule->data("PUBCHEM_IUPAC_TRADITIONAL_NAME").toString();
     std::string formula = molecule->formula();
     std::string inchi = molecule->data("PUBCHEM_IUPAC_INCHI").toString();
     std::string inchikey = molecule->data("PUBCHEM_IUPAC_INCHIKEY").toString();
     double mass = molecule->data("PUBCHEM_MOLECULAR_WEIGHT").toDouble();
+    int atomCount = molecule->atomCount();
+    int heavyAtomCount = molecule->atomCount() - molecule->atomCount(Atom::Hydrogen);
 
-    db.update("chem.molecules",
-              QUERY("inchikey" << inchikey),
-              BSON("name" << name <<
+    OID id = OID::gen();
+
+    db.insert("chem.molecules",
+              BSON("_id" << id <<
+                   "name" << name <<
                    "formula" << formula <<
                    "inchi" << inchi <<
                    "inchikey" << inchikey <<
-                   "mass" << mass
-                   ),
-              true /* upsert */);
-
-    //std::cout << molecule->data("PUBCHEM_HEAVY_ATOM_COUNT").toString() << std::endl;
-    //std::cout << molecule->data("PUBCHEM_CACTVS_TPSA").toString() << std::endl;
-    //std::cout << molecule->data("PUBCHEM_XLOGP3_AA").toString() << std::endl;
+                   "mass" << mass <<
+                   "atomCount" << atomCount <<
+                   "heavyAtomCount" << heavyAtomCount
+              ));
 
     // only import the first 5000 molecules
     if(count++ > 5000){
