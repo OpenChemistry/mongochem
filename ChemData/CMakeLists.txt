@@ -16,6 +16,7 @@ include(${QT_USE_FILE})
 set(chemdata_srcs
   chemdata.cxx
   DetailDialog.cxx
+  graphdialog.cpp
   mainwindow.cxx
   MongoModel.cxx
   MongoRecordModel.cxx
@@ -25,6 +26,7 @@ set(chemdata_srcs
 )
 qt4_wrap_cpp(moc_srcs
   DetailDialog.h
+  graphdialog.h
   mainwindow.h
   MongoModel.h
   MongoRecordModel.h
@@ -32,7 +34,11 @@ qt4_wrap_cpp(moc_srcs
   quickquerywidget.h
   substructurefiltermodel.h
 )
-qt4_wrap_ui(ui_srcs mainwindow.ui quickquerywidget.ui)
+qt4_wrap_ui(ui_srcs
+  graphdialog.ui
+  mainwindow.ui
+  quickquerywidget.ui
+)
 
 # Need to add current binary dir to include path for UI file headers
 include_directories(${CMAKE_CURRENT_BINARY_DIR} ${VTK_INCLUDE_DIRS})
