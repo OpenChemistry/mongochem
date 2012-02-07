@@ -36,8 +36,8 @@ public:
   void contextMenuEvent(QContextMenuEvent *e);
 
 protected slots:
-  /** This slot is fired when the job results should be opened in Avogadro. */
-  void openInAvogadro();
+  /** This slot is fired when the molecule should be opened in a molecular editor. */
+  void openInEditor();
 
   /** Attempt to fetch the structure of a CAS number from the NIH resolver. */
   void fetchByCas();
@@ -55,7 +55,6 @@ protected:
   /** Used for fetching data from web services. */
   QNetworkAccessManager *m_network;
   QString m_moleculeName;
-  int m_row;
 };
 
 } // End of namespace
