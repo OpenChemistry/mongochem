@@ -17,6 +17,8 @@
 #include "quickquerywidget.h"
 #include "ui_quickquerywidget.h"
 
+#include <chemkit/molecule.h>
+
 QuickQueryWidget::QuickQueryWidget(QWidget *parent)
   : QWidget(parent),
     ui(new Ui::QuickQueryWidget)
@@ -32,6 +34,16 @@ QuickQueryWidget::~QuickQueryWidget()
   delete ui;
 }
 
+QString QuickQueryWidget::field() const
+{
+  return ui->fieldComboBox->currentText();
+}
+
+QString QuickQueryWidget::value() const
+{
+  return ui->queryLineEdit->text();
+}
+
 mongo::Query QuickQueryWidget::query() const
 {
   QString field = ui->fieldComboBox->currentText().toLower();
@@ -40,6 +52,17 @@ mongo::Query QuickQueryWidget::query() const
 
   if(value.isEmpty()){
     return mongo::Query();
+  }
+  else if(field == "structure"){
+    chemkit::Molecule molecule(value.toStdString(), "smiles");
+    int heavyAtomCount = molecule.atomCount() - molecule.atomCount("H");
+
+    if(mode == "is"){
+      return QUERY("heavyAtomCount" << heavyAtomCount).sort("heavyAtomCount");
+    }
+    else if(mode == "contains"){
+      return QUERY("heavyAtomCount" << BSON("$gte" << heavyAtomCount)).sort("heavyAtomCount");
+    }
   }
   else if(mode == "is"){
     return QUERY(field.toStdString() << value.toStdString());
