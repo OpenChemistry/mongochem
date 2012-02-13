@@ -47,3 +47,4 @@ add_executable(chemdata ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   ${CHEMKIT_LIBRARIES} vtkCharts QVTK)
+install(TARGETS chemdata DESTINATION bin)
