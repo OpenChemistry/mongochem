@@ -43,8 +43,12 @@ namespace ChemData
 {
 
 MongoTableView::MongoTableView(QWidget *parent) : QTableView(parent),
-  m_network(0)
+  m_network(0),
+  m_row(-1)
 {
+  m_network = new QNetworkAccessManager(this);
+  connect(m_network, SIGNAL(finished(QNetworkReply*)),
+          this, SLOT(replyFinished(QNetworkReply*)));
 }
 
 void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
@@ -62,6 +66,17 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
       action->setData(QString::fromStdString(inchi.str()));
       connect(action, SIGNAL(triggered()), this, SLOT(openInEditor()));
     }
+
+    mongo::BSONElement diagram = obj->getField("diagram");
+
+    if (diagram.eoo()) {
+      // The field exists, there is more we can do here!
+      action = menu->addAction("&Fetch 2D depiction");
+      action->setData(inchi.str().c_str());
+      connect(action, SIGNAL(triggered()), this, SLOT(fetchImage()));
+    }
+
+    m_row = index.row();
 
     menu->exec(QCursor::pos());
   }
@@ -169,24 +184,18 @@ void MongoTableView::fetchIUPAC()
 
 void MongoTableView::fetchImage()
 {
-  if (!m_network) {
-    m_network = new QNetworkAccessManager(this);
-    connect(m_network, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(replyFinished(QNetworkReply*)));
-  }
   QAction *action = static_cast<QAction*>(sender());
   // Prompt for a chemical structure name
   QString inchi = action->data().toString();
   if (inchi.isEmpty())
     return;
 
-  // Fetch the IUPAC name from the NIH database
+  // Fetch the diagram name from the NIH database
   QString url = "http://cactus.nci.nih.gov/chemical/structure/" + inchi
       + "/image?format=png";
   m_network->get(QNetworkRequest(QUrl(url)));
-  qDebug() << url;
 
-  m_moleculeName = "image";
+  m_moleculeName = "diagram";
 }
 
 void MongoTableView::replyFinished(QNetworkReply *reply)
@@ -211,16 +220,14 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
     reply->deleteLater();
     return;
   }
-  qDebug() << "Structure:" << data;
 
   if (m_moleculeName == "IUPAC") {
     qDebug() << "IUPAC Name:" << data;
 //    model->setIUPACName(m_row, data);
     return;
   }
-  else if (m_moleculeName == "image") {
-    qDebug() << "Image:" << data;
-//    model->setImage2D(m_row, data);
+  else if (m_moleculeName == "diagram") {
+    model->setImage2D(m_row, data);
     return;
   }
 
