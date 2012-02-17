@@ -28,6 +28,7 @@
 #include <QtGui/QFileDialog>
 #include <QtCore/QDebug>
 #include <QtCore/QProcess>
+#include <QtCore/QSettings>
 #include <QtGui/QPainter>
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QTextDocument>
@@ -134,7 +135,8 @@ MainWindow::MainWindow() : m_detail(0)
   queryDockWidget->hide();
 
   // connect to database
-  std::string host = "localhost";
+  QSettings settings;
+  std::string host = settings.value("hostname").toString().toStdString();
   try {
     m_db.connect(host);
     std::cout << "Connected to: " << host << std::endl;

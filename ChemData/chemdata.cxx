@@ -14,6 +14,7 @@
 
 ******************************************************************************/
 
+#include <QtCore/QSettings>
 #include <QtGui/QApplication>
 
 #include "mainwindow.h"
@@ -25,6 +26,12 @@ int main(int argc, char *argv[])
   QCoreApplication::setApplicationName("ChemData");
   QCoreApplication::setApplicationVersion("0.1.0");
   QApplication app(argc, argv);
+
+  QSettings settings;
+  if (!settings.contains("hostname")){
+    // if no host specified use localhost
+    settings.setValue("hostname", "localhost");
+  }
 
   ChemData::MainWindow window;
   window.show();
