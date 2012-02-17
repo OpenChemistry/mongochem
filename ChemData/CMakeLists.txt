@@ -8,6 +8,7 @@ find_package(VTK REQUIRED NO_MODULE)
 # Chemkit is used for substructure queries
 find_package(Chemkit REQUIRED)
 include_directories(${CHEMKIT_INCLUDE_DIRS})
+link_directories(${CHEMKIT_LIBRARY_DIR})
 
 # find qt
 find_package(Qt4 4.6 COMPONENTS QtCore QtGui REQUIRED)
