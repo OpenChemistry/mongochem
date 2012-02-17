@@ -1,12 +1,12 @@
 find_package(MongoDB)
 include_directories(${MongoDB_INCLUDE_DIR})
 # MongoDB uses several boost components we need to link in
-find_package(Boost COMPONENTS thread filesystem program_options system)
+find_package(Boost COMPONENTS thread filesystem program_options system iostreams)
 find_package(Qt4 4.7 REQUIRED QtCore QtGui QtNetwork)
 find_package(VTK REQUIRED NO_MODULE)
 
 # Chemkit is used for substructure queries
-find_package(Chemkit REQUIRED)
+find_package(Chemkit COMPONENTS io md REQUIRED)
 include_directories(${CHEMKIT_INCLUDE_DIRS})
 link_directories(${CHEMKIT_LIBRARY_DIR})
 

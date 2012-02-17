@@ -21,9 +21,17 @@
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
 
+#include <chemkit/molecule.h>
+#include <chemkit/forcefield.h>
+#include <chemkit/moleculefile.h>
+#include <chemkit/coordinatepredictor.h>
+#include <chemkit/moleculegeometryoptimizer.h>
+
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QMessageBox>
+#include <QtCore/QDir>
+#include <QtCore/QTemporaryFile>
 #include <QtCore/QProcess>
 #include <QtCore/QFile>
 #include <QtCore/QCoreApplication>
@@ -35,7 +43,7 @@ namespace ChemData
 {
 
 MongoTableView::MongoTableView(QWidget *parent) : QTableView(parent),
-  m_network(0), m_row(-1)
+  m_network(0)
 {
 }
 
@@ -43,61 +51,74 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
 {
   QModelIndex index = indexAt(e->pos());
   if (index.isValid()) {
-    m_row = index.row();
     mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(index.internalPointer());
     QMenu *menu = new QMenu(this);
 
     QAction *action;
-    mongo::BSONElement inchi = obj->getField("InChI");
-    mongo::BSONElement iupac = obj->getField("IUPAC");
-    mongo::BSONElement cml = obj->getField("CML File");
+    mongo::BSONElement inchi = obj->getField("inchi");
 
-    if (inchi.eoo()) {
-      action = menu->addAction("&Fetch chemical structure");
-      action->setData(obj->getField("CAS").str().c_str());
-      connect(action, SIGNAL(triggered()), this, SLOT(fetchByCas()));
-    }
-    else {
-      action = menu->addAction("&Refetch chemical structure");
-      action->setData(obj->getField("CAS").str().c_str());
-      connect(action, SIGNAL(triggered()), this, SLOT(fetchByCas()));
-    }
-
-    if (!inchi.eoo() && iupac.eoo()) {
-      // The field exists, there is more we can do here!
-      action = menu->addAction("&Fetch IUPAC name");
-      action->setData(inchi.str().c_str());
-      connect(action, SIGNAL(triggered()), this, SLOT(fetchIUPAC()));
-    }
-
-    if (!inchi.eoo()) {// && png.eoo()) {
-      // The field exists, there is more we can do here!
-      action = menu->addAction("&Fetch 2D depiction");
-      action->setData(inchi.str().c_str());
-      connect(action, SIGNAL(triggered()), this, SLOT(fetchImage()));
-    }
-
-    if (!cml.eoo()) {
-      action = menu->addAction("&Open in Avogadro");
-      action->setData(cml.str().c_str());
-      m_moleculeName = QString(obj->getField("CAS").str().c_str()) + ".cml";
-      connect(action, SIGNAL(triggered()), this, SLOT(openInAvogadro()));
+    if (!inchi.eoo()) {
+      action = menu->addAction("&Open in Editor");
+      action->setData(QString::fromStdString(inchi.str()));
+      connect(action, SIGNAL(triggered()), this, SLOT(openInEditor()));
     }
 
     menu->exec(QCursor::pos());
   }
 }
 
-void MongoTableView::openInAvogadro()
+void MongoTableView::openInEditor()
 {
   QAction *action = static_cast<QAction*>(sender());
   if (action) {
-    QFile file(m_moleculeName);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-      return;
-    file.write(action->data().toByteArray());
-    file.close();
-    QProcess::startDetached("avogadro " + m_moleculeName);
+    // setup temporary file
+    QTemporaryFile tempFile("XXXXXX.cml");
+    tempFile.setAutoRemove(false);
+    if(tempFile.open()){
+      std::string inchi = action->data().toString().toStdString();
+
+      QString tempFilePath = QDir::tempPath() + QDir::separator() + tempFile.fileName();
+
+      // create molecule from inchi
+      boost::shared_ptr<chemkit::Molecule> molecule(new chemkit::Molecule(inchi, "inchi"));
+
+      // predict 3d coordinates
+      chemkit::CoordinatePredictor::predictCoordinates(molecule.get());
+
+      // optimize 3d coordinates
+      chemkit::MoleculeGeometryOptimizer optimizer(molecule.get());
+
+      // try with mmff
+      optimizer.setForceField("mmff");
+      bool ok = optimizer.setup();
+
+      if(!ok){
+          // try with uff
+          optimizer.setForceField("uff");
+          ok = optimizer.setup();
+      }
+
+      if(ok){
+          // run optmization
+          for(size_t i = 0; i < 250; i++){
+            bool converged = optimizer.step();
+            if(converged)
+              break;
+          }
+
+          // write optimized coordinates to molecule
+          optimizer.writeCoordinates();
+      }
+
+      // write molecule to temp file
+      chemkit::MoleculeFile file(tempFilePath.toStdString());
+      file.setFormat("cml");
+      file.addMolecule(molecule);
+      file.write();
+
+      // start avogadro
+      QProcess::startDetached("avogadro " + tempFilePath);
+    }
   }
 }
 
