@@ -22,6 +22,8 @@
 
 #include "ui_mainwindow.h"
 
+#include <mongo/client/dbclient.h>
+
 #include <QtGui/QSplitter>
 #include <QtGui/QDialog>
 #include <QtGui/QVBoxLayout>
@@ -34,6 +36,7 @@
 #include <QtGui/QTextDocument>
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QDockWidget>
+#include <QtGui/QMessageBox>
 
 #include <QVTKWidget.h>
 #include <QVTKInteractor.h>
@@ -51,6 +54,9 @@
 #include <vtkExtractSelectedRows.h>
 #include <vtkEventQtSlotConnect.h>
 #include <vtkSelection.h>
+
+#include <chemkit/molecule.h>
+#include <chemkit/moleculefile.h>
 
 #include "graphdialog.h"
 #include "quickquerywidget.h"
@@ -196,12 +202,116 @@ void MainWindow::showDetails(const QModelIndex &index)
   m_detail->show();
 }
 
+void MainWindow::addMoleculesFromFile(const QString &fileName)
+{
+  chemkit::MoleculeFile file(fileName.toStdString());
+
+  bool ok = file.read();
+  if(!ok){
+    QMessageBox::warning(this,
+                         "Error",
+                         QString("Error reading file: %1").arg(file.errorString().c_str()));
+  }
+
+  // index on inchikey
+  m_db.ensureIndex("chem.molecules", BSON("inchikey" << 1), /* unique = */ true);
+
+  // index on heavy atom count
+  m_db.ensureIndex("chem.molecules", BSON("heavyAtomCount" << 1), /* unique = */ false);
+
+  // index on value for the descriptors
+  m_db.ensureIndex("chem.descriptors.vabc", BSON("value" << 1), /* unique = */ false);
+  m_db.ensureIndex("chem.descriptors.xlogp3", BSON("value" << 1), /* unique = */ false);
+  m_db.ensureIndex("chem.descriptors.mass", BSON("value" << 1), /* unique = */ false);
+  m_db.ensureIndex("chem.descriptors.tpsa", BSON("value" << 1), /* unique = */ false);
+
+  foreach(const boost::shared_ptr<chemkit::Molecule> &molecule, file.molecules()){
+    std::string name = molecule->data("PUBCHEM_IUPAC_TRADITIONAL_NAME").toString();
+    if(name.empty())
+      name = molecule->name();
+
+    std::string formula = molecule->formula();
+
+    std::string inchi = molecule->data("PUBCHEM_IUPAC_INCHI").toString();
+    if(inchi.empty())
+      inchi = molecule->formula("inchi");
+
+    std::string inchikey = molecule->data("PUBCHEM_IUPAC_INCHIKEY").toString();
+    if(inchikey.empty())
+      inchikey = molecule->formula("inchikey");
+
+    double mass = molecule->data("PUBCHEM_MOLECULAR_WEIGHT").toDouble();
+    if(mass == 0.0)
+      mass = molecule->mass();
+
+    int atomCount = molecule->atomCount();
+    int heavyAtomCount = molecule->atomCount() - molecule->atomCount("H");
+
+    mongo::OID id = mongo::OID::gen();
+
+    mongo::BSONObjBuilder b;
+    b << "_id" << id;
+    b << "name" << name;
+    b << "formula" << formula;
+    b << "inchi" << inchi;
+    b << "inchikey" << inchikey;
+    b << "mass" << mass;
+    b << "atomCount" << atomCount;
+    b << "heavyAtomCount" << heavyAtomCount;
+
+    // add molecule
+    m_db.insert("chem.molecules", b.obj());
+
+    // add descriptors
+    m_db.update("chem.descriptors.mass",
+                QUERY("id" << id),
+                BSON("$set" << BSON("value" << mass)),
+                true);
+
+    double tpsa = molecule->data("PUBCHEM_CACTVS_TPSA").toDouble();
+    m_db.update("chem.descriptors.tpsa",
+                QUERY("id" << id),
+                BSON("$set" << BSON("value" << tpsa)),
+                true);
+
+    double xlogp3 = molecule->data("PUBCHEM_XLOGP3_AA").toDouble();
+    m_db.update("chem.descriptors.xlogp3",
+                QUERY("id" << id),
+                BSON("$set" << BSON("value" << xlogp3)),
+                true);
+
+    double vabc = molecule->descriptor("vabc").toDouble();
+    m_db.update("chem.descriptors.vabc",
+                QUERY("id" << id),
+                BSON("$set" << BSON("value" << vabc)),
+                true);
+  }
+
+  // refresh model
+  m_ui->tableView->setModel(0);
+  delete m_model;
+  m_model = new MongoModel(&m_db);
+  m_ui->tableView->setModel(m_model);
+  m_ui->tableView->resizeColumnsToContents();
+  m_ui->tableView->setColumnWidth(0, 250);
+}
+
 void MainWindow::addNewRecord()
 {
   QString fileName = QFileDialog::getOpenFileName(this, "Output file to store");
   if (!fileName.isEmpty()) {
-//    m_model->addOutputFile(fileName);
+    addMoleculesFromFile(fileName);
   }
+}
+
+void MainWindow::clearDatabase()
+{
+  // drop the current molecules collection
+  m_db.dropCollection("chem.molecules");
+  m_db.dropCollection("chem.descriptors.vabc");
+  m_db.dropCollection("chem.descriptors.xlogp3");
+  m_db.dropCollection("chem.descriptors.mass");
+  m_db.dropCollection("chem.descriptors.tpsa");
 }
 
 void MainWindow::selectionChanged()
