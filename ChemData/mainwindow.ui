@@ -38,6 +38,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionAddNewData"/>
+    <addaction name="actionServerSettings"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menu_View">
@@ -81,6 +82,11 @@
   <action name="actionDetail">
    <property name="text">
     <string>&amp;Detail</string>
+   </property>
+  </action>
+  <action name="actionServerSettings">
+   <property name="text">
+    <string>&amp;Server Settings</string>
    </property>
   </action>
  </widget>

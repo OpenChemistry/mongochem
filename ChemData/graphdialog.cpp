@@ -103,8 +103,10 @@ void GraphDialog::showClicked()
   xArray->SetNumberOfValues(0);
   yArray->SetNumberOfValues(0);
 
-  std::string xCollection = "chem.descriptors." + xName.toStdString();
-  std::string yCollection = "chem.descriptors." + yName.toStdString();
+  std::string collection = settings.value("collection").toString().toStdString();
+
+  std::string xCollection = collection + ".descriptors." + xName.toStdString();
+  std::string yCollection = collection + ".descriptors." + yName.toStdString();
 
   // query for x data
   auto_ptr<DBClientCursor> xCursor = db.query(xCollection);
