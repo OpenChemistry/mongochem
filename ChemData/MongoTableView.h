@@ -55,6 +55,7 @@ protected:
   /** Used for fetching data from web services. */
   QNetworkAccessManager *m_network;
   QString m_moleculeName;
+  int m_row;
 };
 
 } // End of namespace

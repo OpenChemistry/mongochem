@@ -204,4 +204,22 @@ void MongoModel::clear()
 {
 }
 
+bool MongoModel::setImage2D(int row, const QByteArray &image)
+{
+  emit layoutAboutToBeChanged();
+
+  BSONObj *obj = d->getRecord(row);
+  BSONObjBuilder b;
+  b.appendBinData("diagram", image.length(), mongo::BinDataGeneral, image.data());
+  BSONObjBuilder updateSet;
+  updateSet << "$set" << b.obj();
+  d->db->update("chem.molecules", *obj, updateSet.obj());
+
+  BSONElement id;
+  obj->getObjectID(id);
+  *obj = d->db->findOne("chem.molecules", QUERY("_id" << id));
+
+  emit layoutChanged();
+}
+
 } // End of namespace

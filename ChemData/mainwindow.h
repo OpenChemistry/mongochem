@@ -55,6 +55,7 @@ public:
 protected:
   void setupTable();
   void setupCharts();
+  void addMoleculesFromFile(const QString &fileName);
 
   MongoModel *m_model;
   Ui::MainWindow *m_ui;
@@ -89,6 +90,9 @@ protected slots:
 
   /** Show the manual record addition dialog. */
   void addNewRecord();
+
+  /** Clears the database of all molecules */
+  void clearDatabase();
 
   void selectionChanged();
 

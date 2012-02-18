@@ -19,6 +19,8 @@
 
 #include <mongo/client/dbclient.h>
 
+#include <QtCore/QSettings>
+
 #include <QVTKInteractor.h>
 #include <vtkContextView.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -83,7 +85,8 @@ void GraphDialog::showClicked()
   QString xName = ui->xComboBox->currentText().toLower();
   QString yName = ui->yComboBox->currentText().toLower();
 
-  std::string host = "localhost";
+  QSettings settings;
+  std::string host = settings.value("hostname").toString().toStdString();
   DBClientConnection db;
   try {
     db.connect(host);

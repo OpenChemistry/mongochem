@@ -51,6 +51,9 @@ public:
 
   void clear();
 
+  /** Set the 2D image for the molecule at row. */
+  bool setImage2D(int row, const QByteArray &image);
+
 private:
   class Private;
   Private *d;
