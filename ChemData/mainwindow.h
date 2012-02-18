@@ -57,6 +57,9 @@ protected:
   void setupCharts();
   void addMoleculesFromFile(const QString &fileName);
 
+  /** Connects to MongoDB */
+  void connectToDatabase();
+
   MongoModel *m_model;
   Ui::MainWindow *m_ui;
 
@@ -78,7 +81,7 @@ protected:
 
   QDialog *m_dialog;
   DetailDialog *m_detail;
-  mongo::DBClientConnection m_db;
+  mongo::DBClientConnection *m_db;
   QuickQueryWidget *m_queryWidget;
 
 protected slots:
@@ -103,6 +106,9 @@ protected slots:
                          void* client_data, void *client_data2, vtkCommand*);
 
   void runQuery();
+
+signals:
+  void connectionFailed();
 };
 
 }
