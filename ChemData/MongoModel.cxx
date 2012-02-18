@@ -101,17 +101,21 @@ void MongoModel::setQuery(const mongo::Query &query)
 {
   d->m_rowObjects.clear();
 
-  QSettings settings;
-  std::string collection =
-      settings.value("collection", "chem").toString().toStdString();
+  try {
+    QSettings settings;
+    std::string collection =
+        settings.value("collection", "chem").toString().toStdString();
+    d->cursor = d->db->query(collection + ".molecules", query);
 
-  d->cursor = d->db->query(collection + ".molecules", query);
+    while(d->cursor->more()){
+      d->m_rowObjects.push_back(d->cursor->next().copy());
+    }
 
-  while(d->cursor->more()){
-    d->m_rowObjects.push_back(d->cursor->next().copy());
+    qDebug() << "Loaded: " << d->m_rowObjects.size() << "rows";
   }
-
-  qDebug() << "Loaded: " << d->m_rowObjects.size() << "rows";
+  catch (mongo::SocketException &e) {
+    std::cerr << "Failed to query MongoDB: " << e.what() << std::endl;
+  }
 }
 
 QModelIndex MongoModel::parent(const QModelIndex &) const
