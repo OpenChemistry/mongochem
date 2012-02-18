@@ -2,6 +2,11 @@ find_package(MongoDB)
 include_directories(${MongoDB_INCLUDE_DIR})
 # MongoDB uses several boost components we need to link in
 find_package(Boost COMPONENTS thread filesystem program_options system iostreams)
+# MongoDB also seems to require pthread on Linux (but not Apple)
+if(UNIX AND NOT APPLE)
+  find_package(Threads)
+  set(EXTRA_LINK_LIB ${CMAKE_THREAD_LIBS_INIT})
+endif()
 find_package(Qt4 4.7 REQUIRED QtCore QtGui QtNetwork)
 find_package(VTK REQUIRED NO_MODULE)
 
@@ -47,5 +52,5 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${VTK_INCLUDE_DIRS})
 add_executable(chemdata ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
-  ${CHEMKIT_LIBRARIES} vtkCharts QVTK)
+  ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkCharts QVTK)
 install(TARGETS chemdata DESTINATION bin)
