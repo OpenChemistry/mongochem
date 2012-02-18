@@ -23,6 +23,7 @@ set(chemdata_srcs
   MongoRecordModel.cxx
   MongoTableView.cxx
   quickquerywidget.cpp
+  serversettingsdialog.cpp
   substructurefiltermodel.cpp
 )
 qt4_wrap_cpp(moc_srcs
@@ -33,12 +34,14 @@ qt4_wrap_cpp(moc_srcs
   MongoRecordModel.h
   MongoTableView.h
   quickquerywidget.h
+  serversettingsdialog.h
   substructurefiltermodel.h
 )
 qt4_wrap_ui(ui_srcs
   graphdialog.ui
   mainwindow.ui
   quickquerywidget.ui
+  serversettingsdialog.ui
 )
 
 # Need to add current binary dir to include path for UI file headers

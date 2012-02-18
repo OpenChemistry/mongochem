@@ -28,10 +28,12 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
 
   QSettings settings;
-  if (!settings.contains("hostname")){
-    // if no host specified use localhost
+  if (!settings.contains("hostname"))
     settings.setValue("hostname", "localhost");
-  }
+  if(!settings.contains("port"))
+    settings.setValue("port", "27017");
+  if(!settings.contains("collection"))
+    settings.setValue("collection", "chem");
 
   ChemData::MainWindow window;
   window.show();

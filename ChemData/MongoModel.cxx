@@ -26,6 +26,7 @@
 #include <QtCore/QDebug>
 #include <QtGui/QColor>
 #include <QtGui/QPixmap>
+#include <QtCore/QSettings>
 
 #include <vtkNew.h>
 #include <vtkTable.h>
@@ -100,7 +101,11 @@ void MongoModel::setQuery(const mongo::Query &query)
 {
   d->m_rowObjects.clear();
 
-  d->cursor = d->db->query("chem.molecules", query);
+  QSettings settings;
+  std::string collection =
+      settings.value("collection", "chem").toString().toStdString();
+
+  d->cursor = d->db->query(collection + ".molecules", query);
 
   while(d->cursor->more()){
     d->m_rowObjects.push_back(d->cursor->next().copy());

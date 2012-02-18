@@ -60,6 +60,7 @@
 
 #include "graphdialog.h"
 #include "quickquerywidget.h"
+#include "serversettingsdialog.h"
 
 namespace {
 
@@ -154,6 +155,7 @@ MainWindow::MainWindow() : m_detail(0)
   setupTable();
 
   connect(m_ui->actionGraphs, SIGNAL(activated()), SLOT(showGraphs()));
+  connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
   connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)),SLOT(showDetails(QModelIndex)));
 }
@@ -202,6 +204,21 @@ void MainWindow::showDetails(const QModelIndex &index)
   m_detail->show();
 }
 
+void MainWindow::showServerSettings()
+{
+  ServerSettingsDialog dialog;
+
+  if(dialog.exec() == QDialog::Accepted){
+    QSettings settings;
+    settings.setValue("hostname", dialog.host());
+    settings.setValue("port", dialog.port());
+    settings.setValue("collection", dialog.collection());
+
+    // reload collection
+    setupTable();
+  }
+}
+
 void MainWindow::addMoleculesFromFile(const QString &fileName)
 {
   chemkit::MoleculeFile file(fileName.toStdString());
@@ -213,17 +230,21 @@ void MainWindow::addMoleculesFromFile(const QString &fileName)
                          QString("Error reading file: %1").arg(file.errorString().c_str()));
   }
 
+  QSettings settings;
+  std::string collection =
+      settings.value("collection").toString().toStdString();
+
   // index on inchikey
-  m_db.ensureIndex("chem.molecules", BSON("inchikey" << 1), /* unique = */ true);
+  m_db.ensureIndex(collection + ".molecules", BSON("inchikey" << 1), /* unique = */ true);
 
   // index on heavy atom count
-  m_db.ensureIndex("chem.molecules", BSON("heavyAtomCount" << 1), /* unique = */ false);
+  m_db.ensureIndex(collection + ".molecules", BSON("heavyAtomCount" << 1), /* unique = */ false);
 
   // index on value for the descriptors
-  m_db.ensureIndex("chem.descriptors.vabc", BSON("value" << 1), /* unique = */ false);
-  m_db.ensureIndex("chem.descriptors.xlogp3", BSON("value" << 1), /* unique = */ false);
-  m_db.ensureIndex("chem.descriptors.mass", BSON("value" << 1), /* unique = */ false);
-  m_db.ensureIndex("chem.descriptors.tpsa", BSON("value" << 1), /* unique = */ false);
+  m_db.ensureIndex(collection + ".descriptors.vabc", BSON("value" << 1), /* unique = */ false);
+  m_db.ensureIndex(collection + ".descriptors.xlogp3", BSON("value" << 1), /* unique = */ false);
+  m_db.ensureIndex(collection + ".descriptors.mass", BSON("value" << 1), /* unique = */ false);
+  m_db.ensureIndex(collection + ".descriptors.tpsa", BSON("value" << 1), /* unique = */ false);
 
   foreach(const boost::shared_ptr<chemkit::Molecule> &molecule, file.molecules()){
     std::string name = molecule->data("PUBCHEM_IUPAC_TRADITIONAL_NAME").toString();
@@ -260,28 +281,28 @@ void MainWindow::addMoleculesFromFile(const QString &fileName)
     b << "heavyAtomCount" << heavyAtomCount;
 
     // add molecule
-    m_db.insert("chem.molecules", b.obj());
+    m_db.insert(collection + ".molecules", b.obj());
 
     // add descriptors
-    m_db.update("chem.descriptors.mass",
+    m_db.update(collection + ".descriptors.mass",
                 QUERY("id" << id),
                 BSON("$set" << BSON("value" << mass)),
                 true);
 
     double tpsa = molecule->data("PUBCHEM_CACTVS_TPSA").toDouble();
-    m_db.update("chem.descriptors.tpsa",
+    m_db.update(collection + ".descriptors.tpsa",
                 QUERY("id" << id),
                 BSON("$set" << BSON("value" << tpsa)),
                 true);
 
     double xlogp3 = molecule->data("PUBCHEM_XLOGP3_AA").toDouble();
-    m_db.update("chem.descriptors.xlogp3",
+    m_db.update(collection + ".descriptors.xlogp3",
                 QUERY("id" << id),
                 BSON("$set" << BSON("value" << xlogp3)),
                 true);
 
     double vabc = molecule->descriptor("vabc").toDouble();
-    m_db.update("chem.descriptors.vabc",
+    m_db.update(collection + ".descriptors.vabc",
                 QUERY("id" << id),
                 BSON("$set" << BSON("value" << vabc)),
                 true);
@@ -306,12 +327,16 @@ void MainWindow::addNewRecord()
 
 void MainWindow::clearDatabase()
 {
+  QSettings settings;
+  std::string collection =
+      settings.value("collection").toString().toStdString();
+
   // drop the current molecules collection
-  m_db.dropCollection("chem.molecules");
-  m_db.dropCollection("chem.descriptors.vabc");
-  m_db.dropCollection("chem.descriptors.xlogp3");
-  m_db.dropCollection("chem.descriptors.mass");
-  m_db.dropCollection("chem.descriptors.tpsa");
+  m_db.dropCollection(collection + ".molecules");
+  m_db.dropCollection(collection + ".descriptors.vabc");
+  m_db.dropCollection(collection + ".descriptors.xlogp3");
+  m_db.dropCollection(collection + ".descriptors.mass");
+  m_db.dropCollection(collection + ".descriptors.tpsa");
 }
 
 void MainWindow::selectionChanged()

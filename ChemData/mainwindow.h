@@ -88,6 +88,9 @@ protected slots:
   /** Show the record detail dialog. */
   void showDetails(const QModelIndex &index);
 
+  /** Show the server settings dialog. */
+  void showServerSettings();
+
   /** Show the manual record addition dialog. */
   void addNewRecord();
 
