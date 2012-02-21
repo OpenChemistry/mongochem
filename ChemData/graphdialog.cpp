@@ -28,6 +28,7 @@
 #include <vtkChartXY.h>
 #include <vtkAxis.h>
 #include <vtkFloatArray.h>
+#include <vtkStringArray.h>
 #include <vtkPlot.h>
 #include <QVTKWidget.h>
 #include <vtkTable.h>
@@ -66,6 +67,13 @@ GraphDialog::GraphDialog(QWidget *parent)
   scatter->SetInput(m_table.GetPointer(), "X", "Y");
   scatter->SetColor(0, 0, 1.0);
 
+  // create labels array
+  vtkStringArray *nameArray = vtkStringArray::New();
+  nameArray->SetName("name");
+  scatter->SetIndexedLabels(nameArray);
+  scatter->SetTooltipLabelFormat("%i");
+  nameArray->Delete();
+
   m_chart->SetRenderEmpty(true);
   m_chart->SetAutoAxes(false);
   m_chart->SetDrawAxesAtOrigin(true);
@@ -98,13 +106,16 @@ void GraphDialog::showClicked()
 
   vtkFloatArray *xArray = vtkFloatArray::SafeDownCast(m_table->GetColumnByName("X"));
   vtkFloatArray *yArray = vtkFloatArray::SafeDownCast(m_table->GetColumnByName("Y"));
+  vtkStringArray *nameArray = m_chart->GetPlot(0)->GetIndexedLabels();
 
   // clear current data
   xArray->SetNumberOfValues(0);
   yArray->SetNumberOfValues(0);
+  nameArray->SetNumberOfValues(0);
 
   std::string collection = settings.value("collection").toString().toStdString();
 
+  std::string moleculeCollection = collection + ".molecules";
   std::string xCollection = collection + ".descriptors." + xName.toStdString();
   std::string yCollection = collection + ".descriptors." + yName.toStdString();
 
@@ -133,9 +144,14 @@ void GraphDialog::showClicked()
     // get y value
     double yValue = yObj.getField("value").numberDouble();
 
+    // query for name
+    BSONObj moleculeObj = db.findOne(moleculeCollection, QUERY("_id" << id));
+    std::string name = moleculeObj.getField("name").str();
+
     // insert into table
     xArray->InsertNextValue(xValue);
     yArray->InsertNextValue(yValue);
+    nameArray->InsertNextValue(name);
   }
 
   // refesh view
