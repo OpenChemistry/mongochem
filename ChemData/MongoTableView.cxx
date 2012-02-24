@@ -29,6 +29,7 @@
 
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
+#include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QMessageBox>
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
@@ -54,6 +55,12 @@ MongoTableView::MongoTableView(QWidget *parent) : QTableView(parent),
 void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
 {
   QModelIndex index = indexAt(e->pos());
+
+  // convert index from filter model to source model
+  if (QSortFilterProxyModel *filterModel = qobject_cast<QSortFilterProxyModel *>(model())) {
+    index = filterModel->mapToSource(index);
+  }
+
   if (index.isValid()) {
     mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(index.internalPointer());
     QMenu *menu = new QMenu(this);
