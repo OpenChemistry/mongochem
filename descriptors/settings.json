@@ -1,0 +1,8 @@
+{
+  "server" :
+  {
+    "host" : "mongochem.kitwarein.com",
+    "port" : 27017,
+    "collection" : "chem"
+  }
+}
