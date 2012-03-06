@@ -114,43 +114,24 @@ void GraphDialog::showClicked()
   nameArray->SetNumberOfValues(0);
 
   std::string collection = settings.value("collection").toString().toStdString();
-
-  std::string moleculeCollection = collection + ".molecules";
-  std::string xCollection = collection + ".descriptors." + xName.toStdString();
-  std::string yCollection = collection + ".descriptors." + yName.toStdString();
+  std::string moleculesCollection = collection + ".molecules";
 
   // query for x data
-  auto_ptr<DBClientCursor> xCursor = db.query(xCollection);
+  auto_ptr<DBClientCursor> cursor = db.query(moleculesCollection);
 
-  while(xCursor->more()){
-    BSONObj xObj = xCursor->next();
-    if(xObj.isEmpty() || xObj.getField("id").eoo()){
-      continue;
-    }
+  while(cursor->more()){
+    BSONObj obj = cursor->next();
 
-    // get id
-    OID id = xObj.getField("id").OID();
-
-    // get x value
-    double xValue = xObj.getField("value").numberDouble();
-
-    // query for y value
-    BSONObj yObj = db.findOne(yCollection, QUERY("id" << id));
-    if(yObj.isEmpty()){
-      std::cout << "no y value" << std::endl;
-      continue;
-    }
-
-    // get y value
-    double yValue = yObj.getField("value").numberDouble();
-
-    // query for name
-    BSONObj moleculeObj = db.findOne(moleculeCollection, QUERY("_id" << id));
-    std::string name = moleculeObj.getField("name").str();
+    // get values
+    double xValue = obj.getFieldDotted("descriptors." + xName.toStdString()).numberDouble();
+    double yValue = obj.getFieldDotted("descriptors." + yName.toStdString()).numberDouble();
 
     // insert into table
     xArray->InsertNextValue(xValue);
     yArray->InsertNextValue(yValue);
+
+    // add name to tooltip array
+    std::string name = obj.getField("name").str();
     nameArray->InsertNextValue(name);
   }
 
