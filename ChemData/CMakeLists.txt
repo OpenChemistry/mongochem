@@ -27,6 +27,7 @@ set(chemdata_srcs
   MongoModel.cxx
   MongoRecordModel.cxx
   MongoTableView.cxx
+  plotmatrixdialog.cpp
   quickquerywidget.cpp
   serversettingsdialog.cpp
   substructurefiltermodel.cpp
@@ -38,6 +39,7 @@ qt4_wrap_cpp(moc_srcs
   MongoModel.h
   MongoRecordModel.h
   MongoTableView.h
+  plotmatrixdialog.h
   quickquerywidget.h
   serversettingsdialog.h
   substructurefiltermodel.h
@@ -45,6 +47,7 @@ qt4_wrap_cpp(moc_srcs
 qt4_wrap_ui(ui_srcs
   graphdialog.ui
   mainwindow.ui
+  plotmatrixdialog.ui
   quickquerywidget.ui
   serversettingsdialog.ui
 )

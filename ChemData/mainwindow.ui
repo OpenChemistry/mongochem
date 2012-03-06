@@ -46,6 +46,7 @@
      <string>&amp;View</string>
     </property>
     <addaction name="actionGraphs"/>
+    <addaction name="actionPlotMatrix"/>
     <addaction name="actionDetail"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -87,6 +88,11 @@
   <action name="actionServerSettings">
    <property name="text">
     <string>&amp;Server Settings</string>
+   </property>
+  </action>
+  <action name="actionPlotMatrix">
+   <property name="text">
+    <string>&amp;Plot Matrix</string>
    </property>
   </action>
  </widget>

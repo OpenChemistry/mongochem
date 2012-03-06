@@ -61,6 +61,7 @@
 #include "graphdialog.h"
 #include "quickquerywidget.h"
 #include "serversettingsdialog.h"
+#include "plotmatrixdialog.h"
 
 namespace {
 
@@ -145,6 +146,7 @@ MainWindow::MainWindow()
   queryDockWidget->hide();
 
   connect(m_ui->actionGraphs, SIGNAL(activated()), SLOT(showGraphs()));
+  connect(m_ui->actionPlotMatrix, SIGNAL(activated()), SLOT(showPlotMatrix()));
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
   connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)),SLOT(showDetails(QModelIndex)));
@@ -212,6 +214,13 @@ void MainWindow::setupTable()
 void MainWindow::showGraphs()
 {
   GraphDialog dialog(this);
+
+  dialog.exec();
+}
+
+void MainWindow::showPlotMatrix()
+{
+  PlotMatrixDialog dialog(this);
 
   dialog.exec();
 }

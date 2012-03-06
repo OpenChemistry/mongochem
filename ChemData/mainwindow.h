@@ -88,6 +88,9 @@ protected slots:
   /** Show the graphs dialog. */
   void showGraphs();
 
+  /** Show the scatter plot matrix dialog. */
+  void showPlotMatrix();
+
   /** Show the record detail dialog. */
   void showDetails(const QModelIndex &index);
 
