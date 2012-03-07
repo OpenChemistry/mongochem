@@ -64,7 +64,7 @@ GraphDialog::GraphDialog(QWidget *parent)
 
   m_chartView->GetScene()->AddItem(m_chart.GetPointer());
   vtkPlot *scatter = m_chart->AddPlot(vtkChart::POINTS);
-  scatter->SetInput(m_table.GetPointer(), "X", "Y");
+  scatter->SetInputData(m_table.GetPointer(), "X", "Y");
   scatter->SetColor(0, 0, 1.0);
 
   // create labels array
