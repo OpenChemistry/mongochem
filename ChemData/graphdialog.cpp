@@ -35,6 +35,8 @@
 #include <vtkContextView.h>
 #include <vtkChartXY.h>
 
+#include "diagramtooltipitem.h"
+
 using namespace mongo;
 
 GraphDialog::GraphDialog(QWidget *parent)
@@ -77,6 +79,11 @@ GraphDialog::GraphDialog(QWidget *parent)
   m_chart->SetRenderEmpty(true);
   m_chart->SetAutoAxes(false);
   m_chart->SetDrawAxesAtOrigin(true);
+
+  // set tooltip item
+  DiagramTooltipItem *tooltip = DiagramTooltipItem::New();
+  m_chart->SetTooltip(tooltip);
+  tooltip->Delete();
 
   QVBoxLayout *graphLayout = new QVBoxLayout;
   graphLayout->addWidget(m_vtkWidget);
