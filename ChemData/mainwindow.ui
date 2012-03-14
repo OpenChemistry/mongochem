@@ -47,6 +47,7 @@
     </property>
     <addaction name="actionGraphs"/>
     <addaction name="actionPlotMatrix"/>
+    <addaction name="actionParallelCoordinates"/>
     <addaction name="actionDetail"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
@@ -93,6 +94,11 @@
   <action name="actionPlotMatrix">
    <property name="text">
     <string>&amp;Plot Matrix</string>
+   </property>
+  </action>
+  <action name="actionParallelCoordinates">
+   <property name="text">
+    <string>&amp;Parallel Coordinates</string>
    </property>
   </action>
  </widget>

@@ -27,6 +27,7 @@ set(chemdata_srcs
   MongoModel.cxx
   MongoRecordModel.cxx
   MongoTableView.cxx
+  parallelcoordinatesdialog.cpp
   plotmatrixdialog.cpp
   quickquerywidget.cpp
   serversettingsdialog.cpp
@@ -39,6 +40,7 @@ qt4_wrap_cpp(moc_srcs
   MongoModel.h
   MongoRecordModel.h
   MongoTableView.h
+  parallelcoordinatesdialog.h
   plotmatrixdialog.h
   quickquerywidget.h
   serversettingsdialog.h
@@ -47,6 +49,7 @@ qt4_wrap_cpp(moc_srcs
 qt4_wrap_ui(ui_srcs
   graphdialog.ui
   mainwindow.ui
+  parallelcoordinatesdialog.ui
   plotmatrixdialog.ui
   quickquerywidget.ui
   serversettingsdialog.ui
