@@ -45,10 +45,7 @@ ParallelCoordinatesDialog::ParallelCoordinatesDialog(QWidget *parent)
   setupTable();
 
   vtkChartParallelCoordinates *chart = vtkChartParallelCoordinates::New();
-  vtkPlotParallelCoordinates *plot = vtkPlotParallelCoordinates::New();
-  plot->SetInputData(m_table.GetPointer());
-  chart->SetPlot(plot);
-  plot->Delete();
+  chart->GetPlot(0)->SetInputData(m_table.GetPointer());
   chart->SetColumnVisibilityAll(true);
   m_chartView->GetScene()->AddItem(chart);
   chart->Delete();
