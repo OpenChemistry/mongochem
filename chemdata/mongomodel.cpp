@@ -1,6 +1,6 @@
 /******************************************************************************
 
-  This source file is part of the MongoModel project.
+  This source file is part of the ChemData project.
 
   Copyright 2011 Kitware, Inc.
 
@@ -14,7 +14,7 @@
 
 ******************************************************************************/
 
-#include "MongoModel.h"
+#include "mongomodel.h"
 
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>

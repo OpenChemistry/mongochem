@@ -14,9 +14,9 @@
 
 ******************************************************************************/
 
-#include "MongoTableView.h"
+#include "mongotableview.h"
 
-#include "MongoModel.h"
+#include "mongomodel.h"
 
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>

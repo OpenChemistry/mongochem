@@ -7,7 +7,6 @@ if(UNIX AND NOT APPLE)
   find_package(Threads)
   set(EXTRA_LINK_LIB ${CMAKE_THREAD_LIBS_INIT})
 endif()
-find_package(Qt4 4.7 REQUIRED QtCore QtGui QtNetwork)
 find_package(VTK REQUIRED NO_MODULE)
 
 # Chemkit is used for substructure queries
@@ -16,18 +15,18 @@ include_directories(${CHEMKIT_INCLUDE_DIRS})
 link_directories(${CHEMKIT_LIBRARY_DIR})
 
 # find qt
-find_package(Qt4 4.6 COMPONENTS QtCore QtGui REQUIRED)
+find_package(Qt4 4.6 COMPONENTS QtCore QtGui QtNetwork REQUIRED)
 include(${QT_USE_FILE})
 
 set(chemdata_srcs
-  chemdata.cxx
-  DetailDialog.cxx
+  chemdata.cpp
+  detaildialog.cpp
   diagramtooltipitem.cpp
   graphdialog.cpp
-  mainwindow.cxx
-  MongoModel.cxx
-  MongoRecordModel.cxx
-  MongoTableView.cxx
+  mainwindow.cpp
+  mongomodel.cpp
+  mongorecordmodel.cpp
+  mongotableview.cpp
   parallelcoordinatesdialog.cpp
   plotmatrixdialog.cpp
   quickquerywidget.cpp
@@ -35,12 +34,12 @@ set(chemdata_srcs
   substructurefiltermodel.cpp
 )
 qt4_wrap_cpp(moc_srcs
-  DetailDialog.h
+  detaildialog.h
   graphdialog.h
   mainwindow.h
-  MongoModel.h
-  MongoRecordModel.h
-  MongoTableView.h
+  mongomodel.h
+  mongorecordmodel.h
+  mongotableview.h
   parallelcoordinatesdialog.h
   plotmatrixdialog.h
   quickquerywidget.h

@@ -16,8 +16,8 @@
 
 #include "mainwindow.h"
 
-#include "MongoModel.h"
-#include "DetailDialog.h"
+#include "mongomodel.h"
+#include "detaildialog.h"
 #include "substructurefiltermodel.h"
 
 #include "ui_mainwindow.h"
