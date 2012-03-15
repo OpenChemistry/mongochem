@@ -22,6 +22,7 @@ include(${QT_USE_FILE})
 set(chemdata_srcs
   chemdata.cxx
   DetailDialog.cxx
+  diagramtooltipitem.cpp
   graphdialog.cpp
   mainwindow.cxx
   MongoModel.cxx
