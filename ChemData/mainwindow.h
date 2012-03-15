@@ -91,6 +91,9 @@ protected slots:
   /** Show the scatter plot matrix dialog. */
   void showPlotMatrix();
 
+  /** Show the parallel coordinates dialog. */
+  void showParallelCoordinates();
+
   /** Show the record detail dialog. */
   void showDetails(const QModelIndex &index);
 

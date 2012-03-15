@@ -61,6 +61,7 @@
 #include "graphdialog.h"
 #include "quickquerywidget.h"
 #include "serversettingsdialog.h"
+#include "parallelcoordinatesdialog.h"
 #include "plotmatrixdialog.h"
 
 namespace {
@@ -147,6 +148,8 @@ MainWindow::MainWindow()
 
   connect(m_ui->actionGraphs, SIGNAL(activated()), SLOT(showGraphs()));
   connect(m_ui->actionPlotMatrix, SIGNAL(activated()), SLOT(showPlotMatrix()));
+  connect(m_ui->actionParallelCoordinates, SIGNAL(activated()),
+          this, SLOT(showParallelCoordinates()));
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
   connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)),SLOT(showDetails(QModelIndex)));
@@ -221,6 +224,13 @@ void MainWindow::showGraphs()
 void MainWindow::showPlotMatrix()
 {
   PlotMatrixDialog dialog(this);
+
+  dialog.exec();
+}
+
+void MainWindow::showParallelCoordinates()
+{
+  ParallelCoordinatesDialog dialog(this);
 
   dialog.exec();
 }
