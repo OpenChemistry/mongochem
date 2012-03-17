@@ -23,6 +23,7 @@
 #include "vtkContext2D.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
+#include "vtkContextScene.h"
 #include "vtkQImageToImageSource.h"
 
 using namespace mongo;
@@ -107,15 +108,24 @@ bool DiagramTooltipItem::Paint(vtkContext2D *painter)
   painter->ApplyPen(this->GetPen());
   painter->ApplyBrush(this->GetBrush());
 
+  // determine where to draw the tooltip
+  vtkVector2f drawPosition = this->GetPositionVector();
+  if(drawPosition.X() + tooltipImage.width() > this->Scene->GetViewWidth()){
+    drawPosition[0] -= tooltipImage.width();
+  }
+  if(drawPosition.Y() + tooltipImage.height() > this->Scene->GetViewHeight()){
+    drawPosition[1] -= tooltipImage.height();
+  }
+
   // draw background rect
-  painter->DrawRect(this->GetPositionVector().X(),
-                    this->GetPositionVector().Y(),
+  painter->DrawRect(drawPosition.X(),
+                    drawPosition.Y(),
                     tooltipImage.width(),
                     tooltipImage.height());
 
   // draw molecule diagram
-  painter->DrawImage(this->GetPositionVector().X(),
-                     this->GetPositionVector().Y(),
+  painter->DrawImage(drawPosition.X(),
+                     drawPosition.Y(),
                      vtkImage);
 
   // cleanup memory
