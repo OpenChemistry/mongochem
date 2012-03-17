@@ -14,9 +14,9 @@
 
 ******************************************************************************/
 
-#include "DetailDialog.h"
+#include "detaildialog.h"
 
-#include "MongoRecordModel.h"
+#include "mongorecordmodel.h"
 
 #include <mongo/client/dbclient.h>
 

@@ -106,7 +106,7 @@
   <customwidget>
    <class>ChemData::MongoTableView</class>
    <extends>QTableView</extends>
-   <header location="global">ChemData/MongoTableView.h</header>
+   <header location="global">chemdata/mongotableview.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
