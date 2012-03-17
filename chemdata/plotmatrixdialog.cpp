@@ -28,6 +28,9 @@
 #include <vtkScatterPlotMatrix.h>
 #include <vtkContextScene.h>
 #include <vtkFloatArray.h>
+#include <vtkStringArray.h>
+
+#include "diagramtooltipitem.h"
 
 using namespace mongo;
 
@@ -44,8 +47,13 @@ PlotMatrixDialog::PlotMatrixDialog(QWidget *parent)
   setupTable();
 
   vtkScatterPlotMatrix *plotMatrix = vtkScatterPlotMatrix::New();
-  plotMatrix->SetInput(m_table.GetPointer());
+  vtkNew<DiagramTooltipItem> tooltip;
+  plotMatrix->SetTooltip(tooltip.GetPointer());
+  plotMatrix->SetIndexedLabels(
+    vtkStringArray::SafeDownCast(m_table->GetColumnByName("name")));
+  m_table->RemoveColumnByName("name");
   m_chartView->GetScene()->AddItem(plotMatrix);
+  plotMatrix->SetInput(m_table.GetPointer());
   plotMatrix->Delete();
 
   QVBoxLayout *graphLayout = new QVBoxLayout;
@@ -87,6 +95,11 @@ void PlotMatrixDialog::setupTable()
     array->Delete();
   }
 
+  // create labels array
+  vtkNew<vtkStringArray> nameArray;
+  nameArray->SetName("name");
+  m_table->AddColumn(nameArray.GetPointer());
+
   // query molecules collection
   std::string collection = settings.value("collection").toString().toStdString();
   std::string moleculesCollection = collection + ".molecules";
@@ -103,5 +116,11 @@ void PlotMatrixDialog::setupTable()
       vtkFloatArray *array = vtkFloatArray::SafeDownCast(m_table->GetColumn(i));
       array->InsertNextValue(value.numberDouble());
     }
+
+    BSONElement nameElement = obj.getField("name");
+    std::string name;
+    if(!nameElement.eoo())
+      name = nameElement.str();
+    nameArray->InsertNextValue(name);
   }
 }
