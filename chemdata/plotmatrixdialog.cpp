@@ -47,9 +47,8 @@ PlotMatrixDialog::PlotMatrixDialog(QWidget *parent)
   setupTable();
 
   vtkScatterPlotMatrix *plotMatrix = vtkScatterPlotMatrix::New();
-  DiagramTooltipItem *tooltip = DiagramTooltipItem::New();
-  plotMatrix->SetTooltip(tooltip);
-  tooltip->Delete();
+  vtkNew<DiagramTooltipItem> tooltip;
+  plotMatrix->SetTooltip(tooltip.GetPointer());
   plotMatrix->SetIndexedLabels(
     vtkStringArray::SafeDownCast(m_table->GetColumnByName("name")));
   m_table->RemoveColumnByName("name");
@@ -97,10 +96,9 @@ void PlotMatrixDialog::setupTable()
   }
 
   // create labels array
-  vtkStringArray *nameArray = vtkStringArray::New();
+  vtkNew<vtkStringArray> nameArray;
   nameArray->SetName("name");
-  m_table->AddColumn(nameArray);
-  nameArray->Delete();
+  m_table->AddColumn(nameArray.GetPointer());
 
   // query molecules collection
   std::string collection = settings.value("collection").toString().toStdString();
