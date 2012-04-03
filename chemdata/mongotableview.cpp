@@ -17,6 +17,7 @@
 #include "mongotableview.h"
 
 #include "mongomodel.h"
+#include "moleculedetaildialog.h"
 
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
@@ -82,6 +83,9 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
       action->setData(inchi.str().c_str());
       connect(action, SIGNAL(triggered()), this, SLOT(fetchImage()));
     }
+
+    // add details action
+    action = menu->addAction("Show &Details", this, SLOT(showMoleculeDetailsDialog()));
 
     m_row = index.row();
 
@@ -203,6 +207,16 @@ void MongoTableView::fetchImage()
   m_network->get(QNetworkRequest(QUrl(url)));
 
   m_moleculeName = "diagram";
+}
+
+void MongoTableView::showMoleculeDetailsDialog()
+{
+  MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
+
+  mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
+  dialog->setMoleculeObject(obj);
+
+  dialog->show();
 }
 
 void MongoTableView::replyFinished(QNetworkReply *reply)

@@ -97,6 +97,9 @@ protected slots:
   /** Show the record detail dialog. */
   void showDetails(const QModelIndex &index);
 
+  /** Show the molecule details dialog. */
+  void showMoleculeDetailsDialog(const QModelIndex &index);
+
   /** Show the server settings dialog. */
   void showServerSettings();
 

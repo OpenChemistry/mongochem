@@ -63,6 +63,7 @@
 #include "serversettingsdialog.h"
 #include "parallelcoordinatesdialog.h"
 #include "plotmatrixdialog.h"
+#include "moleculedetaildialog.h"
 
 namespace {
 
@@ -152,7 +153,8 @@ MainWindow::MainWindow()
           this, SLOT(showParallelCoordinates()));
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
-  connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)),SLOT(showDetails(QModelIndex)));
+//  connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)),SLOT(showDetails(QModelIndex)));
+  connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)), SLOT(showMoleculeDetailsDialog(QModelIndex)));
   connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
 
   setupTable();
@@ -243,6 +245,16 @@ void MainWindow::showDetails(const QModelIndex &index)
   }
   m_detail->setActiveRecord(index);
   m_detail->show();
+}
+
+void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
+{
+  MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
+
+  mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(index.internalPointer());
+  dialog->setMoleculeObject(obj);
+
+  dialog->show();
 }
 
 void MainWindow::showServerSettings()
