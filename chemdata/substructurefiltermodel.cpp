@@ -36,9 +36,7 @@ SubstructureFilterModel::~SubstructureFilterModel()
 void SubstructureFilterModel::setSmiles(const QString &smiles)
 {
   m_smiles = smiles;
-  m_substructure = boost::make_shared<chemkit::Molecule>(smiles.toStdString(),
-                                                         "smiles");
-  m_query.setMolecule(m_substructure.get());
+  m_query.setMolecule(smiles.toStdString(), "smiles");
 }
 
 QString SubstructureFilterModel::smiles() const
@@ -57,7 +55,7 @@ bool SubstructureFilterModel::filterAcceptsColumn(int sourceColumn, const QModel
 
 bool SubstructureFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-  if(!m_substructure || m_substructure->isEmpty()){
+  if(!m_query.molecule() || m_query.molecule()->isEmpty()){
     return false;
   }
 
