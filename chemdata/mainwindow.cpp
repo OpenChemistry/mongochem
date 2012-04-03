@@ -63,6 +63,7 @@
 #include "serversettingsdialog.h"
 #include "parallelcoordinatesdialog.h"
 #include "plotmatrixdialog.h"
+#include "histogramdialog.h"
 
 namespace {
 
@@ -147,6 +148,7 @@ MainWindow::MainWindow()
   queryDockWidget->hide();
 
   connect(m_ui->actionGraphs, SIGNAL(activated()), SLOT(showGraphs()));
+  connect(m_ui->actionHistogram, SIGNAL(activated()), SLOT(showHistogram()));
   connect(m_ui->actionPlotMatrix, SIGNAL(activated()), SLOT(showPlotMatrix()));
   connect(m_ui->actionParallelCoordinates, SIGNAL(activated()),
           this, SLOT(showParallelCoordinates()));
@@ -217,6 +219,13 @@ void MainWindow::setupTable()
 void MainWindow::showGraphs()
 {
   GraphDialog dialog(this);
+
+  dialog.exec();
+}
+
+void MainWindow::showHistogram()
+{
+  HistogramDialog dialog(this);
 
   dialog.exec();
 }
