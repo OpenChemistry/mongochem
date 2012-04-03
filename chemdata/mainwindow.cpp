@@ -17,7 +17,6 @@
 #include "mainwindow.h"
 
 #include "mongomodel.h"
-#include "detaildialog.h"
 #include "substructurefiltermodel.h"
 
 #include "ui_mainwindow.h"
@@ -153,7 +152,6 @@ MainWindow::MainWindow()
           this, SLOT(showParallelCoordinates()));
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
-//  connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)),SLOT(showDetails(QModelIndex)));
   connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)), SLOT(showMoleculeDetailsDialog(QModelIndex)));
   connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
 
@@ -235,16 +233,6 @@ void MainWindow::showParallelCoordinates()
   ParallelCoordinatesDialog dialog(this);
 
   dialog.exec();
-}
-
-void MainWindow::showDetails(const QModelIndex &index)
-{
-  if (!m_detail) {
-    m_detail = new DetailDialog(this);
-    m_detail->resize(600, 400);
-  }
-  m_detail->setActiveRecord(index);
-  m_detail->show();
 }
 
 void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
