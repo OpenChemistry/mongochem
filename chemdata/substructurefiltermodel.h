@@ -46,7 +46,6 @@ protected:
 
 private:
   QString m_smiles;
-  boost::shared_ptr<chemkit::Molecule> m_substructure;
   chemkit::SubstructureQuery m_query;
 };
 
