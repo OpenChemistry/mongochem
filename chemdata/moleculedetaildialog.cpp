@@ -99,6 +99,12 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
     ui->inchikeyLineEdit->setText(inchikey.c_str());
   }
 
+  // set smiles
+  if (molecule) {
+      std::string smiles = molecule->formula("smiles");
+      ui->smilesLineEdit->setText(smiles.c_str());
+  }
+
   // set diagram
   mongo::BSONElement diagramElement = obj->getField("diagram");
   if (!diagramElement.eoo()) {
