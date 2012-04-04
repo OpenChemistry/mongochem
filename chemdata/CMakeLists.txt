@@ -23,6 +23,7 @@ set(chemdata_srcs
   detaildialog.cpp
   diagramtooltipitem.cpp
   graphdialog.cpp
+  histogramdialog.cpp
   mainwindow.cpp
   mongomodel.cpp
   mongorecordmodel.cpp
@@ -36,6 +37,7 @@ set(chemdata_srcs
 qt4_wrap_cpp(moc_srcs
   detaildialog.h
   graphdialog.h
+  histogramdialog.h
   mainwindow.h
   mongomodel.h
   mongorecordmodel.h
@@ -48,6 +50,7 @@ qt4_wrap_cpp(moc_srcs
 )
 qt4_wrap_ui(ui_srcs
   graphdialog.ui
+  histogramdialog.ui
   mainwindow.ui
   parallelcoordinatesdialog.ui
   plotmatrixdialog.ui
