@@ -118,7 +118,21 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
+         <item row="6" column="1">
+          <widget class="QLineEdit" name="smilesLineEdit">
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QLabel" name="smilesLabel">
+           <property name="text">
+            <string>SMILES:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
