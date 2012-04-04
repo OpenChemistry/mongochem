@@ -88,6 +88,9 @@ protected slots:
   /** Show the graphs dialog. */
   void showGraphs();
 
+  /** Show the histogram dialog. */
+  void showHistogram();
+
   /** Show the scatter plot matrix dialog. */
   void showPlotMatrix();
 
