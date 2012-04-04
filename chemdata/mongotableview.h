@@ -48,6 +48,9 @@ protected slots:
   /** Attempt to fetch a PNG of the molecule. */
   void fetchImage();
 
+  /** Show the molecule details dialog. */
+  void showMoleculeDetailsDialog();
+
   /** Retrieving structures from remote databases! */
   void replyFinished(QNetworkReply*);
 

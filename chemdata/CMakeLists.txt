@@ -20,11 +20,11 @@ include(${QT_USE_FILE})
 
 set(chemdata_srcs
   chemdata.cpp
-  detaildialog.cpp
   diagramtooltipitem.cpp
   graphdialog.cpp
   histogramdialog.cpp
   mainwindow.cpp
+  moleculedetaildialog.cpp
   mongomodel.cpp
   mongorecordmodel.cpp
   mongotableview.cpp
@@ -35,10 +35,10 @@ set(chemdata_srcs
   substructurefiltermodel.cpp
 )
 qt4_wrap_cpp(moc_srcs
-  detaildialog.h
   graphdialog.h
   histogramdialog.h
   mainwindow.h
+  moleculedetaildialog.h
   mongomodel.h
   mongorecordmodel.h
   mongotableview.h
@@ -52,6 +52,7 @@ qt4_wrap_ui(ui_srcs
   graphdialog.ui
   histogramdialog.ui
   mainwindow.ui
+  moleculedetaildialog.ui
   parallelcoordinatesdialog.ui
   plotmatrixdialog.ui
   quickquerywidget.ui

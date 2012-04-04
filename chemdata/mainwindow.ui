@@ -45,7 +45,6 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
-    <addaction name="actionDetail"/>
    </widget>
    <widget class="QMenu" name="menu_Help">
     <property name="title">
@@ -86,11 +85,6 @@
   <action name="actionAbout">
    <property name="text">
     <string>&amp;About</string>
-   </property>
-  </action>
-  <action name="actionDetail">
-   <property name="text">
-    <string>&amp;Detail</string>
    </property>
   </action>
   <action name="actionServerSettings">

@@ -2,7 +2,7 @@
 
   This source file is part of the ChemData project.
 
-  Copyright 2011 Kitware, Inc.
+  Copyright 2011-2012 Kitware, Inc.
 
   This source code is released under the New BSD License, (the "License").
 
@@ -14,40 +14,29 @@
 
 ******************************************************************************/
 
-#ifndef DetailDialog_H
-#define DetailDialog_H
+#ifndef MOLECULEDETAILDIALOG_H
+#define MOLECULEDETAILDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
-class QModelIndex;
-class QTreeView;
+#include <mongo/client/dbclient.h>
 
-namespace ChemData {
+namespace Ui {
+class MoleculeDetailDialog;
+}
 
-class MongoModel;
-class MongoRecordModel;
-
-class DetailDialog : public QDialog
+class MoleculeDetailDialog : public QDialog
 {
   Q_OBJECT
 
 public:
-  DetailDialog(QWidget *parent = 0);
+  explicit MoleculeDetailDialog(QWidget *parent = 0);
+  ~MoleculeDetailDialog();
 
-  void setModel(MongoModel *model);
-  void setRow(int row);
+  void setMoleculeObject(mongo::BSONObj *obj);
 
-public slots:
-  void setActiveRecord(const QModelIndex &index);
-
-protected:
-  virtual void showEvent(QShowEvent * event);
-
-  QTreeView        *m_treeView;
-  MongoRecordModel *m_model;
-  int m_row;
+private:
+  Ui::MoleculeDetailDialog *ui;
 };
 
-} // End of namespace
-
-#endif // DetailDialog_H
+#endif // MOLECULEDETAILDIALOG_H
