@@ -14,32 +14,30 @@
 
 ******************************************************************************/
 
-#ifndef MOLECULEDETAILDIALOG_H
-#define MOLECULEDETAILDIALOG_H
+#ifndef EXPORTMOLECULEHANDLER_H
+#define EXPORTMOLECULEHANDLER_H
 
-#include <QDialog>
+#include <QObject>
 
-#include <mongo/client/dbclient.h>
+#include <boost/shared_ptr.hpp>
 
-namespace Ui {
-class MoleculeDetailDialog;
-}
+#include <chemkit/molecule.h>
 
-class ExportMoleculeHandler;
-
-class MoleculeDetailDialog : public QDialog
+class ExportMoleculeHandler : public QObject
 {
   Q_OBJECT
 
 public:
-  explicit MoleculeDetailDialog(QWidget *parent = 0);
-  ~MoleculeDetailDialog();
+  ExportMoleculeHandler(QObject *parent = 0);
+  ~ExportMoleculeHandler();
 
-  void setMoleculeObject(mongo::BSONObj *obj);
+  void setMolecule(const boost::shared_ptr<chemkit::Molecule> &molecule);
+
+public slots:
+  void exportMolecule();
 
 private:
-  Ui::MoleculeDetailDialog *ui;
-  ExportMoleculeHandler *m_exportHandler;
+  boost::shared_ptr<chemkit::Molecule> m_molecule;
 };
 
-#endif // MOLECULEDETAILDIALOG_H
+#endif // EXPORTMOLECULEHANDLER_H
