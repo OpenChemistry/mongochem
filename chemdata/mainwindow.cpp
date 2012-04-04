@@ -116,11 +116,32 @@ public:
     int y = options.rect.y() + (options.rect.height() - height) / 2;
 
     QAbstractTextDocumentLayout::PaintContext context;
+
+    // save painter state
+    painter->save();
+
+    // draw background
+    options.text = "";
+    QStyle *style = options.widget ? options.widget->style() : QApplication::style();
+    style->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
+
+    // draw text
+    QPalette::ColorGroup colorGroup =
+      options.state & QStyle::State_Enabled ? QPalette::Normal : QPalette::Disabled;
+    if (colorGroup == QPalette::Normal && !(options.state & QStyle::State_Active))
+      colorGroup = QPalette::Inactive;
+
+    if (options.state & QStyle::State_Selected)
+      painter->setPen(options.palette.color(colorGroup, QPalette::HighlightedText));
+    else
+      painter->setPen(options.palette.color(colorGroup, QPalette::Text));
+
     context.palette.setColor(QPalette::Text, painter->pen().color());
 
-    painter->save();
     painter->translate(options.rect.x(), y);
     layout->draw(painter, context);
+
+    // restore painter state
     painter->restore();
   }
 };
