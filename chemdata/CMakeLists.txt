@@ -21,6 +21,7 @@ include(${QT_USE_FILE})
 set(chemdata_srcs
   chemdata.cpp
   diagramtooltipitem.cpp
+  exportmoleculehandler.cpp
   graphdialog.cpp
   mainwindow.cpp
   moleculedetaildialog.cpp
@@ -34,6 +35,7 @@ set(chemdata_srcs
   substructurefiltermodel.cpp
 )
 qt4_wrap_cpp(moc_srcs
+  exportmoleculehandler.h
   graphdialog.h
   mainwindow.h
   moleculedetaildialog.h

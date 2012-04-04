@@ -17,6 +17,13 @@
 #include "moleculedetaildialog.h"
 #include "ui_moleculedetaildialog.h"
 
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+
+#include <chemkit/molecule.h>
+
+#include "exportmoleculehandler.h"
+
 MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent)
   : QDialog(parent),
     ui(new Ui::MoleculeDetailDialog)
@@ -24,6 +31,9 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent)
   ui->setupUi(this);
 
   connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));
+
+  m_exportHandler = new ExportMoleculeHandler(this);
+  connect(ui->exportButton, SIGNAL(clicked()), m_exportHandler, SLOT(exportMolecule()));
 }
 
 MoleculeDetailDialog::~MoleculeDetailDialog()
@@ -35,6 +45,18 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
 {
   if (!obj) {
     return;
+  }
+
+  boost::shared_ptr<chemkit::Molecule> molecule;
+
+  // set inchi
+  mongo::BSONElement inchiElement = obj->getField("inchi");
+  if (!inchiElement.eoo()) {
+    std::string inchi = inchiElement.str();
+    ui->inchiLineEdit->setText(inchi.c_str());
+
+    // create molecule from inchi
+    molecule = boost::make_shared<chemkit::Molecule>(inchi, "inchi");
   }
 
   // set name
@@ -50,6 +72,10 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
       title.append("...");
     }
     ui->diagramGroupBox->setTitle(title);
+
+    // set molecule name
+    if (molecule)
+      molecule->setName(name);
   }
 
   // set formula
@@ -64,13 +90,6 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
   if (!massElement.eoo()) {
     double mass = massElement.numberDouble();
     ui->massLineEdit->setText(QString::number(mass) + "g/mol");
-  }
-
-  // set inchi
-  mongo::BSONElement inchiElement = obj->getField("inchi");
-  if (!inchiElement.eoo()) {
-    std::string inchi = inchiElement.str();
-    ui->inchiLineEdit->setText(inchi.c_str());
   }
 
   // set inchikey
@@ -113,4 +132,7 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
       index++;
     }
   }
+
+  // setup export handler
+  m_exportHandler->setMolecule(molecule);
 }
