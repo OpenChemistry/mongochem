@@ -103,6 +103,12 @@ protected slots:
   /** Show the server settings dialog. */
   void showServerSettings();
 
+  /** Show the fingerprint similarity dialog. */
+  void showFingerprintSimilarityDialog();
+
+  /** Show the structure similarity dialog. */
+  void showStructureSimilarityDialog();
+
   /** Show the manual record addition dialog. */
   void addNewRecord();
 

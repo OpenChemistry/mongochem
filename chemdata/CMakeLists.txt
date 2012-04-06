@@ -22,6 +22,7 @@ set(chemdata_srcs
   chemdata.cpp
   diagramtooltipitem.cpp
   exportmoleculehandler.cpp
+  fingerprintsimilaritydialog.cpp
   graphdialog.cpp
   histogramdialog.cpp
   mainwindow.cpp
@@ -33,10 +34,13 @@ set(chemdata_srcs
   plotmatrixdialog.cpp
   quickquerywidget.cpp
   serversettingsdialog.cpp
+  similaritygraphwidget.cpp
+  structuresimilaritydialog.cpp
   substructurefiltermodel.cpp
 )
 qt4_wrap_cpp(moc_srcs
   exportmoleculehandler.h
+  fingerprintsimilaritydialog.h
   graphdialog.h
   histogramdialog.h
   mainwindow.h
@@ -48,9 +52,12 @@ qt4_wrap_cpp(moc_srcs
   plotmatrixdialog.h
   quickquerywidget.h
   serversettingsdialog.h
+  similaritygraphwidget.h
+  structuresimilaritydialog.h
   substructurefiltermodel.h
 )
 qt4_wrap_ui(ui_srcs
+  fingerprintsimilaritydialog.ui
   graphdialog.ui
   histogramdialog.ui
   mainwindow.ui
@@ -59,6 +66,7 @@ qt4_wrap_ui(ui_srcs
   plotmatrixdialog.ui
   quickquerywidget.ui
   serversettingsdialog.ui
+  structuresimilaritydialog.ui
 )
 
 # Need to add current binary dir to include path for UI file headers

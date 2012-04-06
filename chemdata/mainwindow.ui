@@ -61,8 +61,16 @@
     <addaction name="actionPlotMatrix"/>
     <addaction name="actionParallelCoordinates"/>
    </widget>
+   <widget class="QMenu" name="menuClustering">
+    <property name="title">
+     <string>C&amp;lustering</string>
+    </property>
+    <addaction name="actionFingerprintSimilarity"/>
+    <addaction name="actionStructureSimilarity"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuChart"/>
+   <addaction name="menuClustering"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
   </widget>
@@ -105,6 +113,16 @@
   <action name="actionHistogram">
    <property name="text">
     <string>&amp;Histogram</string>
+   </property>
+  </action>
+  <action name="actionFingerprintSimilarity">
+   <property name="text">
+    <string>Fingerprint Similarity</string>
+   </property>
+  </action>
+  <action name="actionStructureSimilarity">
+   <property name="text">
+    <string>Structure Similarity</string>
    </property>
   </action>
  </widget>

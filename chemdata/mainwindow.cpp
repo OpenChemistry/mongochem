@@ -21,6 +21,8 @@
 
 #include "ui_mainwindow.h"
 
+#include <boost/make_shared.hpp>
+
 #include <mongo/client/dbclient.h>
 
 #include <QtGui/QSplitter>
@@ -64,6 +66,8 @@
 #include "plotmatrixdialog.h"
 #include "moleculedetaildialog.h"
 #include "histogramdialog.h"
+#include "fingerprintsimilaritydialog.h"
+#include "structuresimilaritydialog.h"
 
 namespace {
 
@@ -178,6 +182,11 @@ MainWindow::MainWindow()
   connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)), SLOT(showMoleculeDetailsDialog(QModelIndex)));
   connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
 
+  connect(m_ui->actionFingerprintSimilarity, SIGNAL(activated()),
+          this, SLOT(showFingerprintSimilarityDialog()));
+  connect(m_ui->actionStructureSimilarity, SIGNAL(activated()),
+          this, SLOT(showStructureSimilarityDialog()));
+
   setupTable();
   connectToDatabase();
 }
@@ -288,6 +297,40 @@ void MainWindow::showServerSettings()
     // reload collection
     connectToDatabase();
   }
+}
+
+void MainWindow::showFingerprintSimilarityDialog()
+{
+  FingerprintSimilarityDialog *dialog = new FingerprintSimilarityDialog(this);
+
+  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
+
+  foreach (const QString &inchiString, m_model->moleculeInChIs()) {
+    std::string inchi = inchiString.toStdString();
+
+    molecules.push_back(boost::make_shared<chemkit::Molecule>(inchi, "inchi"));
+  }
+
+  dialog->setMolecules(molecules);
+
+  dialog->show();
+}
+
+void MainWindow::showStructureSimilarityDialog()
+{
+  StructureSimilarityDialog *dialog = new StructureSimilarityDialog(this);
+
+  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
+
+  foreach (const QString &inchiString, m_model->moleculeInChIs()) {
+    std::string inchi = inchiString.toStdString();
+
+    molecules.push_back(boost::make_shared<chemkit::Molecule>(inchi, "inchi"));
+  }
+
+  dialog->setMolecules(molecules);
+
+  dialog->show();
 }
 
 void MainWindow::addMoleculesFromFile(const QString &fileName)
