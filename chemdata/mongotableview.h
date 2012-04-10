@@ -51,6 +51,9 @@ protected slots:
   /** Show the molecule details dialog. */
   void showMoleculeDetailsDialog();
 
+  /** Copies the InChI formula to the clipboard. */
+  void copyInChIToClipboard();
+
   /** Retrieving structures from remote databases! */
   void replyFinished(QNetworkReply*);
 
