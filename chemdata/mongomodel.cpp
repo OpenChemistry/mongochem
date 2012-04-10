@@ -209,6 +209,22 @@ QModelIndex MongoModel::index(int row, int column,
   return QModelIndex();
 }
 
+QStringList MongoModel::moleculeInChIs() const
+{
+  QStringList inchis;
+
+  for (int i = 0; i < d->m_rowObjects.size(); i++) {
+    BSONElement inchiElement = d->m_rowObjects[i].getField("inchi");
+    if(!inchiElement.eoo()) {
+      std::string inchi = inchiElement.str();
+
+      inchis.append(QString::fromStdString(inchi));
+    }
+  }
+
+  return inchis;
+}
+
 void MongoModel::clear()
 {
 }

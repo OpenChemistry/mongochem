@@ -49,6 +49,10 @@ public:
   QModelIndex index(int row, int column,
                     const QModelIndex & parent = QModelIndex()) const;
 
+  /** Returns a list containing the InChI formula for each molecule in the
+    * model. */
+  QStringList moleculeInChIs() const;
+
   void clear();
 
   /** Set the 2D image for the molecule at row. */
