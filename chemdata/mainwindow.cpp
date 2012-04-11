@@ -301,6 +301,35 @@ void MainWindow::showServerSettings()
 
 void MainWindow::showFingerprintSimilarityDialog()
 {
+  // number of molecules which, when exceeded, will trigger a
+  // performance warning dialog to be shown to the user
+  const int warningThresold = 1500;
+
+  int moleculeCount = m_model->rowCount();
+
+  if (moleculeCount > warningThresold) {
+    QString text =
+      "The current number of molecules exceeds the performance "
+      "threshold for the fingerprint similarity graph. Interactivity "
+      "and responsiveness may suffer."
+      "\n\n"
+      "Press Ok to continue anyway or press Cancel to abort.";
+
+    // display warning message
+    int status = QMessageBox::warning(this,
+                                      "Warning",
+                                      text,
+                                      QMessageBox::Ok,
+                                      QMessageBox::Cancel);
+
+    if (status != QMessageBox::Ok) {
+      // the user clicked cancel, so return without showing
+      // the fingerprint similarity dialog
+      return;
+    }
+  }
+
+  // create and show the dialog
   FingerprintSimilarityDialog *dialog = new FingerprintSimilarityDialog(this);
 
   std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
@@ -318,6 +347,35 @@ void MainWindow::showFingerprintSimilarityDialog()
 
 void MainWindow::showStructureSimilarityDialog()
 {
+  // number of molecules which, when exceeded, will trigger a
+  // performance warning dialog to be shown to the user
+  const int warningThresold = 10;
+
+  int moleculeCount = m_model->rowCount();
+
+  if (moleculeCount > warningThresold) {
+    QString text =
+      "The current number of molecules exceeds the performance "
+      "threshold for the structure similarity graph. Interactivity "
+      "and responsiveness may suffer."
+      "\n\n"
+      "Press Ok to continue anyway or press Cancel to abort.";
+
+    // display warning message
+    int status = QMessageBox::warning(this,
+                                      "Warning",
+                                      text,
+                                      QMessageBox::Ok,
+                                      QMessageBox::Cancel);
+
+    if (status != QMessageBox::Ok) {
+      // the user clicked cancel, so return without showing
+      // the structure similarity dialog
+      return;
+    }
+  }
+
+  // create and show the dialog
   StructureSimilarityDialog *dialog = new StructureSimilarityDialog(this);
 
   std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
