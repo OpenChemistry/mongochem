@@ -28,6 +28,8 @@
 #include <chemkit/coordinatepredictor.h>
 #include <chemkit/moleculegeometryoptimizer.h>
 
+#include <QtGui/QApplication>
+#include <QtGui/QClipboard>
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QSortFilterProxyModel>
@@ -86,6 +88,11 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
 
     // add details action
     action = menu->addAction("Show &Details", this, SLOT(showMoleculeDetailsDialog()));
+
+    // add copy inchi to clipboard action
+    menu->addAction("Copy &InChI to Clipboard",
+                    this,
+                    SLOT(copyInChIToClipboard()));
 
     m_row = index.row();
 
@@ -217,6 +224,21 @@ void MongoTableView::showMoleculeDetailsDialog()
   dialog->setMoleculeObject(obj);
 
   dialog->show();
+}
+
+void MongoTableView::copyInChIToClipboard()
+{
+  mongo::BSONObj *obj =
+    static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
+  if (obj) {
+    mongo::BSONElement inchiElement = obj->getField("inchi");
+
+    if (!inchiElement.eoo()) {
+      QClipboard *clipboard = QApplication::clipboard();
+      std::string inchi = inchiElement.str();
+      clipboard->setText(inchi.c_str());
+    }
+  }
 }
 
 void MongoTableView::replyFinished(QNetworkReply *reply)
