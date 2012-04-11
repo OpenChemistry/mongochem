@@ -17,16 +17,13 @@
 #include "mongotableview.h"
 
 #include "mongomodel.h"
+#include "openineditorhandler.h"
 #include "moleculedetaildialog.h"
+
+#include <boost/make_shared.hpp>
 
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
-
-#include <chemkit/molecule.h>
-#include <chemkit/forcefield.h>
-#include <chemkit/moleculefile.h>
-#include <chemkit/coordinatepredictor.h>
-#include <chemkit/moleculegeometryoptimizer.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QContextMenuEvent>
@@ -51,6 +48,8 @@ MongoTableView::MongoTableView(QWidget *parent) : QTableView(parent),
   m_network = new QNetworkAccessManager(this);
   connect(m_network, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(replyFinished(QNetworkReply*)));
+
+  m_openInEditorHandler = new OpenInEditorHandler(this);
 }
 
 void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
@@ -71,8 +70,10 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
 
     if (!inchi.eoo()) {
       action = menu->addAction("&Open in Editor");
-      action->setData(QString::fromStdString(inchi.str()));
-      connect(action, SIGNAL(triggered()), this, SLOT(openInEditor()));
+      m_openInEditorHandler->setMolecule(
+        boost::make_shared<chemkit::Molecule>(inchi.str(), "inchi"));
+      connect(action, SIGNAL(triggered()),
+              m_openInEditorHandler, SLOT(openInEditor()));
     }
 
     mongo::BSONElement diagram = obj->getField("diagram");
@@ -90,61 +91,6 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
     m_row = index.row();
 
     menu->exec(QCursor::pos());
-  }
-}
-
-void MongoTableView::openInEditor()
-{
-  QAction *action = static_cast<QAction*>(sender());
-  if (action) {
-    // setup temporary file
-    QTemporaryFile tempFile("XXXXXX.cml");
-    tempFile.setAutoRemove(false);
-    if(tempFile.open()){
-      std::string inchi = action->data().toString().toStdString();
-
-      QString tempFilePath = QDir::tempPath() + QDir::separator() + tempFile.fileName();
-
-      // create molecule from inchi
-      boost::shared_ptr<chemkit::Molecule> molecule(new chemkit::Molecule(inchi, "inchi"));
-
-      // predict 3d coordinates
-      chemkit::CoordinatePredictor::predictCoordinates(molecule.get());
-
-      // optimize 3d coordinates
-      chemkit::MoleculeGeometryOptimizer optimizer(molecule.get());
-
-      // try with mmff
-      optimizer.setForceField("mmff");
-      bool ok = optimizer.setup();
-
-      if(!ok){
-          // try with uff
-          optimizer.setForceField("uff");
-          ok = optimizer.setup();
-      }
-
-      if(ok){
-          // run optmization
-          for(size_t i = 0; i < 250; i++){
-            bool converged = optimizer.step();
-            if(converged)
-              break;
-          }
-
-          // write optimized coordinates to molecule
-          optimizer.writeCoordinates();
-      }
-
-      // write molecule to temp file
-      chemkit::MoleculeFile file(tempFilePath.toStdString());
-      file.setFormat("cml");
-      file.addMolecule(molecule);
-      file.write();
-
-      // start avogadro
-      QProcess::startDetached("avogadro " + tempFilePath);
-    }
   }
 }
 
