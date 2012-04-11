@@ -22,6 +22,7 @@
 
 #include <chemkit/molecule.h>
 
+#include "openineditorhandler.h"
 #include "exportmoleculehandler.h"
 
 MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent)
@@ -34,6 +35,10 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent)
 
   m_exportHandler = new ExportMoleculeHandler(this);
   connect(ui->exportButton, SIGNAL(clicked()), m_exportHandler, SLOT(exportMolecule()));
+
+  m_openInEditorHandler = new OpenInEditorHandler(this);
+  connect(ui->openInEditorButton, SIGNAL(clicked()),
+          m_openInEditorHandler, SLOT(openInEditor()));
 }
 
 MoleculeDetailDialog::~MoleculeDetailDialog()
@@ -57,6 +62,9 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
 
     // create molecule from inchi
     molecule = boost::make_shared<chemkit::Molecule>(inchi, "inchi");
+
+    // set molecule for open in editor handler
+    m_openInEditorHandler->setMolecule(molecule);
   }
 
   // set name

@@ -25,6 +25,7 @@ namespace Ui {
 class MoleculeDetailDialog;
 }
 
+class OpenInEditorHandler;
 class ExportMoleculeHandler;
 
 class MoleculeDetailDialog : public QDialog
@@ -40,6 +41,7 @@ public:
 private:
   Ui::MoleculeDetailDialog *ui;
   ExportMoleculeHandler *m_exportHandler;
+  OpenInEditorHandler *m_openInEditorHandler;
 };
 
 #endif // MOLECULEDETAILDIALOG_H

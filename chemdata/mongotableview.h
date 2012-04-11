@@ -21,6 +21,7 @@
 
 class QNetworkAccessManager;
 class QNetworkReply;
+class OpenInEditorHandler;
 
 namespace ChemData
 {
@@ -36,9 +37,6 @@ public:
   void contextMenuEvent(QContextMenuEvent *e);
 
 protected slots:
-  /** This slot is fired when the molecule should be opened in a molecular editor. */
-  void openInEditor();
-
   /** Attempt to fetch the structure of a CAS number from the NIH resolver. */
   void fetchByCas();
 
@@ -62,6 +60,7 @@ protected:
   QNetworkAccessManager *m_network;
   QString m_moleculeName;
   int m_row;
+  OpenInEditorHandler *m_openInEditorHandler;
 };
 
 } // End of namespace

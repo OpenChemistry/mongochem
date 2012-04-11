@@ -30,6 +30,7 @@ set(chemdata_srcs
   mongomodel.cpp
   mongorecordmodel.cpp
   mongotableview.cpp
+  openineditorhandler.cpp
   parallelcoordinatesdialog.cpp
   plotmatrixdialog.cpp
   quickquerywidget.cpp
@@ -48,6 +49,7 @@ qt4_wrap_cpp(moc_srcs
   mongomodel.h
   mongorecordmodel.h
   mongotableview.h
+  openineditorhandler.h
   parallelcoordinatesdialog.h
   plotmatrixdialog.h
   quickquerywidget.h
