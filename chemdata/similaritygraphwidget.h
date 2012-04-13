@@ -19,6 +19,8 @@
 
 #include <QWidget>
 
+#include <vtkType.h>
+
 #include <Eigen/Core>
 
 class SimilarityGraphWidgetPrivate;
@@ -57,9 +59,13 @@ public slots:
 signals:
   void readyToRender();
 
+  /// This signal is emitted when a graph vertex is double clicked.
+  void vertexDoubleClicked(vtkIdType id);
+
 private slots:
   void updateLayout();
   void renderGraph();
+  void graphViewMouseEvent(QMouseEvent *event);
 
 private:
   SimilarityGraphWidgetPrivate* const d;
