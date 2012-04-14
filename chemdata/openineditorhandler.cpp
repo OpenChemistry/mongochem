@@ -86,8 +86,10 @@ void OpenInEditorHandler::openInEditor()
     if (ok) {
       // run optimization
       for (size_t i = 0; i < 250; i++) {
-        bool converged = optimizer.step();
-        if (converged)
+        optimizer.step();
+
+        // only check for convergance every 3 steps
+        if (i % 3 == 0 && optimizer.converged() )
           break;
       }
 
