@@ -287,6 +287,11 @@ void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
   dialog->show();
 }
 
+void MainWindow::showMoleculeDetailsDialog(vtkIdType id)
+{
+  showMoleculeDetailsDialog(m_model->index(id, 0));
+}
+
 void MainWindow::showServerSettings()
 {
   ServerSettingsDialog dialog;
@@ -316,6 +321,9 @@ void MainWindow::showKMeansClusteringDialog()
   }
 
   dialog->setMolecules(molecules);
+
+  connect(dialog, SIGNAL(moleculeDoubleClicked(vtkIdType)),
+          this, SLOT(showMoleculeDetailsDialog(vtkIdType)));
 
   dialog->show();
 }

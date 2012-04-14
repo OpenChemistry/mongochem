@@ -21,6 +21,7 @@
 #include <QtCore/QModelIndex>
 
 #include <vtkNew.h>
+#include <vtkType.h>
 
 #include <mongo/client/dbclient.h>
 
@@ -99,6 +100,9 @@ protected slots:
 
   /** Show the molecule details dialog. */
   void showMoleculeDetailsDialog(const QModelIndex &index);
+
+  /** Show the molecule details dialog given an id. */
+  void showMoleculeDetailsDialog(vtkIdType id);
 
   /** Show the server settings dialog. */
   void showServerSettings();
