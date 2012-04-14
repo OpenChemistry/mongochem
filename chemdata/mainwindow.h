@@ -103,6 +103,9 @@ protected slots:
   /** Show the server settings dialog. */
   void showServerSettings();
 
+  /** Show the k-means clustering dialog */
+  void showKMeansClusteringDialog();
+
   /** Show the fingerprint similarity dialog. */
   void showFingerprintSimilarityDialog();
 

@@ -68,6 +68,7 @@
 #include "histogramdialog.h"
 #include "fingerprintsimilaritydialog.h"
 #include "structuresimilaritydialog.h"
+#include "kmeansclusteringdialog.h"
 
 namespace {
 
@@ -182,6 +183,8 @@ MainWindow::MainWindow()
   connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)), SLOT(showMoleculeDetailsDialog(QModelIndex)));
   connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
 
+  connect(m_ui->actionKMeans, SIGNAL(activated()),
+          this, SLOT(showKMeansClusteringDialog()));
   connect(m_ui->actionFingerprintSimilarity, SIGNAL(activated()),
           this, SLOT(showFingerprintSimilarityDialog()));
   connect(m_ui->actionStructureSimilarity, SIGNAL(activated()),
@@ -297,6 +300,24 @@ void MainWindow::showServerSettings()
     // reload collection
     connectToDatabase();
   }
+}
+
+void MainWindow::showKMeansClusteringDialog()
+{
+  // create and show the dialog
+  KMeansClusteringDialog *dialog = new KMeansClusteringDialog(this);
+
+  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
+
+  foreach (const QString &inchiString, m_model->moleculeInChIs()) {
+    std::string inchi = inchiString.toStdString();
+
+    molecules.push_back(boost::make_shared<chemkit::Molecule>(inchi, "inchi"));
+  }
+
+  dialog->setMolecules(molecules);
+
+  dialog->show();
 }
 
 void MainWindow::showFingerprintSimilarityDialog()
