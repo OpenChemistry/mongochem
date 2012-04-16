@@ -8,6 +8,7 @@ if(UNIX AND NOT APPLE)
   set(EXTRA_LINK_LIB ${CMAKE_THREAD_LIBS_INIT})
 endif()
 find_package(VTK REQUIRED NO_MODULE)
+include(${VTK_USE_FILE})
 
 # Chemkit is used for substructure queries
 find_package(Chemkit COMPONENTS io md REQUIRED)
@@ -75,10 +76,11 @@ qt4_wrap_ui(ui_srcs
 )
 
 # Need to add current binary dir to include path for UI file headers
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${VTK_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(chemdata ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
-  ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkCharts QVTK)
+  ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkChartsCore vtkGUISupportQt
+  vtkViewsContext2D vtkViewsInfovis vtkRenderingQt)
 install(TARGETS chemdata DESTINATION bin)
