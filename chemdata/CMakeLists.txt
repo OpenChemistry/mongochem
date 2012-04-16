@@ -25,6 +25,7 @@ set(chemdata_srcs
   fingerprintsimilaritydialog.cpp
   graphdialog.cpp
   histogramdialog.cpp
+  kmeansclusteringdialog.cpp
   mainwindow.cpp
   moleculedetaildialog.cpp
   mongomodel.cpp
@@ -44,6 +45,7 @@ qt4_wrap_cpp(moc_srcs
   fingerprintsimilaritydialog.h
   graphdialog.h
   histogramdialog.h
+  kmeansclusteringdialog.h
   mainwindow.h
   moleculedetaildialog.h
   mongomodel.h
@@ -62,6 +64,7 @@ qt4_wrap_ui(ui_srcs
   fingerprintsimilaritydialog.ui
   graphdialog.ui
   histogramdialog.ui
+  kmeansclusteringdialog.ui
   mainwindow.ui
   moleculedetaildialog.ui
   parallelcoordinatesdialog.ui

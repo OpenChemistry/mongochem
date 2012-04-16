@@ -65,6 +65,7 @@
     <property name="title">
      <string>C&amp;lustering</string>
     </property>
+    <addaction name="actionKMeans"/>
     <addaction name="actionFingerprintSimilarity"/>
     <addaction name="actionStructureSimilarity"/>
    </widget>
@@ -123,6 +124,11 @@
   <action name="actionStructureSimilarity">
    <property name="text">
     <string>Structure Similarity</string>
+   </property>
+  </action>
+  <action name="actionKMeans">
+   <property name="text">
+    <string>K-Means</string>
    </property>
   </action>
  </widget>
