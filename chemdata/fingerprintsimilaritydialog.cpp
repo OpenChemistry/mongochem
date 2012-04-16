@@ -17,7 +17,11 @@
 #include "fingerprintsimilaritydialog.h"
 #include "ui_fingerprintsimilaritydialog.h"
 
+#include <QMessageBox>
+
 #include <chemkit/fingerprint.h>
+
+#include "moleculedetaildialog.h"
 
 using namespace chemkit;
 
@@ -44,6 +48,8 @@ FingerprintSimilarityDialog::FingerprintSimilarityDialog(QWidget *parent)
           this, SLOT(similaritySliderReleased()));
   connect(ui->fingerprintComboBox, SIGNAL(currentIndexChanged(QString)),
           this, SLOT(setFingerprint(QString)));
+  connect(m_graphWidget, SIGNAL(vertexDoubleClicked(vtkIdType)),
+          this, SLOT(moleculeDoubleClicked(vtkIdType)));
 }
 
 FingerprintSimilarityDialog::~FingerprintSimilarityDialog()
@@ -104,4 +110,23 @@ void FingerprintSimilarityDialog::similaritySliderReleased()
 void FingerprintSimilarityDialog::similarityValueChanged(int value)
 {
   m_graphWidget->setSimilarityThreshold(value / 100.f);
+}
+
+void FingerprintSimilarityDialog::moleculeDoubleClicked(vtkIdType id)
+{
+  MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
+
+  std::string inchi = m_molecules[id]->formula("inchi");
+  bool ok = dialog->setMoleculeFromInchi(inchi);
+  if (!ok) {
+    // we failed to lookup the molecule from its inchi so
+    // show an error dialog and return
+    QMessageBox::critical(this,
+                          "Error",
+                          "Failed to find molecule from InChI.");
+    delete dialog;
+    return;
+  }
+
+  dialog->show();
 }

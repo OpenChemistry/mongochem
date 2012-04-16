@@ -20,6 +20,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 
+#include <QSettings>
+
 #include <chemkit/molecule.h>
 
 #include "openineditorhandler.h"
@@ -149,4 +151,33 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
 
   // setup export handler
   m_exportHandler->setMolecule(molecule);
+}
+
+/// Sets the molecule to display from its InChI formula. Returns
+/// \c false if the molecule could not be found in the database.
+bool MoleculeDetailDialog::setMoleculeFromInchi(const std::string &inchi)
+{
+  mongo::DBClientConnection db;
+  QSettings settings;
+  std::string host = settings.value("hostname").toString().toStdString();
+
+  try {
+    db.connect(host);
+  }
+  catch (mongo::DBException &) {
+    return false;
+  }
+
+  std::string collection =
+    settings.value("collection", "chem").toString().toStdString();
+  std::string moleculesCollection = collection + ".molecules";
+
+  mongo::BSONObj obj =
+    db.findOne(moleculesCollection, QUERY("inchi" << inchi));
+  if (obj.isEmpty())
+    return false;
+
+  setMoleculeObject(&obj);
+
+  return true;
 }

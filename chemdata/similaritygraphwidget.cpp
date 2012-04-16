@@ -23,6 +23,7 @@
 #include <vtkViewTheme.h>
 #include <vtkFloatArray.h>
 #include <vtkIdTypeArray.h>
+#include <vtkPointPicker.h>
 #include <vtkGraphLayoutView.h>
 #include <vtkDataSetAttributes.h>
 #include <vtkColorTransferFunction.h>
@@ -82,6 +83,8 @@ SimilarityGraphWidget::SimilarityGraphWidget(QWidget *parent)
   theme->Delete();
 
   connect(this, SIGNAL(readyToRender()), SLOT(renderGraph()), Qt::QueuedConnection);
+  connect(d->vtkWidget, SIGNAL(mouseEvent(QMouseEvent*)),
+          this, SLOT(graphViewMouseEvent(QMouseEvent*)));
 }
 
 SimilarityGraphWidget::~SimilarityGraphWidget()
@@ -190,4 +193,20 @@ void SimilarityGraphWidget::renderGraph()
 
   if(!d->layoutPaused && !d->layoutStrategy->IsLayoutComplete())
     QtConcurrent::run(this, &SimilarityGraphWidget::updateLayout);
+}
+
+void SimilarityGraphWidget::graphViewMouseEvent(QMouseEvent *event)
+{
+  if (event->button() == Qt::LeftButton &&
+      event->type() == QMouseEvent::MouseButtonDblClick) {
+    vtkNew<vtkPointPicker> picker;
+    int *pos = d->vtkWidget->GetInteractor()->GetEventPosition();
+    vtkRenderer *renderer = d->graphView->GetRenderer();
+
+    if (picker->Pick(pos[0], pos[1], 0, renderer)) {
+      vtkIdType id = picker->GetPointId();
+
+      emit vertexDoubleClicked(id);
+    }
+  }
 }

@@ -37,6 +37,7 @@ public:
   ~MoleculeDetailDialog();
 
   void setMoleculeObject(mongo::BSONObj *obj);
+  bool setMoleculeFromInchi(const std::string &inchi);
 
 private:
   Ui::MoleculeDetailDialog *ui;

@@ -54,6 +54,7 @@ private slots:
   void similaritySliderPressed();
   void similaritySliderReleased();
   void similarityValueChanged(int value);
+  void moleculeDoubleClicked(vtkIdType id);
 
 private:
   Ui::FingerprintSimilarityDialog *ui;
