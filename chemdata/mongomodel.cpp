@@ -245,6 +245,8 @@ bool MongoModel::setImage2D(int row, const QByteArray &image)
   *obj = d->db->findOne("chem.molecules", QUERY("_id" << id));
 
   emit layoutChanged();
+
+  return true;
 }
 
 } // End of namespace
