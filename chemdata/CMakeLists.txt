@@ -91,9 +91,21 @@ qt4_wrap_ui(ui_srcs
 # Need to add current binary dir to include path for UI file headers
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(chemdata ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
+add_executable(chemdata MACOSX_BUNDLE ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkChartsCore vtkGUISupportQt
   vtkViewsContext2D vtkViewsInfovis vtkRenderingQt)
 install(TARGETS chemdata DESTINATION bin)
+
+if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
+  set(sfx "")
+  if(APPLE)
+    set(sfx ".app")
+  elseif(WIN32)
+    set(sfx ".exe")
+  endif()
+
+  include(DeployQt4)
+  install_qt4_executable(bin/chemdata${sfx})
+endif()
