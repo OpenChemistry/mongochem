@@ -19,7 +19,8 @@ if(UNIX AND NOT APPLE)
   find_package(Threads)
   set(EXTRA_LINK_LIB ${CMAKE_THREAD_LIBS_INIT})
 endif()
-find_package(VTK REQUIRED NO_MODULE)
+find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
+  vtkViewsInfovis vtkRenderingQt NO_MODULE)
 include(${VTK_USE_FILE})
 
 # Chemkit is used for substructure queries
