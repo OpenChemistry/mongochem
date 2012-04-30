@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 project(ChemData)
 
+include(CTest)
+enable_testing()
+
 set(CMAKE_MODULE_PATH ${ChemData_SOURCE_DIR}/cmake)
 
 # Set up our directory structure for output libraries and binaries
