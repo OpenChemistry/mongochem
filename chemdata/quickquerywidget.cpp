@@ -55,7 +55,8 @@ mongo::Query QuickQueryWidget::query() const
   }
   else if(field == "structure"){
     chemkit::Molecule molecule(value.toStdString(), "smiles");
-    int heavyAtomCount = molecule.atomCount() - molecule.atomCount("H");
+    int heavyAtomCount =
+      static_cast<int>(molecule.atomCount() - molecule.atomCount("H"));
 
     if(mode == "is"){
       return QUERY("heavyAtomCount" << heavyAtomCount).sort("heavyAtomCount");
