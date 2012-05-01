@@ -70,4 +70,6 @@ mongo::Query QuickQueryWidget::query() const
   else if(mode == "contains"){
     return QUERY(field.toStdString() << BSON("$regex" << value.toStdString()));
   }
+
+  return mongo::Query();
 }
