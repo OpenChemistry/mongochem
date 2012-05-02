@@ -321,15 +321,7 @@ void MainWindow::showKMeansClusteringDialog()
   // create and show the dialog
   KMeansClusteringDialog *dialog = new KMeansClusteringDialog(this);
 
-  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
-
-  foreach (const QString &inchiString, m_model->moleculeInChIs()) {
-    std::string inchi = inchiString.toStdString();
-
-    molecules.push_back(boost::make_shared<chemkit::Molecule>(inchi, "inchi"));
-  }
-
-  dialog->setMolecules(molecules);
+  dialog->setMolecules(m_model->molecules());
 
   connect(dialog, SIGNAL(moleculeDoubleClicked(vtkIdType)),
           this, SLOT(showMoleculeDetailsDialog(vtkIdType)));
@@ -369,17 +361,7 @@ void MainWindow::showFingerprintSimilarityDialog()
 
   // create and show the dialog
   FingerprintSimilarityDialog *dialog = new FingerprintSimilarityDialog(this);
-
-  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
-
-  foreach (const QString &inchiString, m_model->moleculeInChIs()) {
-    std::string inchi = inchiString.toStdString();
-
-    molecules.push_back(boost::make_shared<chemkit::Molecule>(inchi, "inchi"));
-  }
-
-  dialog->setMolecules(molecules);
-
+  dialog->setMolecules(m_model->molecules());
   dialog->show();
 }
 
@@ -415,17 +397,7 @@ void MainWindow::showStructureSimilarityDialog()
 
   // create and show the dialog
   StructureSimilarityDialog *dialog = new StructureSimilarityDialog(this);
-
-  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
-
-  foreach (const QString &inchiString, m_model->moleculeInChIs()) {
-    std::string inchi = inchiString.toStdString();
-
-    molecules.push_back(boost::make_shared<chemkit::Molecule>(inchi, "inchi"));
-  }
-
-  dialog->setMolecules(molecules);
-
+  dialog->setMolecules(m_model->molecules());
   dialog->show();
 }
 

@@ -155,6 +155,34 @@ std::vector<mongo::BSONObj> MongoDatabase::fetchMolecules(const std::vector<Mole
   return objs;
 }
 
+/// Creates a new molecule object for \p ref. The ownership of the returned
+/// molecule object is passed to the caller.
+boost::shared_ptr<chemkit::Molecule> MongoDatabase::createMolecule(const MoleculeRef &ref)
+{
+  if (!ref.isValid())
+    return boost::shared_ptr<chemkit::Molecule>();
+
+  // fetch molecule object
+  mongo::BSONObj obj = fetchMolecule(ref);
+
+  // get inchi formula
+  mongo::BSONElement inchiElement = obj.getField("inchi");
+  if (inchiElement.eoo())
+    return boost::shared_ptr<chemkit::Molecule>();
+
+  std::string inchi = inchiElement.str();
+
+  // create molecule from inchi
+  chemkit::Molecule *molecule = new chemkit::Molecule(inchi, "inchi");
+
+  // set molecule name
+  mongo::BSONElement nameElement = obj.getField("name");
+  if (!nameElement.eoo())
+    molecule->setName(nameElement.str());
+
+  return boost::shared_ptr<chemkit::Molecule>(molecule);
+}
+
 // --- Internal Methods ---------------------------------------------------- //
 /// Returns the name of the molecules collection.
 std::string MongoDatabase::moleculesCollectionName() const

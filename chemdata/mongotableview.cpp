@@ -14,6 +14,8 @@
 
 ******************************************************************************/
 
+#include "mongodatabase.h"
+
 #include "mongotableview.h"
 
 #include "mongomodel.h"
@@ -39,8 +41,6 @@
 #include <QtCore/QDebug>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
-
-#include "mongodatabase.h"
 
 namespace ChemData
 {

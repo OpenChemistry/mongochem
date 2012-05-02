@@ -17,9 +17,9 @@
 #ifndef MOLECULEDETAILDIALOG_H
 #define MOLECULEDETAILDIALOG_H
 
-#include <QDialog>
-
 #include <mongo/client/dbclient.h>
+
+#include <QDialog>
 
 namespace Ui {
 class MoleculeDetailDialog;

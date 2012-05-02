@@ -14,6 +14,8 @@
 
 ******************************************************************************/
 
+#include "mongodatabase.h"
+
 #include "kmeansclusteringdialog.h"
 #include "ui_kmeansclusteringdialog.h"
 
@@ -45,7 +47,7 @@ public:
   QVTKWidget *vtkWidget;
   int kValue;
   vtkNew<vtkPoints> points;
-  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules;
+  std::vector<MoleculeRef> molecules;
   vtkNew<vtkTable> table;
   vtkNew<vtkLookupTable> lut;
   vtkNew<vtkCubeAxesActor> cubeAxesActor;
@@ -141,16 +143,19 @@ KMeansClusteringDialog::~KMeansClusteringDialog()
   delete ui;
 }
 
-void KMeansClusteringDialog::setMolecules(
-  const std::vector<boost::shared_ptr<chemkit::Molecule> > &molecules)
+void KMeansClusteringDialog::setMolecules(const std::vector<MoleculeRef> &molecules)
 {
+  MongoDatabase *db = MongoDatabase::instance();
+
   // set molecules
   d->molecules = molecules;
 
   // update points
   d->points->SetNumberOfPoints(0);
 
-  foreach (const boost::shared_ptr<chemkit::Molecule> &molecule, molecules) {
+  foreach (const MoleculeRef &ref, molecules) {
+    boost::shared_ptr<const chemkit::Molecule> molecule = db->createMolecule(ref);
+
     double point[3];
 
     for (int i = 0; i < 3; i++) {
@@ -254,7 +259,7 @@ void KMeansClusteringDialog::setMolecules(
   d->vtkWidget->update();
 }
 
-std::vector<boost::shared_ptr<chemkit::Molecule> > KMeansClusteringDialog::molecules() const
+std::vector<MoleculeRef> KMeansClusteringDialog::molecules() const
 {
   return d->molecules;
 }

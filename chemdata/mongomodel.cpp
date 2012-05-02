@@ -209,20 +209,19 @@ QModelIndex MongoModel::index(int row, int column,
   return QModelIndex();
 }
 
-QStringList MongoModel::moleculeInChIs() const
+/// Returns a vector containing a reference to each molecule in the model.
+std::vector<MoleculeRef> MongoModel::molecules() const
 {
-  QStringList inchis;
+  std::vector<MoleculeRef> molecules;
 
-  for (int i = 0; i < d->m_rowObjects.size(); i++) {
-    BSONElement inchiElement = d->m_rowObjects[i].getField("inchi");
-    if(!inchiElement.eoo()) {
-      std::string inchi = inchiElement.str();
-
-      inchis.append(QString::fromStdString(inchi));
-    }
+  for (size_t i = 0; i < d->m_rowObjects.size(); i++) {
+    const mongo::BSONObj &obj = d->m_rowObjects[i];
+    mongo::BSONElement idElement;
+    if (obj.getObjectID(idElement))
+      molecules.push_back(MoleculeRef(idElement.OID()));
   }
 
-  return inchis;
+  return molecules;
 }
 
 void MongoModel::clear()

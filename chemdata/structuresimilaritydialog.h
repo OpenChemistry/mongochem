@@ -19,10 +19,7 @@
 
 #include <QDialog>
 
-#include <boost/shared_ptr.hpp>
-
-#include <chemkit/molecule.h>
-
+#include "moleculeref.h"
 #include "similaritygraphwidget.h"
 
 namespace Ui {
@@ -41,7 +38,7 @@ public:
   ~StructureSimilarityDialog();
 
   /// Sets the molecules to display in the graph.
-  void setMolecules(const std::vector<boost::shared_ptr<chemkit::Molecule> > &molecules);
+  void setMolecules(const std::vector<MoleculeRef> &molecules);
 
 private slots:
   void similaritySliderPressed();
@@ -51,7 +48,7 @@ private slots:
 private:
   Ui::StructureSimilarityDialog *ui;
   SimilarityGraphWidget *m_graphWidget;
-  std::vector<boost::shared_ptr<chemkit::Molecule> > m_molecules;
+  std::vector<MoleculeRef> m_molecules;
 };
 
 #endif // STRUCTURESIMILARITYDIALOG_H

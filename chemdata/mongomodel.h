@@ -22,6 +22,8 @@
 
 #include <mongo/client/dbclient.h>
 
+#include "moleculeref.h"
+
 class vtkTable;
 
 namespace ChemData {
@@ -49,9 +51,7 @@ public:
   QModelIndex index(int row, int column,
                     const QModelIndex & parent = QModelIndex()) const;
 
-  /** Returns a list containing the InChI formula for each molecule in the
-    * model. */
-  QStringList moleculeInChIs() const;
+  std::vector<MoleculeRef> molecules() const;
 
   void clear();
 

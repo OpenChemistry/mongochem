@@ -26,6 +26,8 @@
 #include <QDialog>
 #include <QString>
 
+#include "moleculeref.h"
+
 namespace Ui {
 class KMeansClusteringDialog;
 }
@@ -47,9 +49,8 @@ public:
   void setKValue(int k);
   int kValue() const;
 
-  void setMolecules(
-    const std::vector<boost::shared_ptr<chemkit::Molecule> > &molecules);
-  std::vector<boost::shared_ptr<chemkit::Molecule> > molecules() const;
+  void setMolecules(const std::vector<MoleculeRef> &molecules);
+  std::vector<MoleculeRef> molecules() const;
 
   void setDescriptor(int index, const QString &descriptor);
   QString descriptor(int index);
