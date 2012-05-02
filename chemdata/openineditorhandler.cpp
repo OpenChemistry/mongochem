@@ -16,6 +16,8 @@
 
 #include "openineditorhandler.h"
 
+#include <boost/make_shared.hpp>
+
 #include <QDir>
 #include <QProcess>
 #include <QTemporaryFile>
@@ -24,6 +26,8 @@
 #include <chemkit/moleculefile.h>
 #include <chemkit/coordinatepredictor.h>
 #include <chemkit/moleculegeometryoptimizer.h>
+
+#include "mongodatabase.h"
 
 OpenInEditorHandler::OpenInEditorHandler(QObject *parent) :
     QObject(parent)
@@ -46,20 +50,29 @@ QString OpenInEditorHandler::editor() const
   return m_editorName;
 }
 
-void OpenInEditorHandler::setMolecule(const boost::shared_ptr<chemkit::Molecule> &molecule)
+void OpenInEditorHandler::setMolecule(const MoleculeRef &molecule)
 {
-  m_molecule = molecule;
+  m_moleculeRef = molecule;
 }
 
-boost::shared_ptr<chemkit::Molecule> OpenInEditorHandler::molecule() const
+MoleculeRef OpenInEditorHandler::molecule() const
 {
-  return m_molecule;
+  return m_moleculeRef;
 }
 
 void OpenInEditorHandler::openInEditor()
 {
-  if (!m_molecule)
+  if (!m_moleculeRef.isValid())
     return;
+
+  MongoDatabase *db = MongoDatabase::instance();
+  mongo::BSONObj moleculeObj = db->fetchMolecule(m_moleculeRef);
+  mongo::BSONElement inchiElement = moleculeObj.getField("inchi");
+  if (inchiElement.eoo())
+    return;
+
+  boost::shared_ptr<chemkit::Molecule> molecule =
+    boost::make_shared<chemkit::Molecule>(inchiElement.str(), "inchi");
 
   // setup temporary file
   QTemporaryFile tempFile("XXXXXX.cml");
@@ -68,10 +81,10 @@ void OpenInEditorHandler::openInEditor()
     QString tempFilePath = QDir::tempPath() + QDir::separator() + tempFile.fileName();
 
     // predict 3d coordinates
-    chemkit::CoordinatePredictor::predictCoordinates(m_molecule.get());
+    chemkit::CoordinatePredictor::predictCoordinates(molecule.get());
 
     // optimize 3d coordinates
-    chemkit::MoleculeGeometryOptimizer optimizer(m_molecule.get());
+    chemkit::MoleculeGeometryOptimizer optimizer(molecule.get());
 
     // try with mmff
     optimizer.setForceField("mmff");
@@ -100,7 +113,7 @@ void OpenInEditorHandler::openInEditor()
     // write molecule to temp file
     chemkit::MoleculeFile file(tempFilePath.toStdString());
     file.setFormat("cml");
-    file.addMolecule(m_molecule);
+    file.addMolecule(molecule);
     file.write();
 
     // start editor

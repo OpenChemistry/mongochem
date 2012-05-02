@@ -23,6 +23,8 @@
 
 #include <chemkit/molecule.h>
 
+#include "moleculeref.h"
+
 class OpenInEditorHandler : public QObject
 {
   Q_OBJECT
@@ -41,10 +43,10 @@ public:
   QString editor() const;
 
   /** Sets the molecule to \p molecule. */
-  void setMolecule(const boost::shared_ptr<chemkit::Molecule> &molecule);
+  void setMolecule(const MoleculeRef &molecule);
 
   /** Returns the molecule. */
-  boost::shared_ptr<chemkit::Molecule> molecule() const;
+  MoleculeRef molecule() const;
 
 public slots:
   /** This slot is called when the molecule should be opened in a molecular
@@ -53,7 +55,7 @@ public slots:
 
 private:
   QString m_editorName;
-  boost::shared_ptr<chemkit::Molecule> m_molecule;
+  MoleculeRef m_moleculeRef;
 };
 
 #endif // OPENINEDITORHANDLER_H

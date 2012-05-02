@@ -25,6 +25,7 @@ namespace Ui {
 class MoleculeDetailDialog;
 }
 
+class MoleculeRef;
 class OpenInEditorHandler;
 class ExportMoleculeHandler;
 
@@ -36,7 +37,7 @@ public:
   explicit MoleculeDetailDialog(QWidget *parent = 0);
   ~MoleculeDetailDialog();
 
-  void setMoleculeObject(mongo::BSONObj *obj);
+  void setMolecule(const MoleculeRef &molecule);
   bool setMoleculeFromInchi(const std::string &inchi);
 
 private:

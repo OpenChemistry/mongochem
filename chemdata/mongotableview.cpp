@@ -40,6 +40,8 @@
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkReply>
 
+#include "mongodatabase.h"
+
 namespace ChemData
 {
 
@@ -56,6 +58,7 @@ MongoTableView::MongoTableView(QWidget *parent) : QTableView(parent),
 
 void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
 {
+  MongoDatabase *db = MongoDatabase::instance();
   QModelIndex index = indexAt(e->pos());
 
   // convert index from filter model to source model
@@ -70,13 +73,12 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
     QAction *action;
     mongo::BSONElement inchi = obj->getField("inchi");
 
-    if (!inchi.eoo()) {
-      action = menu->addAction("&Open in Editor");
-      m_openInEditorHandler->setMolecule(
-        boost::make_shared<chemkit::Molecule>(inchi.str(), "inchi"));
-      connect(action, SIGNAL(triggered()),
-              m_openInEditorHandler, SLOT(openInEditor()));
-    }
+    // add open in editor action
+    action = menu->addAction("&Open in Editor");
+    MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
+    m_openInEditorHandler->setMolecule(ref);
+    connect(action, SIGNAL(triggered()),
+            m_openInEditorHandler, SLOT(openInEditor()));
 
     mongo::BSONElement diagram = obj->getField("diagram");
 
@@ -164,12 +166,21 @@ void MongoTableView::fetchImage()
 
 void MongoTableView::showMoleculeDetailsDialog()
 {
-  MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
+  MongoDatabase *db = MongoDatabase::instance();
+  mongo::BSONObj *obj =
+    static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
+  MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
 
-  mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
-  dialog->setMoleculeObject(obj);
-
-  dialog->show();
+  if (ref.isValid()) {
+    MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
+    dialog->setMolecule(ref);
+    dialog->show();
+  }
+  else {
+    QMessageBox::critical(this,
+                          "Error",
+                          "Failed to find molecule from index.");
+  }
 }
 
 void MongoTableView::copyInChIToClipboard()
