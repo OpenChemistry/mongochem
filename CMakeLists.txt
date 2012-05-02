@@ -31,3 +31,9 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(chemdata)
+
+option(BUILD_DOCUMENTATION "Build project documentation" OFF)
+
+if(BUILD_DOCUMENTATION)
+  add_subdirectory(docs)
+endif()
