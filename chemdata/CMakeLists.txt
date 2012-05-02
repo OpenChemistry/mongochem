@@ -42,6 +42,7 @@ set(chemdata_srcs
   kmeansclusteringdialog.cpp
   mainwindow.cpp
   moleculedetaildialog.cpp
+  mongodatabase.cpp
   mongomodel.cpp
   mongorecordmodel.cpp
   mongotableview.cpp

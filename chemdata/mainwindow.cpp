@@ -69,6 +69,7 @@
 #include "fingerprintsimilaritydialog.h"
 #include "structuresimilaritydialog.h"
 #include "kmeansclusteringdialog.h"
+#include "mongodatabase.h"
 
 namespace {
 
@@ -279,12 +280,20 @@ void MainWindow::showParallelCoordinates()
 
 void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
 {
-  MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
-
+  MongoDatabase *db = MongoDatabase::instance();
   mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(index.internalPointer());
-  dialog->setMoleculeObject(obj);
+  MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
 
-  dialog->show();
+  if (ref.isValid()) {
+    MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
+    dialog->setMolecule(ref);
+    dialog->show();
+  }
+  else {
+    QMessageBox::critical(this,
+                          "Error",
+                          "Failed to find molecule from index.");
+  }
 }
 
 void MainWindow::showMoleculeDetailsDialog(vtkIdType id)

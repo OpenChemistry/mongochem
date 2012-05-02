@@ -24,6 +24,7 @@
 
 #include <chemkit/molecule.h>
 
+#include "mongodatabase.h"
 #include "openineditorhandler.h"
 #include "exportmoleculehandler.h"
 
@@ -48,29 +49,28 @@ MoleculeDetailDialog::~MoleculeDetailDialog()
   delete ui;
 }
 
-void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
+void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
 {
-  if (!obj) {
+  // load molecule from database
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
     return;
-  }
 
+  mongo::BSONObj obj = db->fetchMolecule(moleculeRef);
+
+  // create molecule from inchi
   boost::shared_ptr<chemkit::Molecule> molecule;
-
-  // set inchi
-  mongo::BSONElement inchiElement = obj->getField("inchi");
+  mongo::BSONElement inchiElement = obj.getField("inchi");
   if (!inchiElement.eoo()) {
     std::string inchi = inchiElement.str();
     ui->inchiLineEdit->setText(inchi.c_str());
 
     // create molecule from inchi
     molecule = boost::make_shared<chemkit::Molecule>(inchi, "inchi");
-
-    // set molecule for open in editor handler
-    m_openInEditorHandler->setMolecule(molecule);
   }
 
   // set name
-  mongo::BSONElement nameElement = obj->getField("name");
+  mongo::BSONElement nameElement = obj.getField("name");
   if (!nameElement.eoo()) {
     std::string name = nameElement.str();
     ui->nameLineEdit->setText(name.c_str());
@@ -89,21 +89,21 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
   }
 
   // set formula
-  mongo::BSONElement formulaElement = obj->getField("formula");
+  mongo::BSONElement formulaElement = obj.getField("formula");
   if (!formulaElement.eoo()) {
     std::string formula = formulaElement.str();
     ui->formulaLineEdit->setText(formula.c_str());
   }
 
   // set mass
-  mongo::BSONElement massElement = obj->getField("mass");
+  mongo::BSONElement massElement = obj.getField("mass");
   if (!massElement.eoo()) {
     double mass = massElement.numberDouble();
     ui->massLineEdit->setText(QString::number(mass) + "g/mol");
   }
 
   // set inchikey
-  mongo::BSONElement inchikeyElement = obj->getField("inchikey");
+  mongo::BSONElement inchikeyElement = obj.getField("inchikey");
   if (!inchikeyElement.eoo()) {
     std::string inchikey = inchikeyElement.str();
     ui->inchikeyLineEdit->setText(inchikey.c_str());
@@ -116,7 +116,7 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
   }
 
   // set diagram
-  mongo::BSONElement diagramElement = obj->getField("diagram");
+  mongo::BSONElement diagramElement = obj.getField("diagram");
   if (!diagramElement.eoo()) {
     int length;
     const char *data = diagramElement.binData(length);
@@ -129,7 +129,7 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
   }
 
   // set descriptors
-  mongo::BSONObj descriptorsObj = obj->getObjectField("descriptors");
+  mongo::BSONObj descriptorsObj = obj.getObjectField("descriptors");
   if (!descriptorsObj.isEmpty()) {
     ui->descriptorsTableWidget->setColumnCount(2);
     ui->descriptorsTableWidget->setHorizontalHeaderLabels(QStringList() << "Name" << "Value");
@@ -149,6 +149,9 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
     }
   }
 
+  // setup open in editor handler
+  m_openInEditorHandler->setMolecule(moleculeRef);
+
   // setup export handler
   m_exportHandler->setMolecule(molecule);
 }
@@ -157,27 +160,18 @@ void MoleculeDetailDialog::setMoleculeObject(mongo::BSONObj *obj)
 /// \c false if the molecule could not be found in the database.
 bool MoleculeDetailDialog::setMoleculeFromInchi(const std::string &inchi)
 {
-  mongo::DBClientConnection db;
-  QSettings settings;
-  std::string host = settings.value("hostname").toString().toStdString();
-
-  try {
-    db.connect(host);
-  }
-  catch (mongo::DBException &) {
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db->isConnected()) {
+    // failed to get a database connection
     return false;
   }
 
-  std::string collection =
-    settings.value("collection", "chem").toString().toStdString();
-  std::string moleculesCollection = collection + ".molecules";
-
-  mongo::BSONObj obj =
-    db.findOne(moleculesCollection, QUERY("inchi" << inchi));
-  if (obj.isEmpty())
+  MoleculeRef molecule = db->findMoleculeFromInChI(inchi);
+  if (!molecule.isValid()) {
+    // failed to find molecule from inchi
     return false;
+  }
 
-  setMoleculeObject(&obj);
-
+  setMolecule(molecule);
   return true;
 }
