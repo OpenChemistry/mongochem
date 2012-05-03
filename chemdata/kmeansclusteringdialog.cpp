@@ -432,32 +432,73 @@ void KMeansClusteringDialog::setupDescriptors()
   std::vector<std::string> descriptors =
       chemkit::MolecularDescriptor::descriptors();
 
-  int massIndex = -1;
-  int tpsaIndex = -1;
-  int vabcIndex = -1;
+  // create map of descriptor dimensionality to list of descriptor names
+  QMap<int, QStringList> descriptorsMap;
 
-  for (size_t i = 0; i < descriptors.size(); i++) {
-    QString name = descriptors[i].c_str();
+  foreach (const std::string &name, descriptors) {
+    boost::scoped_ptr<chemkit::MolecularDescriptor>
+      descriptor(chemkit::MolecularDescriptor::create(name));
 
-    if (name == "mass")
-      massIndex = i;
-    else if (name == "tpsa")
-      tpsaIndex = i;
-    else if (name == "vabc")
-      vabcIndex = i;
+    int dimensionality = descriptor->dimensionality();
 
-    ui->xDescriptorComboBox->addItem(name);
-    ui->yDescriptorComboBox->addItem(name);
-    ui->zDescriptorComboBox->addItem(name);
+    if (dimensionality == -1) {
+      // descriptors with unknown dimensionality have a value of -1 so we
+      // set it to INT_MAX in order to put them at the bottom of the list
+      dimensionality = std::numeric_limits<int>::max();
+    }
+
+    descriptorsMap[dimensionality].append(name.c_str());
+  }
+
+  // list of the combo boxes for each of the x, y and z axes
+  QList<QComboBox *> comboBoxes;
+  comboBoxes.append(ui->xDescriptorComboBox);
+  comboBoxes.append(ui->yDescriptorComboBox);
+  comboBoxes.append(ui->zDescriptorComboBox);
+
+  // insert each descriptor into each combo box grouped by dimensionality
+  foreach (int key, descriptorsMap.keys()) {
+    int dimensionality = key;
+    const QStringList &names = descriptorsMap[key];
+
+    foreach (QComboBox *comboBox, comboBoxes) {
+      // insert title
+      int titleIndex = comboBox->count();
+      if (dimensionality != std::numeric_limits<int>::max())
+        comboBox->addItem(tr("%1D Descriptors").arg(dimensionality));
+      else
+        comboBox->addItem(tr("Other Descriptors"));
+
+      // set bold font for title and make it non-selectable
+      QStandardItem *item =
+        qobject_cast<QStandardItemModel *>(comboBox->model())->item(titleIndex);
+
+      if (item) {
+        QFont font = item->font();
+        font.setBold(true);
+        item->setFont(font);
+        item->setFlags(Qt::ItemIsEnabled);
+      }
+
+      // add a separator
+      comboBox->insertSeparator(comboBox->count());
+
+      // insert name of each descriptor
+      foreach (const QString &name, names)
+        comboBox->addItem(name);
+    }
   }
 
   // default to X = mass, Y = tpsa, and Z = vabc
+  int massIndex = ui->xDescriptorComboBox->findText("mass");
   ui->xDescriptorComboBox->setCurrentIndex(massIndex);
+  int tpsaIndex = ui->yDescriptorComboBox->findText("tpsa");
   ui->yDescriptorComboBox->setCurrentIndex(tpsaIndex);
+  int vabcIndex = ui->zDescriptorComboBox->findText("vabc");
   ui->zDescriptorComboBox->setCurrentIndex(vabcIndex);
 
   // set cube axis labels
-  d->cubeAxesActor->SetXTitle(descriptors[massIndex].c_str());
-  d->cubeAxesActor->SetYTitle(descriptors[tpsaIndex].c_str());
-  d->cubeAxesActor->SetZTitle(descriptors[vabcIndex].c_str());
+  d->cubeAxesActor->SetXTitle("mass");
+  d->cubeAxesActor->SetYTitle("tpsa");
+  d->cubeAxesActor->SetZTitle("vabc");
 }
