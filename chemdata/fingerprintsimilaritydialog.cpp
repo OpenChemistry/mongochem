@@ -14,6 +14,8 @@
 
 ******************************************************************************/
 
+#include "mongodatabase.h"
+
 #include "fingerprintsimilaritydialog.h"
 #include "ui_fingerprintsimilaritydialog.h"
 
@@ -57,7 +59,7 @@ FingerprintSimilarityDialog::~FingerprintSimilarityDialog()
   delete ui;
 }
 
-void FingerprintSimilarityDialog::setMolecules(const std::vector<boost::shared_ptr<Molecule> > &molecules)
+void FingerprintSimilarityDialog::setMolecules(const std::vector<MoleculeRef> &molecules)
 {
   m_molecules = molecules;
 
@@ -66,12 +68,20 @@ void FingerprintSimilarityDialog::setMolecules(const std::vector<boost::shared_p
 
 void FingerprintSimilarityDialog::setFingerprint(const QString &name)
 {
+  MongoDatabase *db = MongoDatabase::instance();
+
   // calculate fingerprints
   boost::scoped_ptr<Fingerprint> fingerprint(Fingerprint::create(name.toStdString()));
 
   std::vector<Bitset> fingerprints;
   for(size_t i = 0; i < m_molecules.size(); i++){
-    fingerprints.push_back(fingerprint->value(m_molecules[i].get()));
+    const MoleculeRef &ref = m_molecules[i];
+    boost::shared_ptr<const chemkit::Molecule> molecule = db->createMolecule(ref);
+
+    if (molecule)
+      fingerprints.push_back(fingerprint->value(molecule.get()));
+    else
+      fingerprints.push_back(chemkit::Bitset());
   }
 
   // calculate similarity matrix
@@ -115,18 +125,6 @@ void FingerprintSimilarityDialog::similarityValueChanged(int value)
 void FingerprintSimilarityDialog::moleculeDoubleClicked(vtkIdType id)
 {
   MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
-
-  std::string inchi = m_molecules[id]->formula("inchi");
-  bool ok = dialog->setMoleculeFromInchi(inchi);
-  if (!ok) {
-    // we failed to lookup the molecule from its inchi so
-    // show an error dialog and return
-    QMessageBox::critical(this,
-                          "Error",
-                          "Failed to find molecule from InChI.");
-    delete dialog;
-    return;
-  }
-
+  dialog->setMolecule(m_molecules[id]);
   dialog->show();
 }

@@ -14,6 +14,8 @@
 
 ******************************************************************************/
 
+#include "mongodatabase.h"
+
 #include "structuresimilaritydialog.h"
 #include "ui_structuresimilaritydialog.h"
 
@@ -44,8 +46,10 @@ StructureSimilarityDialog::~StructureSimilarityDialog()
     delete ui;
 }
 
-void StructureSimilarityDialog::setMolecules(const std::vector<boost::shared_ptr<Molecule> > &molecules)
+void StructureSimilarityDialog::setMolecules(const std::vector<MoleculeRef> &molecules)
 {
+  MongoDatabase *db = MongoDatabase::instance();
+
   m_molecules = molecules;
 
   // calculate similarity matrix
@@ -53,11 +57,15 @@ void StructureSimilarityDialog::setMolecules(const std::vector<boost::shared_ptr
   similarityMatrix.resize(m_molecules.size(), m_molecules.size());
 
   for(size_t i = 0; i < m_molecules.size(); i++){
+    const MoleculeRef &refI = m_molecules[i];
+    boost::shared_ptr<Molecule> molecule = db->createMolecule(refI);
     StructureSimilarityDescriptor descriptor;
-    descriptor.setMolecule(m_molecules[i]);
+    descriptor.setMolecule(molecule);
 
     for(size_t j = i + 1; j < m_molecules.size(); j++){
-      float similarity = descriptor.value(m_molecules[j].get()).toFloat();
+      const MoleculeRef &refJ = m_molecules[j];
+      boost::shared_ptr<Molecule> moleculeJ = db->createMolecule(refJ);
+      float similarity = descriptor.value(moleculeJ.get()).toFloat();
 
       similarityMatrix(i, j) = similarity;
       similarityMatrix(j, i) = similarity;

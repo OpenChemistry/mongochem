@@ -20,7 +20,11 @@
 #include <string>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include <mongo/client/dbclient.h>
+
+#include <chemkit/molecule.h>
 
 #include "moleculeref.h"
 
@@ -37,6 +41,7 @@ public:
 
   mongo::BSONObj fetchMolecule(const MoleculeRef &molecule);
   std::vector<mongo::BSONObj> fetchMolecules(const std::vector<MoleculeRef> &molecules);
+  boost::shared_ptr<chemkit::Molecule> createMolecule(const MoleculeRef &ref);
 
 private:
   MongoDatabase();
