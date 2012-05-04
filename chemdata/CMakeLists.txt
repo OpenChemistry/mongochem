@@ -1,5 +1,5 @@
 find_package(MongoDB)
-include_directories(${MongoDB_INCLUDE_DIR})
+include_directories(SYSTEM ${MongoDB_INCLUDE_DIR})
 # MongoDB built with unicode strings
 add_definitions("-D_UNICODE")
 if(WIN32)
@@ -13,22 +13,25 @@ find_package(Boost COMPONENTS thread filesystem program_options system iostreams
 if(WIN32)
   add_definitions("-DBOOST_ALL_NO_LIB")
 endif()
-include_directories(${Boost_INCLUDE_DIRS})
+include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 # MongoDB also seems to require pthread on Linux (but not Apple)
 if(UNIX AND NOT APPLE)
   find_package(Threads)
   set(EXTRA_LINK_LIB ${CMAKE_THREAD_LIBS_INIT})
 endif()
+
+# VTK is used for the charting and infovis components.
 find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
   vtkViewsInfovis vtkRenderingQt NO_MODULE)
-include(${VTK_USE_FILE})
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
+include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
 # Chemkit is used for substructure queries
 find_package(Chemkit COMPONENTS io md REQUIRED)
-include_directories(${CHEMKIT_INCLUDE_DIRS})
+include_directories(SYSTEM ${CHEMKIT_INCLUDE_DIRS})
 link_directories(${CHEMKIT_LIBRARY_DIR})
 
-# find qt
+# Find the Qt components we need.
 find_package(Qt4 4.6 COMPONENTS QtCore QtGui QtNetwork REQUIRED)
 include(${QT_USE_FILE})
 
@@ -55,6 +58,7 @@ set(chemdata_srcs
   structuresimilaritydialog.cpp
   substructurefiltermodel.cpp
 )
+
 qt4_wrap_cpp(moc_srcs
   exportmoleculehandler.h
   fingerprintsimilaritydialog.h
@@ -75,6 +79,7 @@ qt4_wrap_cpp(moc_srcs
   structuresimilaritydialog.h
   substructurefiltermodel.h
 )
+
 qt4_wrap_ui(ui_srcs
   fingerprintsimilaritydialog.ui
   graphdialog.ui
@@ -97,7 +102,7 @@ target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkChartsCore vtkGUISupportQt
   vtkViewsContext2D vtkViewsInfovis vtkRenderingQt)
-install(TARGETS chemdata DESTINATION bin)
+install(TARGETS chemdata DESTINATION "${INSTALL_RUNTIME_DIR}")
 
 if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
   set(sfx "")
