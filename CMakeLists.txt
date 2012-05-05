@@ -37,3 +37,10 @@ option(BUILD_DOCUMENTATION "Build project documentation" OFF)
 if(BUILD_DOCUMENTATION)
   add_subdirectory(docs)
 endif()
+
+include(CPack)
+
+if(BUILD_TESTING)
+  include(BuildPackageTest)
+  BuildPackageTest_Add("ChemData" "${CMAKE_CURRENT_BINARY_DIR}")
+endif()
