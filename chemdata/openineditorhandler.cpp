@@ -29,8 +29,8 @@
 
 #include "mongodatabase.h"
 
-OpenInEditorHandler::OpenInEditorHandler(QObject *parent) :
-    QObject(parent)
+OpenInEditorHandler::OpenInEditorHandler(QObject *parent_) :
+    QObject(parent_)
 {
   // by default use the avogadro editor
   m_editorName = "avogadro";
@@ -50,9 +50,9 @@ QString OpenInEditorHandler::editor() const
   return m_editorName;
 }
 
-void OpenInEditorHandler::setMolecule(const MoleculeRef &molecule)
+void OpenInEditorHandler::setMolecule(const MoleculeRef &molecule_)
 {
-  m_moleculeRef = molecule;
+  m_moleculeRef = molecule_;
 }
 
 MoleculeRef OpenInEditorHandler::molecule() const
@@ -71,7 +71,7 @@ void OpenInEditorHandler::openInEditor()
   if (inchiElement.eoo())
     return;
 
-  boost::shared_ptr<chemkit::Molecule> molecule =
+  boost::shared_ptr<chemkit::Molecule> molecule_ =
     boost::make_shared<chemkit::Molecule>(inchiElement.str(), "inchi");
 
   // setup temporary file
@@ -81,10 +81,10 @@ void OpenInEditorHandler::openInEditor()
     QString tempFilePath = QDir::tempPath() + QDir::separator() + tempFile.fileName();
 
     // predict 3d coordinates
-    chemkit::CoordinatePredictor::predictCoordinates(molecule.get());
+    chemkit::CoordinatePredictor::predictCoordinates(molecule_.get());
 
     // optimize 3d coordinates
-    chemkit::MoleculeGeometryOptimizer optimizer(molecule.get());
+    chemkit::MoleculeGeometryOptimizer optimizer(molecule_.get());
 
     // try with mmff
     optimizer.setForceField("mmff");
@@ -113,7 +113,7 @@ void OpenInEditorHandler::openInEditor()
     // write molecule to temp file
     chemkit::MoleculeFile file(tempFilePath.toStdString());
     file.setFormat("cml");
-    file.addMolecule(molecule);
+    file.addMolecule(molecule_);
     file.write();
 
     // start editor

@@ -32,8 +32,8 @@
 
 using namespace mongo;
 
-ParallelCoordinatesDialog::ParallelCoordinatesDialog(QWidget *parent)
-  : QDialog(parent),
+ParallelCoordinatesDialog::ParallelCoordinatesDialog(QWidget *parent_)
+  : QDialog(parent_),
     ui(new Ui::ParallelCoordinatesDialog)
 {
   ui->setupUi(this);
@@ -92,10 +92,10 @@ void ParallelCoordinatesDialog::setupTable()
   // query molecules collection
   std::string collection = settings.value("collection").toString().toStdString();
   std::string moleculesCollection = collection + ".molecules";
-  auto_ptr<DBClientCursor> cursor = db.query(moleculesCollection);
+  auto_ptr<DBClientCursor> cursor_ = db.query(moleculesCollection);
 
-  while (cursor->more()) {
-    BSONObj obj = cursor->next();
+  while (cursor_->more()) {
+    BSONObj obj = cursor_->next();
     if (obj.isEmpty())
       continue;
 

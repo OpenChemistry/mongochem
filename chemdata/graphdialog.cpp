@@ -39,8 +39,8 @@
 
 using namespace mongo;
 
-GraphDialog::GraphDialog(QWidget *parent)
-  : QDialog(parent),
+GraphDialog::GraphDialog(QWidget *parent_)
+  : QDialog(parent_),
     ui(new Ui::GraphDialog)
 {
   ui->setupUi(this);
@@ -124,10 +124,10 @@ void GraphDialog::showClicked()
   std::string moleculesCollection = collection + ".molecules";
 
   // query for x data
-  auto_ptr<DBClientCursor> cursor = db.query(moleculesCollection);
+  auto_ptr<DBClientCursor> cursor_ = db.query(moleculesCollection);
 
-  while(cursor->more()){
-    BSONObj obj = cursor->next();
+  while(cursor_->more()){
+    BSONObj obj = cursor_->next();
 
     // get values
     double xValue = obj.getFieldDotted("descriptors." + xName.toStdString()).numberDouble();

@@ -28,7 +28,7 @@
 
 using namespace mongo;
 
-vtkStandardNewMacro(DiagramTooltipItem);
+vtkStandardNewMacro(DiagramTooltipItem)
 
 DiagramTooltipItem::DiagramTooltipItem()
   : vtkTooltipItem()

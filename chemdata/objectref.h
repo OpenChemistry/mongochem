@@ -23,8 +23,8 @@
 class ObjectRef
 {
 public:
-  /// Creates a new object reference with \p id.
-  ObjectRef(const mongo::OID &id = mongo::OID()) : m_id(id) { }
+  /// Creates a new object reference with \p id_.
+  ObjectRef(const mongo::OID &id_ = mongo::OID()) : m_id(id_) { }
 
   /// Destroys the object reference.
   virtual ~ObjectRef() { }

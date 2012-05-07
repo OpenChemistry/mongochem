@@ -59,8 +59,8 @@ public:
   bool descriptorEnabled[3];
 };
 
-KMeansClusteringDialog::KMeansClusteringDialog(QWidget *parent)
-  : QDialog(parent),
+KMeansClusteringDialog::KMeansClusteringDialog(QWidget *parent_)
+  : QDialog(parent_),
     d(new KMeansClusteringDialogPrivate),
     ui(new Ui::KMeansClusteringDialog)
 {
@@ -143,26 +143,26 @@ KMeansClusteringDialog::~KMeansClusteringDialog()
   delete ui;
 }
 
-void KMeansClusteringDialog::setMolecules(const std::vector<MoleculeRef> &molecules)
+void KMeansClusteringDialog::setMolecules(const std::vector<MoleculeRef> &molecules_)
 {
   MongoDatabase *db = MongoDatabase::instance();
 
   // set molecules
-  d->molecules = molecules;
+  d->molecules = molecules_;
 
   // update points
   d->points->SetNumberOfPoints(0);
 
-  foreach (const MoleculeRef &ref, molecules) {
+  foreach (const MoleculeRef &ref, molecules_) {
     boost::shared_ptr<const chemkit::Molecule> molecule = db->createMolecule(ref);
 
     double point[3];
 
     for (int i = 0; i < 3; i++) {
-      QString descriptor = this->descriptor(i);
+      QString descriptor_ = this->descriptor(i);
 
       if (isDescriptorEnabled(i))
-        point[i] = molecule->descriptor(descriptor.toStdString()).toDouble();
+        point[i] = molecule->descriptor(descriptor_.toStdString()).toDouble();
       else
         point[i] = 0;
     }
@@ -210,7 +210,7 @@ void KMeansClusteringDialog::setMolecules(const std::vector<MoleculeRef> &molecu
   size_t clusterCount = kMeansStatistics->GetOutput()->GetNumberOfColumns();
   std::vector<size_t> clusterSizes(clusterCount);
 
-  for (size_t r = 0; r < kMeansStatistics->GetOutput()->GetNumberOfRows(); r++) {
+  for (vtkIdType r = 0; r < kMeansStatistics->GetOutput()->GetNumberOfRows(); r++) {
     vtkVariant v = kMeansStatistics->GetOutput()->GetValue(r, clusterCount - 1);
 
     int cluster = v.ToInt();
@@ -220,7 +220,7 @@ void KMeansClusteringDialog::setMolecules(const std::vector<MoleculeRef> &molecu
 
   // update cluster table widget
   ui->clusterTableWidget->setRowCount(d->kValue);
-  for (size_t row = 0; row < d->kValue; row++) {
+  for (int row = 0; row < d->kValue; row++) {
     // column 0 - cluster color
     QTableWidgetItem *colorItem = new QTableWidgetItem;
 
@@ -282,9 +282,9 @@ int KMeansClusteringDialog::kValue() const
   return d->kValue;
 }
 
-void KMeansClusteringDialog::setDescriptor(int index, const QString &descriptor)
+void KMeansClusteringDialog::setDescriptor(int index, const QString &descriptor_)
 {
-  QByteArray descriptorAscii = descriptor.toAscii();
+  QByteArray descriptorAscii = descriptor_.toAscii();
 
   switch (index) {
   case 0:
@@ -373,19 +373,19 @@ void KMeansClusteringDialog::cubeAxesLocationChanged(const QString &value)
   d->vtkWidget->update();
 }
 
-void KMeansClusteringDialog::xDescriptorChanged(const QString &descriptor)
+void KMeansClusteringDialog::xDescriptorChanged(const QString &descriptor_)
 {
-  setDescriptor(0, descriptor);
+  setDescriptor(0, descriptor_);
 }
 
-void KMeansClusteringDialog::yDescriptorChanged(const QString &descriptor)
+void KMeansClusteringDialog::yDescriptorChanged(const QString &descriptor_)
 {
-  setDescriptor(1, descriptor);
+  setDescriptor(1, descriptor_);
 }
 
-void KMeansClusteringDialog::zDescriptorChanged(const QString &descriptor)
+void KMeansClusteringDialog::zDescriptorChanged(const QString &descriptor_)
 {
-  setDescriptor(2, descriptor);
+  setDescriptor(2, descriptor_);
 }
 
 void KMeansClusteringDialog::xDescriptorEnabledToggled(bool value)
@@ -403,17 +403,17 @@ void KMeansClusteringDialog::zDescriptorEnabledToggled(bool value)
   setDescriptorEnabled(2, value);
 }
 
-void KMeansClusteringDialog::viewMouseEvent(QMouseEvent *event)
+void KMeansClusteringDialog::viewMouseEvent(QMouseEvent *event_)
 {
-  if (event->button() == Qt::LeftButton &&
-      event->type() == QMouseEvent::MouseButtonDblClick) {
+  if (event_->button() == Qt::LeftButton &&
+      event_->type() == QMouseEvent::MouseButtonDblClick) {
     vtkNew<vtkPointPicker> picker;
     vtkRenderer *renderer = d->renderer.GetPointer();
     vtkRenderWindowInteractor *interactor = d->vtkWidget->GetInteractor();
 
-    int *pos = interactor->GetEventPosition();
+    int *pos_ = interactor->GetEventPosition();
 
-    if (picker->Pick(pos[0], pos[1], 0, renderer)) {
+    if (picker->Pick(pos_[0], pos_[1], 0, renderer)) {
       vtkIdType id = picker->GetPointId();
 
       if (id != -1)

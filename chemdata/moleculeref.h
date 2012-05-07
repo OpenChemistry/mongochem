@@ -23,8 +23,8 @@
 class MoleculeRef : public ObjectRef
 {
 public:
-  /// Creates a new molecule reference with \p id.
-  MoleculeRef(const mongo::OID &id = mongo::OID()) : ObjectRef(id) { }
+  /// Creates a new molecule reference with \p id_.
+  MoleculeRef(const mongo::OID &id_ = mongo::OID()) : ObjectRef(id_) { }
 
   /// Destroys the molecule reference.
   ~MoleculeRef() { }

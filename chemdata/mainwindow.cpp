@@ -76,8 +76,8 @@ namespace {
 class MolecularFormulaDelegate : public QStyledItemDelegate
 {
 public:
-  MolecularFormulaDelegate(QObject *parent = 0)
-    : QStyledItemDelegate(parent)
+  MolecularFormulaDelegate(QObject *parent_ = 0)
+    : QStyledItemDelegate(parent_)
   {
   }
 
