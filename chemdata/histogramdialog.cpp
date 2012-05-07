@@ -116,8 +116,8 @@ bool PopulateHistograms(vtkTable *input,
 
 } // end anonymous namespace
 
-HistogramDialog::HistogramDialog(QWidget *parent)
-  : QDialog(parent),
+HistogramDialog::HistogramDialog(QWidget *parent_)
+  : QDialog(parent_),
     ui(new Ui::HistogramDialog)
 {
   ui->setupUi(this);
@@ -212,10 +212,10 @@ void HistogramDialog::setupTable()
   // query molecules collection
   std::string collection = settings.value("collection").toString().toStdString();
   std::string moleculesCollection = collection + ".molecules";
-  auto_ptr<DBClientCursor> cursor = db.query(moleculesCollection);
+  auto_ptr<DBClientCursor> cursor_ = db.query(moleculesCollection);
 
-  while(cursor->more()){
-    BSONObj obj = cursor->next();
+  while(cursor_->more()){
+    BSONObj obj = cursor_->next();
     if(obj.isEmpty()){
       continue;
     }

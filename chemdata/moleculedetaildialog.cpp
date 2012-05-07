@@ -28,8 +28,8 @@
 #include "openineditorhandler.h"
 #include "exportmoleculehandler.h"
 
-MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent)
-  : QDialog(parent),
+MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
+  : QDialog(parent_),
     ui(new Ui::MoleculeDetailDialog)
 {
   ui->setupUi(this);
@@ -119,8 +119,8 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   mongo::BSONElement diagramElement = obj.getField("diagram");
   if (!diagramElement.eoo()) {
     int length;
-    const char *data = diagramElement.binData(length);
-    QByteArray inData(data, length);
+    const char *data_ = diagramElement.binData(length);
+    QByteArray inData(data_, length);
     QImage in = QImage::fromData(inData, "PNG");
     QPixmap pix = QPixmap::fromImage(in);
 

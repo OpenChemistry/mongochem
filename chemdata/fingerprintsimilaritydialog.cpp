@@ -27,8 +27,8 @@
 
 using namespace chemkit;
 
-FingerprintSimilarityDialog::FingerprintSimilarityDialog(QWidget *parent)
-  : QDialog(parent),
+FingerprintSimilarityDialog::FingerprintSimilarityDialog(QWidget *parent_)
+  : QDialog(parent_),
     ui(new Ui::FingerprintSimilarityDialog)
 {
   ui->setupUi(this);
@@ -71,7 +71,7 @@ void FingerprintSimilarityDialog::setFingerprint(const QString &name)
   MongoDatabase *db = MongoDatabase::instance();
 
   // calculate fingerprints
-  boost::scoped_ptr<Fingerprint> fingerprint(Fingerprint::create(name.toStdString()));
+  boost::scoped_ptr<Fingerprint> fingerprint_(Fingerprint::create(name.toStdString()));
 
   std::vector<Bitset> fingerprints;
   for(size_t i = 0; i < m_molecules.size(); i++){
@@ -79,7 +79,7 @@ void FingerprintSimilarityDialog::setFingerprint(const QString &name)
     boost::shared_ptr<const chemkit::Molecule> molecule = db->createMolecule(ref);
 
     if (molecule)
-      fingerprints.push_back(fingerprint->value(molecule.get()));
+      fingerprints.push_back(fingerprint_->value(molecule.get()));
     else
       fingerprints.push_back(chemkit::Bitset());
   }

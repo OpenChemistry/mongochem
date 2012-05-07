@@ -24,8 +24,8 @@
 
 using namespace mongo;
 
-SubstructureFilterModel::SubstructureFilterModel(QObject *parent)
-  : QSortFilterProxyModel(parent)
+SubstructureFilterModel::SubstructureFilterModel(QObject *parent_)
+  : QSortFilterProxyModel(parent_)
 {
 }
 
@@ -33,10 +33,10 @@ SubstructureFilterModel::~SubstructureFilterModel()
 {
 }
 
-void SubstructureFilterModel::setSmiles(const QString &smiles)
+void SubstructureFilterModel::setSmiles(const QString &smiles_)
 {
-  m_smiles = smiles;
-  m_query.setMolecule(smiles.toStdString(), "smiles");
+  m_smiles = smiles_;
+  m_query.setMolecule(smiles_.toStdString(), "smiles");
 }
 
 QString SubstructureFilterModel::smiles() const
@@ -60,8 +60,8 @@ bool SubstructureFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex 
   }
 
   // get the bson object for the row
-  QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-  BSONObj *obj = static_cast<BSONObj *>(index.internalPointer());
+  QModelIndex index_ = sourceModel()->index(sourceRow, 0, sourceParent);
+  BSONObj *obj = static_cast<BSONObj *>(index_.internalPointer());
   if(!obj){
     return false;
   }

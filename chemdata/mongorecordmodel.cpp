@@ -48,8 +48,8 @@ public:
   std::vector<std::string> m_fields;
 };
 
-MongoRecordModel::MongoRecordModel(QObject *parent)
-  : QAbstractItemModel(parent), d(new Private(0))
+MongoRecordModel::MongoRecordModel(QObject *parent_)
+  : QAbstractItemModel(parent_), d(new Private(0))
 {
 }
 
@@ -63,10 +63,10 @@ QModelIndex MongoRecordModel::parent(const QModelIndex &) const
   return QModelIndex();
 }
 
-int MongoRecordModel::rowCount(const QModelIndex &parent) const
+int MongoRecordModel::rowCount(const QModelIndex &parent_) const
 {
   int rows;
-  if (!parent.isValid())
+  if (!parent_.isValid())
     rows =  d->m_fields.size();
   else
     rows = 0;
@@ -93,13 +93,13 @@ QVariant MongoRecordModel::headerData(int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-QVariant MongoRecordModel::data(const QModelIndex &index, int role) const
+QVariant MongoRecordModel::data(const QModelIndex &index_, int role) const
 {
   if (d->m_obj) {
     if (role == Qt::DisplayRole) {
-      BSONElement e = d->m_obj->getField(d->m_fields[index.row()]);
-      if (index.column() == 0)
-        return QVariant(QString(d->m_fields[index.row()].c_str()));
+      BSONElement e = d->m_obj->getField(d->m_fields[index_.row()]);
+      if (index_.column() == 0)
+        return QVariant(QString(d->m_fields[index_.row()].c_str()));
       else {
         if (e.isNumber())
           return QVariant(e.number());
@@ -119,12 +119,12 @@ QVariant MongoRecordModel::data(const QModelIndex &index, int role) const
       }
     } */
     else if (role == Qt::DecorationRole) {
-      if (d->m_fields[index.row()] == "diagram" && index.column() == 1) {
+      if (d->m_fields[index_.row()] == "diagram" && index_.column() == 1) {
         BSONElement image = d->m_obj->getField("diagram");
         if (!image.eoo()) {
           int length;
-          const char *data = image.binData(length);
-          QByteArray inData(data, length);
+          const char *data_ = image.binData(length);
+          QByteArray inData(data_, length);
           QImage in = QImage::fromData(inData, "PNG");
           QPixmap pix = QPixmap::fromImage(in);
           return QVariant(pix);
@@ -135,24 +135,30 @@ QVariant MongoRecordModel::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-bool MongoRecordModel::setData(const QModelIndex &index, const QVariant &value,
+bool MongoRecordModel::setData(const QModelIndex &index_, const QVariant &value,
                          int role)
 {
+  Q_UNUSED(index_);
+  Q_UNUSED(value);
+  Q_UNUSED(role);
+
   return false;
 }
 
-Qt::ItemFlags MongoRecordModel::flags(const QModelIndex &index) const
+Qt::ItemFlags MongoRecordModel::flags(const QModelIndex &index_) const
 {
-  if (index.column() == 0)
+  if (index_.column() == 0)
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
   else
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 QModelIndex MongoRecordModel::index(int row, int column,
-                              const QModelIndex &parent) const
+                              const QModelIndex &parent_) const
 {
-  if (row >= 0 && row < d->m_fields.size()) {
+  Q_UNUSED(parent_);
+
+  if (row >= 0 && static_cast<size_t>(row) < d->m_fields.size()) {
     return createIndex(row, column, 0);
   }
   return QModelIndex();

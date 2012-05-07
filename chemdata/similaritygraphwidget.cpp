@@ -43,8 +43,8 @@ public:
   vtkNew<vtkGraphLayoutView> graphView;
 };
 
-SimilarityGraphWidget::SimilarityGraphWidget(QWidget *parent)
-  : QWidget(parent),
+SimilarityGraphWidget::SimilarityGraphWidget(QWidget *parent_)
+  : QWidget(parent_),
     d(new SimilarityGraphWidgetPrivate)
 {
   d->layoutPaused = false;
@@ -55,7 +55,7 @@ SimilarityGraphWidget::SimilarityGraphWidget(QWidget *parent)
   d->layoutStrategy->SetMaxNumberOfIterations(200);
 
   // setup layout and qvtk widget
-  QVBoxLayout *layout = new QVBoxLayout;
+  QVBoxLayout *layout_ = new QVBoxLayout;
 
   d->vtkWidget = new QVTKWidget(this);
   d->graphView->SetInteractor(d->vtkWidget->GetInteractor());
@@ -64,9 +64,9 @@ SimilarityGraphWidget::SimilarityGraphWidget(QWidget *parent)
   d->graphView->SetRepresentationFromInput(d->graph.GetPointer());
   d->graphView->SetEdgeColorArrayName("weights");
   d->graphView->SetColorEdges(true);
-  layout->addWidget(d->vtkWidget);
+  layout_->addWidget(d->vtkWidget);
 
-  setLayout(layout);
+  setLayout(layout_);
 
   // setup edge color function
   vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
@@ -115,7 +115,7 @@ void SimilarityGraphWidget::setSimilarityThreshold(float value)
 
   // clear all edges from graph
   vtkIdTypeArray *edges = vtkIdTypeArray::New();
-  for(size_t i = 0; i < d->graph->GetNumberOfEdges(); i++){
+  for(vtkIdType i = 0; i < d->graph->GetNumberOfEdges(); i++){
     edges->InsertNextValue(i);
   }
   d->graph->RemoveEdges(edges);
@@ -125,8 +125,8 @@ void SimilarityGraphWidget::setSimilarityThreshold(float value)
   weights->SetName("weights");
 
   // add edges that exceed similarity threshold
-  for (size_t i = 0; i < d->similarityMatrix.rows(); i++) {
-    for (size_t j = i + 1; j < d->similarityMatrix.cols(); j++) {
+  for (int i = 0; i < d->similarityMatrix.rows(); i++) {
+    for (int j = i + 1; j < d->similarityMatrix.cols(); j++) {
       float similarity = d->similarityMatrix(i, j);
 
       if (similarity > d->similarityThreshold) {
@@ -195,15 +195,15 @@ void SimilarityGraphWidget::renderGraph()
     QtConcurrent::run(this, &SimilarityGraphWidget::updateLayout);
 }
 
-void SimilarityGraphWidget::graphViewMouseEvent(QMouseEvent *event)
+void SimilarityGraphWidget::graphViewMouseEvent(QMouseEvent *event_)
 {
-  if (event->button() == Qt::LeftButton &&
-      event->type() == QMouseEvent::MouseButtonDblClick) {
+  if (event_->button() == Qt::LeftButton &&
+      event_->type() == QMouseEvent::MouseButtonDblClick) {
     vtkNew<vtkPointPicker> picker;
-    int *pos = d->vtkWidget->GetInteractor()->GetEventPosition();
+    int *pos_ = d->vtkWidget->GetInteractor()->GetEventPosition();
     vtkRenderer *renderer = d->graphView->GetRenderer();
 
-    if (picker->Pick(pos[0], pos[1], 0, renderer)) {
+    if (picker->Pick(pos_[0], pos_[1], 0, renderer)) {
       vtkIdType id = picker->GetPointId();
 
       emit vertexDoubleClicked(id);

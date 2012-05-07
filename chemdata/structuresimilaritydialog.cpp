@@ -23,8 +23,8 @@
 
 using namespace chemkit;
 
-StructureSimilarityDialog::StructureSimilarityDialog(QWidget *parent)
-  : QDialog(parent),
+StructureSimilarityDialog::StructureSimilarityDialog(QWidget *parent_)
+  : QDialog(parent_),
     ui(new Ui::StructureSimilarityDialog)
 {
     ui->setupUi(this);

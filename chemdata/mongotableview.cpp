@@ -45,7 +45,7 @@
 namespace ChemData
 {
 
-MongoTableView::MongoTableView(QWidget *parent) : QTableView(parent),
+MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
   m_network(0),
   m_row(-1)
 {
@@ -209,11 +209,11 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
     return;
   }
 
-  QByteArray data = reply->readAll();
-  MongoModel *model = qobject_cast<MongoModel *>(this->model());
+  QByteArray data_ = reply->readAll();
+  MongoModel *model_ = qobject_cast<MongoModel *>(this->model());
 
   // Check if the structure was successfully downloaded
-  if (data.contains("Page not found (404)")) {
+  if (data_.contains("Page not found (404)")) {
     QMessageBox::warning(qobject_cast<QWidget*>(parent()),
                          tr("Network Download Failed"),
                          tr("Specified molecule could not be found: %1").arg(m_moleculeName));
@@ -222,19 +222,19 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
   }
 
   if (m_moleculeName == "IUPAC") {
-    qDebug() << "IUPAC Name:" << data;
+    qDebug() << "IUPAC Name:" << data_;
 //    model->setIUPACName(m_row, data);
     return;
   }
   else if (m_moleculeName == "diagram") {
-    model->setImage2D(m_row, data);
+    model_->setImage2D(m_row, data_);
     return;
   }
 
   QFile file(m_moleculeName);
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     return;
-  file.write(data);
+  file.write(data_);
   file.close();
 
   QProcess descriptors;

@@ -61,7 +61,6 @@ protected:
   /** Connects to MongoDB */
   void connectToDatabase();
 
-  MongoModel *m_model;
   Ui::MainWindow *m_ui;
 
   vtkNew<vtkAnnotationLink> m_link;
@@ -80,9 +79,10 @@ protected:
   vtkNew<vtkEventQtSlotConnect> Connector2;
   vtkNew<vtkExtractSelectedRows> m_extract;
 
-  QDialog *m_dialog;
-  DetailDialog *m_detail;
   mongo::DBClientConnection *m_db;
+  DetailDialog *m_detail;
+  MongoModel *m_model;
+  QDialog *m_dialog;
   QuickQueryWidget *m_queryWidget;
 
 protected slots:

@@ -73,8 +73,8 @@ public:
   auto_ptr<DBClientCursor> cursor;
 };
 
-MongoModel::MongoModel(mongo::DBClientConnection *db, QObject *parent)
-  : QAbstractItemModel(parent)
+MongoModel::MongoModel(mongo::DBClientConnection *db, QObject *parent_)
+  : QAbstractItemModel(parent_)
 {
   d = new MongoModel::Private;
   d->db = db;
@@ -123,13 +123,17 @@ QModelIndex MongoModel::parent(const QModelIndex &) const
   return QModelIndex();
 }
 
-int MongoModel::rowCount(const QModelIndex &parent) const
+int MongoModel::rowCount(const QModelIndex &parent_) const
 {
+  Q_UNUSED(parent_);
+
   return d->m_rowObjects.size();
 }
 
-int MongoModel::columnCount(const QModelIndex &parent) const
+int MongoModel::columnCount(const QModelIndex &parent_) const
 {
+  Q_UNUSED(parent_);
+
   return d->m_fields.size();
 }
 
@@ -148,12 +152,14 @@ QVariant MongoModel::headerData(int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-QVariant MongoModel::data(const QModelIndex &index, int role) const
+QVariant MongoModel::data(const QModelIndex &index_, int role) const
 {
-  BSONObj *obj = static_cast<BSONObj *>(index.internalPointer());
+  Q_UNUSED(index_);
+
+  BSONObj *obj = static_cast<BSONObj *>(index_.internalPointer());
   if (obj) {
     if (role == Qt::DisplayRole) {
-      BSONElement e = obj->getField(d->m_fields[index.column()].toStdString());
+      BSONElement e = obj->getField(d->m_fields[index_.column()].toStdString());
       if (e.eoo() || e.isNull())
         return QVariant();
       else if (e.isNumber())
@@ -162,7 +168,7 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
         return e.str().c_str();
     }
     else if (role == Qt::SizeHintRole) {
-      if(d->m_fields[index.column()] == "diagram" &&
+      if(d->m_fields[index_.column()] == "diagram" &&
          !obj->getField("diagram").eoo()){
         return QVariant(QSize(250, 250));
       }
@@ -171,12 +177,12 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
       }
     }
     else if(role == Qt::DecorationRole){
-      if(d->m_fields[index.column()] == "diagram"){
+      if(d->m_fields[index_.column()] == "diagram"){
         BSONElement image = obj->getField("diagram");
         if(!image.eoo()){
           int length = 0;
-          const char *data = image.binData(length);
-          QByteArray inData(data, length);
+          const char *data_ = image.binData(length);
+          QByteArray inData(data_, length);
           QImage in = QImage::fromData(inData, "PNG");
           QPixmap pix = QPixmap::fromImage(in);
           return QVariant(pix);
@@ -188,21 +194,30 @@ QVariant MongoModel::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-bool MongoModel::setData(const QModelIndex &index, const QVariant &value,
+bool MongoModel::setData(const QModelIndex &index_,
+                         const QVariant &value,
                          int role)
 {
+  Q_UNUSED(index_);
+  Q_UNUSED(value);
+  Q_UNUSED(role);
+
   return false;
 }
 
-Qt::ItemFlags MongoModel::flags(const QModelIndex &index) const
+Qt::ItemFlags MongoModel::flags(const QModelIndex &index_) const
 {
+  Q_UNUSED(index_);
+
   return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 
 QModelIndex MongoModel::index(int row, int column,
-                              const QModelIndex &parent) const
+                              const QModelIndex &parent_) const
 {
-  if (row >= 0 && row < d->m_rowObjects.size()) {
+  Q_UNUSED(parent_);
+
+  if (row >= 0 && static_cast<size_t>(row) < d->m_rowObjects.size()) {
     return createIndex(row, column, &d->m_rowObjects[row]);
   }
 
@@ -212,16 +227,16 @@ QModelIndex MongoModel::index(int row, int column,
 /// Returns a vector containing a reference to each molecule in the model.
 std::vector<MoleculeRef> MongoModel::molecules() const
 {
-  std::vector<MoleculeRef> molecules;
+  std::vector<MoleculeRef> molecules_;
 
   for (size_t i = 0; i < d->m_rowObjects.size(); i++) {
     const mongo::BSONObj &obj = d->m_rowObjects[i];
     mongo::BSONElement idElement;
     if (obj.getObjectID(idElement))
-      molecules.push_back(MoleculeRef(idElement.OID()));
+      molecules_.push_back(MoleculeRef(idElement.OID()));
   }
 
-  return molecules;
+  return molecules_;
 }
 
 void MongoModel::clear()

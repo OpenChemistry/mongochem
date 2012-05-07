@@ -21,8 +21,8 @@
 
 #include <chemkit/moleculefile.h>
 
-ExportMoleculeHandler::ExportMoleculeHandler(QObject *parent)
-  : QObject(parent)
+ExportMoleculeHandler::ExportMoleculeHandler(QObject *parent_)
+  : QObject(parent_)
 {
 }
 

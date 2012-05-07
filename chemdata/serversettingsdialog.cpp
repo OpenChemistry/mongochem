@@ -21,8 +21,8 @@
 
 namespace ChemData{
 
-ServerSettingsDialog::ServerSettingsDialog(QWidget *parent)
-  : QDialog(parent),
+ServerSettingsDialog::ServerSettingsDialog(QWidget *parent_)
+  : QDialog(parent_),
     ui(new Ui::ServerSettingsDialog)
 {
   ui->setupUi(this);
