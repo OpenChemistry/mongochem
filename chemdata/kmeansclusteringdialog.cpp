@@ -41,6 +41,11 @@
 #include <chemkit/molecule.h>
 #include <chemkit/moleculardescriptor.h>
 
+// avoid shadow warnings from Qt's foreach by using Boost's
+#undef foreach
+#include <boost/foreach.hpp>
+#define foreach BOOST_FOREACH
+
 class KMeansClusteringDialogPrivate
 {
 public:
@@ -437,9 +442,9 @@ void KMeansClusteringDialog::setupDescriptors()
 
   foreach (const std::string &name, descriptors) {
     boost::scoped_ptr<chemkit::MolecularDescriptor>
-      descriptor(chemkit::MolecularDescriptor::create(name));
+      descriptor_(chemkit::MolecularDescriptor::create(name));
 
-    int dimensionality = descriptor->dimensionality();
+    int dimensionality = descriptor_->dimensionality();
 
     if (dimensionality == -1) {
       // descriptors with unknown dimensionality have a value of -1 so we
@@ -474,9 +479,9 @@ void KMeansClusteringDialog::setupDescriptors()
         qobject_cast<QStandardItemModel *>(comboBox->model())->item(titleIndex);
 
       if (item) {
-        QFont font = item->font();
-        font.setBold(true);
-        item->setFont(font);
+        QFont font_ = item->font();
+        font_.setBold(true);
+        item->setFont(font_);
         item->setFlags(Qt::ItemIsEnabled);
       }
 
