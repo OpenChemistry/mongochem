@@ -32,8 +32,9 @@ include_directories(SYSTEM ${CHEMKIT_INCLUDE_DIRS})
 link_directories(${CHEMKIT_LIBRARY_DIR})
 
 # Find the Qt components we need.
-find_package(Qt4 4.6 COMPONENTS QtCore QtGui QtNetwork REQUIRED)
-include(${QT_USE_FILE})
+find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork REQUIRED)
+include_directories(SYSTEM ${QT_INCLUDES})
+add_definitions(${QT_DEFINITIONS})
 
 set(chemdata_srcs
   chemdata.cpp
