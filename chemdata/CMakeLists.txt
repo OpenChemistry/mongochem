@@ -22,7 +22,7 @@ endif()
 
 # VTK is used for the charting and infovis components.
 find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
-  vtkViewsInfovis vtkRenderingQt NO_MODULE)
+  vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL NO_MODULE)
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
 include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
@@ -102,7 +102,7 @@ add_executable(chemdata MACOSX_BUNDLE ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkChartsCore vtkGUISupportQt
-  vtkViewsContext2D vtkViewsInfovis vtkRenderingQt)
+  vtkViewsContext2D vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL)
 install(TARGETS chemdata DESTINATION "${INSTALL_RUNTIME_DIR}")
 
 if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
