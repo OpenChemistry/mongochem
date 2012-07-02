@@ -57,6 +57,7 @@
 #include <vtkSelection.h>
 
 #include <chemkit/molecule.h>
+#include <chemkit/fingerprint.h>
 #include <chemkit/moleculefile.h>
 
 #include "graphdialog.h"
@@ -182,6 +183,8 @@ MainWindow::MainWindow()
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
   connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)), SLOT(showMoleculeDetailsDialog(QModelIndex)));
+  connect(m_ui->tableView, SIGNAL(showSimilarMolecules(MoleculeRef)),
+          this, SLOT(showSimilarMolecules(MoleculeRef)));
   connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
 
   connect(m_ui->actionKMeans, SIGNAL(activated()),
@@ -575,6 +578,60 @@ void MainWindow::runQuery()
     m_ui->tableView->setModel(m_model);
   }
 
+  m_ui->tableView->resizeColumnsToContents();
+}
+
+void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
+{
+  // update the ui to show an empty table while the query is performed
+  m_ui->tableView->setModel(0);
+  qApp->processEvents();
+
+  // create fp2 fingerprint
+  boost::scoped_ptr<chemkit::Fingerprint>
+    fp2(chemkit::Fingerprint::create("fp2"));
+  if(!fp2){
+    qDebug() << "Failed to create FP2 fingerprint.";
+    return;
+  }
+
+  // get access to the database
+  MongoDatabase *db = MongoDatabase::instance();
+
+  // calculate fingerprint for the input molecule
+  boost::shared_ptr<chemkit::Molecule> molecule = db->createMolecule(ref);
+  chemkit::Bitset fingerprint = fp2->value(molecule.get());
+
+  // calculate tanimoto similarity value for each molecule. right now this
+  // is done on the client-side but in the future this could be improved by
+  // precomputing the fingerprints and storing them on the server.
+  std::map<float, MoleculeRef> sorted;
+  std::vector<MoleculeRef> refs = m_model->molecules();
+  for(size_t i = 0; i < refs.size(); i++){
+    molecule = db->createMolecule(refs[i]);
+
+    float similarity =
+      chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                fp2->value(molecule.get()));
+
+    sorted[similarity] = refs[i];
+  }
+
+  // clamp number of output molecules to the number of input molecules
+  count = std::min(count, refs.size());
+
+  // build vector of refs to the most similar molecules
+  std::vector<MoleculeRef> similarMolecules(count);
+
+  std::map<float, MoleculeRef>::const_reverse_iterator iter = sorted.rbegin();
+  for(size_t i = 0; i < count; i++)
+    similarMolecules[i] = iter++->second;
+
+  // set the similar molecules to show in the model
+  m_model->setMolecules(similarMolecules);
+
+  // update the view for the updated model
+  m_ui->tableView->setModel(m_model);
   m_ui->tableView->resizeColumnsToContents();
 }
 

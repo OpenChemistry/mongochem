@@ -33,6 +33,8 @@
 #include <vtkFloatArray.h>
 #include <vtkStringArray.h>
 
+#include "mongodatabase.h"
+
 using namespace mongo;
 
 namespace ChemData {
@@ -222,6 +224,16 @@ QModelIndex MongoModel::index(int row, int column,
   }
 
   return QModelIndex();
+}
+
+void MongoModel::setMolecules(const std::vector<MoleculeRef> &molecules_)
+{
+  MongoDatabase *db = MongoDatabase::instance();
+
+  d->m_rowObjects.clear();
+
+  for(size_t i = 0; i < molecules_.size(); i++)
+    d->m_rowObjects.push_back(db->fetchMolecule(molecules_[i]));
 }
 
 /// Returns a vector containing a reference to each molecule in the model.

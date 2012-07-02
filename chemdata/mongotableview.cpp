@@ -97,6 +97,11 @@ void MongoTableView::contextMenuEvent(QContextMenuEvent *e)
                     this,
                     SLOT(copyInChIToClipboard()));
 
+    // add find similar molecules action
+    menu->addAction("Find Similar Molecules",
+                    this,
+                    SLOT(showSimilarMoleculesClicked()));
+
     m_row = index.row();
 
     menu->exec(QCursor::pos());
@@ -246,6 +251,16 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
   }
   QByteArray result = descriptors.readAllStandardOutput();
 //  model->addIdentifiers(m_row, result);
+}
+
+void MongoTableView::showSimilarMoleculesClicked()
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  mongo::BSONObj *obj =
+    static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
+  MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
+
+  emit showSimilarMolecules(ref);
 }
 
 } // End of namespace

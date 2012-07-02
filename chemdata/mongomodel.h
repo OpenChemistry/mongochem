@@ -51,6 +51,10 @@ public:
   QModelIndex index(int row, int column,
                     const QModelIndex & parent = QModelIndex()) const;
 
+  /** Sets the molecules to be displayed in the model. */
+  void setMolecules(const std::vector<MoleculeRef> &molecules);
+
+  /** Returns the molecules being displayed in the model. */
   std::vector<MoleculeRef> molecules() const;
 
   void clear();
