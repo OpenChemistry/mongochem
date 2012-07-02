@@ -69,10 +69,17 @@
     <addaction name="actionFingerprintSimilarity"/>
     <addaction name="actionStructureSimilarity"/>
    </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionCalculateFingerprints"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuChart"/>
    <addaction name="menuClustering"/>
    <addaction name="menu_View"/>
+   <addaction name="menuTools"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -129,6 +136,11 @@
   <action name="actionKMeans">
    <property name="text">
     <string>K-Means</string>
+   </property>
+  </action>
+  <action name="actionCalculateFingerprints">
+   <property name="text">
+    <string>Calculate Fingerprints</string>
    </property>
   </action>
  </widget>

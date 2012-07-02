@@ -65,6 +65,13 @@ public slots:
     */
   void showSimilarMolecules(MoleculeRef ref, size_t count = 10);
 
+  /** Calculates and stores the fingerprint for each molecule in the
+    * database.
+    *
+    * Returns \c false if the fingerprint specified by name is not valid.
+    */
+  bool calculateAndStoreFingerprints(const std::string &name = "fp2");
+
 protected:
   void setupTable();
   void setupCharts();

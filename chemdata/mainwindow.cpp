@@ -194,6 +194,9 @@ MainWindow::MainWindow()
   connect(m_ui->actionStructureSimilarity, SIGNAL(activated()),
           this, SLOT(showStructureSimilarityDialog()));
 
+  connect(m_ui->actionCalculateFingerprints, SIGNAL(activated()),
+          this, SLOT(calculateAndStoreFingerprints()));
+
   setupTable();
   connectToDatabase();
 }
@@ -602,17 +605,44 @@ void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
   boost::shared_ptr<chemkit::Molecule> molecule = db->createMolecule(ref);
   chemkit::Bitset fingerprint = fp2->value(molecule.get());
 
-  // calculate tanimoto similarity value for each molecule. right now this
-  // is done on the client-side but in the future this could be improved by
-  // precomputing the fingerprints and storing them on the server.
+  // calculate tanimoto similarity value for each molecule
   std::map<float, MoleculeRef> sorted;
   std::vector<MoleculeRef> refs = m_model->molecules();
   for(size_t i = 0; i < refs.size(); i++){
-    molecule = db->createMolecule(refs[i]);
+    float similarity = 0;
+    mongo::BSONObj obj = db->fetchMolecule(refs[i]);
+    mongo::BSONElement element = obj.getField("fp2_fingerprint");
+    if (element.ok()) {
+      // there is already a fingerprint stored for the molecule so
+      // load and use that for calculating the similarity value
+      int len = 0;
+      const char *binData = element.binData(len);
+      std::vector<size_t> binDataBlockVector(fingerprint.num_blocks());
 
-    float similarity =
-      chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
-                                                fp2->value(molecule.get()));
+      memcpy(&binDataBlockVector[0],
+             binData,
+             binDataBlockVector.size() * sizeof(size_t));
+
+      chemkit::Bitset fingerprintValue(binDataBlockVector.begin(),
+                                       binDataBlockVector.end());
+
+      // ensure that the fingerprints are the same size. this is necessary
+      // because different platforms may have different padding for the bits.
+      fingerprintValue.resize(fingerprint.size());
+
+      similarity =
+        chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                  fingerprintValue);
+    }
+    else {
+      // there is not a fingerprint calculated for the molecule so
+      // create the molecule and calculate the fingerprint directly
+      molecule = db->createMolecule(refs[i]);
+
+      similarity =
+        chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                  fp2->value(molecule.get()));
+    }
 
     sorted[similarity] = refs[i];
   }
@@ -633,6 +663,44 @@ void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
   // update the view for the updated model
   m_ui->tableView->setModel(m_model);
   m_ui->tableView->resizeColumnsToContents();
+}
+
+bool MainWindow::calculateAndStoreFingerprints(const std::string &name)
+{
+  // create the fingerprint
+  boost::scoped_ptr<chemkit::Fingerprint>
+    fingerprint(chemkit::Fingerprint::create(name));
+  if(!fingerprint)
+    return false;
+
+  // get access to the database
+  MongoDatabase *db = MongoDatabase::instance();
+
+  // get a list of the current molecules
+  std::vector<MoleculeRef> refs = m_model->molecules();
+
+  for(size_t i = 0; i < refs.size(); i++){
+    // get the molecule from the ref
+    MoleculeRef ref = refs[i];
+    boost::shared_ptr<chemkit::Molecule> molecule = db->createMolecule(ref);
+
+    // calculate the fingerprint value and store it in a vector
+    std::vector<size_t> value;
+    boost::to_block_range(fingerprint->value(molecule.get()),
+                          std::back_inserter(value));
+
+    // store the fingerprint for the molecule in the database
+    mongo::BSONObjBuilder b;
+    b.appendBinData(name + "_fingerprint",
+                    value.size() * sizeof(size_t),
+                    mongo::BinDataGeneral,
+                    reinterpret_cast<char *>(&value[0]));
+    mongo::BSONObjBuilder updateSet;
+    updateSet << "$set" << b.obj();
+    m_db->update("chem.molecules", QUERY("_id" << ref.id()), updateSet.obj());
+  }
+
+  return true;
 }
 
 }
