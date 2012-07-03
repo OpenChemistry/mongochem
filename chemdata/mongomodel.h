@@ -20,7 +20,11 @@
 #include <QtCore/QModelIndex>
 #include <QtCore/QList>
 
-#include <mongo/client/dbclient.h>
+namespace mongo
+{
+  class DBClientConnection;
+  class Query;
+}
 
 #include "moleculeref.h"
 

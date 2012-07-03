@@ -17,7 +17,7 @@
 #ifndef OBJECTREF_H
 #define OBJECTREF_H
 
-#include <mongo/bson/bson.h>
+#include <mongo/client/dbclient.h>
 
 /// \brief The ObjectRef class represents an abstract object in a database.
 class ObjectRef
