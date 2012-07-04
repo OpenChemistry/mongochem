@@ -238,6 +238,7 @@ void MainWindow::connectToDatabase()
 
   m_model = new MongoModel(m_db, this);
   m_ui->tableView->setModel(m_model);
+  m_ui->tableView->resizeColumnsToContents();
 }
 
 void MainWindow::setupTable()
