@@ -25,6 +25,8 @@
 
 #include <mongo/client/dbclient.h>
 
+#include "moleculeref.h"
+
 class QVTKWidget;
 class vtkContextView;
 class vtkAnnotationLink;
@@ -52,6 +54,23 @@ class MainWindow : public QMainWindow
 public:
   MainWindow();
   ~MainWindow();
+
+public slots:
+  /** Queries the database for molecules that are similar to the molecule
+    * specified by \p ref. Replaces the current selection with the \p count
+    * most similar molecules.
+    *
+    * By default, this uses the tanimoto coefficent of the FP2 fingerprints
+    * to determine similarity between molecules.
+    */
+  void showSimilarMolecules(MoleculeRef ref, size_t count = 10);
+
+  /** Calculates and stores the fingerprint for each molecule in the
+    * database.
+    *
+    * Returns \c false if the fingerprint specified by name is not valid.
+    */
+  bool calculateAndStoreFingerprints(const std::string &name = "fp2");
 
 protected:
   void setupTable();

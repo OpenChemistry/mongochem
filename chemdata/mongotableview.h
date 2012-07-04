@@ -19,6 +19,8 @@
 
 #include <QtGui/QTableView>
 
+#include "moleculeref.h"
+
 class QNetworkAccessManager;
 class QNetworkReply;
 class OpenInEditorHandler;
@@ -35,6 +37,10 @@ public:
 
   /** Custom context menu for this view. */
   void contextMenuEvent(QContextMenuEvent *e);
+
+signals:
+  /** Emitted when the user queries for molecules similar to \p ref. */
+  void showSimilarMolecules(MoleculeRef ref);
 
 protected slots:
   /** Attempt to fetch the structure of a CAS number from the NIH resolver. */
@@ -54,6 +60,9 @@ protected slots:
 
   /** Retrieving structures from remote databases! */
   void replyFinished(QNetworkReply*);
+
+  /** Query the database for similar molecules. */
+  void showSimilarMoleculesClicked();
 
 protected:
   /** Used for fetching data from web services. */
