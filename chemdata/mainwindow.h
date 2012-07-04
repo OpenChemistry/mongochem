@@ -23,7 +23,10 @@
 #include <vtkNew.h>
 #include <vtkType.h>
 
-#include <mongo/client/dbclient.h>
+namespace mongo
+{
+  class DBClientConnection;
+}
 
 #include "moleculeref.h"
 

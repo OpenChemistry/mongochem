@@ -18,6 +18,7 @@
 
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
+
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QFileInfo>
