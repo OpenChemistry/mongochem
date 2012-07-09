@@ -130,7 +130,7 @@ int MongoModel::rowCount(const QModelIndex &parent_) const
 {
   Q_UNUSED(parent_);
 
-  return d->m_rowObjects.size();
+  return static_cast<int>(d->m_rowObjects.size());
 }
 
 int MongoModel::columnCount(const QModelIndex &parent_) const

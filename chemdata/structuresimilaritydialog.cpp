@@ -31,7 +31,8 @@ StructureSimilarityDialog::StructureSimilarityDialog(QWidget *parent_)
 
     m_graphWidget = new SimilarityGraphWidget(this);
     ui->similaritySlider->setValue(45);
-    m_graphWidget->setSimilarityThreshold(ui->similaritySlider->value() / 100.f);
+    m_graphWidget->setSimilarityThreshold(
+      static_cast<float>(ui->similaritySlider->value()) / 100.f);
     ui->mainLayout->addWidget(m_graphWidget);
 
     connect(ui->similaritySlider, SIGNAL(sliderPressed()), SLOT(similaritySliderPressed()));
@@ -88,5 +89,5 @@ void StructureSimilarityDialog::similaritySliderReleased()
 
 void StructureSimilarityDialog::similarityValueChanged(int value)
 {
-  m_graphWidget->setSimilarityThreshold(value / 100.f);
+  m_graphWidget->setSimilarityThreshold(static_cast<float>(value) / 100.f);
 }

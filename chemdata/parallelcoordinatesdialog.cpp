@@ -104,7 +104,7 @@ void ParallelCoordinatesDialog::setupTable()
         obj.getFieldDotted(std::string("descriptors.") + descriptors[i]);
       vtkFloatArray *array =
         vtkFloatArray::SafeDownCast(m_table->GetColumn(i));
-      array->InsertNextValue(value.numberDouble());
+      array->InsertNextValue(static_cast<float>(value.numberDouble()));
     }
   }
 }

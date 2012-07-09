@@ -35,7 +35,8 @@ FingerprintSimilarityDialog::FingerprintSimilarityDialog(QWidget *parent_)
 
   m_graphWidget = new SimilarityGraphWidget(this);
   ui->similaritySlider->setValue(45);
-  m_graphWidget->setSimilarityThreshold(ui->similaritySlider->value() / 100.f);
+  m_graphWidget->setSimilarityThreshold(
+    static_cast<float>(ui->similaritySlider->value()) / 100.f);
   ui->mainLayout->addWidget(m_graphWidget);
 
   connect(ui->similaritySlider, SIGNAL(sliderPressed()),
@@ -90,8 +91,9 @@ void FingerprintSimilarityDialog::setFingerprint(const QString &name)
 
   for(size_t i = 0; i < fingerprints.size(); i++){
     for(size_t j = i + 1; j < fingerprints.size(); j++){
-      float similarity = Fingerprint::tanimotoCoefficient(fingerprints[i],
-                                                          fingerprints[j]);
+      float similarity =
+        static_cast<float>(Fingerprint::tanimotoCoefficient(fingerprints[i],
+                                                            fingerprints[j]));
 
       similarityMatrix(i, j) = similarity;
       similarityMatrix(j, i) = similarity;
@@ -119,7 +121,7 @@ void FingerprintSimilarityDialog::similaritySliderReleased()
 
 void FingerprintSimilarityDialog::similarityValueChanged(int value)
 {
-  m_graphWidget->setSimilarityThreshold(value / 100.f);
+  m_graphWidget->setSimilarityThreshold(static_cast<float>(value) / 100.f);
 }
 
 void FingerprintSimilarityDialog::moleculeDoubleClicked(vtkIdType id)
