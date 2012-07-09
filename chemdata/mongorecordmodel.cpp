@@ -67,7 +67,7 @@ int MongoRecordModel::rowCount(const QModelIndex &parent_) const
 {
   int rows;
   if (!parent_.isValid())
-    rows =  d->m_fields.size();
+    rows = static_cast<int>(d->m_fields.size());
   else
     rows = 0;
   return rows;

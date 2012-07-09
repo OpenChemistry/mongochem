@@ -134,8 +134,8 @@ void GraphDialog::showClicked()
     double yValue = obj.getFieldDotted("descriptors." + yName.toStdString()).numberDouble();
 
     // insert into table
-    xArray->InsertNextValue(xValue);
-    yArray->InsertNextValue(yValue);
+    xArray->InsertNextValue(static_cast<float>(xValue));
+    yArray->InsertNextValue(static_cast<float>(yValue));
 
     // add name to tooltip array
     std::string name = obj.getField("name").str();

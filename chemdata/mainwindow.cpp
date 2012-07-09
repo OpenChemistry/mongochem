@@ -305,7 +305,7 @@ void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
 
 void MainWindow::showMoleculeDetailsDialog(vtkIdType id)
 {
-  showMoleculeDetailsDialog(m_model->index(id, 0));
+  showMoleculeDetailsDialog(m_model->index(static_cast<int>(id), 0));
 }
 
 void MainWindow::showServerSettings()
@@ -454,8 +454,9 @@ void MainWindow::addMoleculesFromFile(const QString &fileName)
     if(mass == 0.0)
       mass = molecule->mass();
 
-    int atomCount = molecule->atomCount();
-    int heavyAtomCount = molecule->atomCount() - molecule->atomCount("H");
+    int atomCount = static_cast<int>(molecule->atomCount());
+    int heavyAtomCount =
+      static_cast<int>(molecule->atomCount() - molecule->atomCount("H"));
 
     mongo::OID id = mongo::OID::gen();
 
@@ -632,8 +633,9 @@ void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
       fingerprintValue.resize(fingerprint.size());
 
       similarity =
-        chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
-                                                  fingerprintValue);
+        static_cast<float>(
+          chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                    fingerprintValue));
     }
     else {
       // there is not a fingerprint calculated for the molecule so
@@ -641,8 +643,9 @@ void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
       molecule = db->createMolecule(refs[i]);
 
       similarity =
-        chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
-                                                  fp2->value(molecule.get()));
+        static_cast<float>(
+          chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                    fp2->value(molecule.get())));
     }
 
     sorted[similarity] = refs[i];
@@ -693,7 +696,7 @@ bool MainWindow::calculateAndStoreFingerprints(const std::string &name)
     // store the fingerprint for the molecule in the database
     mongo::BSONObjBuilder b;
     b.appendBinData(name + "_fingerprint",
-                    value.size() * sizeof(size_t),
+                    static_cast<int>(value.size() * sizeof(size_t)),
                     mongo::BinDataGeneral,
                     reinterpret_cast<char *>(&value[0]));
     mongo::BSONObjBuilder updateSet;

@@ -137,9 +137,9 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     std::set<std::string> fields;
     descriptorsObj.getFieldNames(fields);
 
-    ui->descriptorsTableWidget->setRowCount(fields.size());
+    ui->descriptorsTableWidget->setRowCount(static_cast<int>(fields.size()));
 
-    size_t index = 0;
+    int index = 0;
     foreach(const std::string &field, fields){
       mongo::BSONElement descriptorElement = descriptorsObj.getField(field);
       double value = descriptorElement.numberDouble();

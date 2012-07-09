@@ -114,7 +114,7 @@ void PlotMatrixDialog::setupTable()
     for(size_t i = 0; i < descriptorCount; i++){
       BSONElement value = obj.getFieldDotted(std::string("descriptors.") + descriptors[i]);
       vtkFloatArray *array = vtkFloatArray::SafeDownCast(m_table->GetColumn(i));
-      array->InsertNextValue(value.numberDouble());
+      array->InsertNextValue(static_cast<float>(value.numberDouble()));
     }
 
     BSONElement nameElement = obj.getField("name");

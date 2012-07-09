@@ -176,7 +176,7 @@ void KMeansClusteringDialog::setMolecules(const std::vector<MoleculeRef> &molecu
   }
 
   // update descriptor table
-  for (size_t column = 0; column < 3; column++) {
+  for (int column = 0; column < 3; column++) {
     vtkNew<vtkDoubleArray> array;
 
     QByteArray descriptorAscii = descriptor(column).toAscii();
@@ -201,7 +201,7 @@ void KMeansClusteringDialog::setMolecules(const std::vector<MoleculeRef> &molecu
   kMeansStatistics->SetInputData(vtkStatisticsAlgorithm::INPUT_DATA,
                                  d->table.GetPointer());
 
-  for (size_t i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++) {
     QByteArray descriptorAscii = descriptor(i).toAscii();
     kMeansStatistics->SetColumnStatus(descriptorAscii.constData(), 1);
   }

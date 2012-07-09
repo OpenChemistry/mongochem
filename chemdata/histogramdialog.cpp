@@ -78,7 +78,7 @@ bool PopulateHistograms(vtkTable *input,
       double min = minmax[0] - 0.0005 * inc + halfInc;
       for (int j = 0; j < NumberOfBins; ++j)
         {
-        extents->SetValue(j, min + j * inc);
+        extents->SetValue(j, static_cast<float>(min + j * inc));
         }
       vtkSmartPointer<vtkIntArray> populations =
           vtkIntArray::SafeDownCast(
@@ -223,7 +223,7 @@ void HistogramDialog::setupTable()
     for(size_t i = 0; i < descriptorCount; i++){
       BSONElement value = obj.getFieldDotted(std::string("descriptors.") + descriptors[i]);
       vtkFloatArray *array = vtkFloatArray::SafeDownCast(m_table->GetColumn(i));
-      array->InsertNextValue(value.numberDouble());
+      array->InsertNextValue(static_cast<float>(value.numberDouble()));
     }
   }
 }
