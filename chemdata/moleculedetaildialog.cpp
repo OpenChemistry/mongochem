@@ -27,6 +27,8 @@
 #include "mongodatabase.h"
 #include "openineditorhandler.h"
 #include "exportmoleculehandler.h"
+#include "computationalresultsmodel.h"
+#include "computationalresultstableview.h"
 
 MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   : QDialog(parent_),
@@ -42,6 +44,13 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   m_openInEditorHandler = new OpenInEditorHandler(this);
   connect(ui->openInEditorButton, SIGNAL(clicked()),
           m_openInEditorHandler, SLOT(openInEditor()));
+
+  // setup computational results tab
+  m_computationalResultsModel = new ComputationalResultsModel(this);
+  m_computationalResultsTableView = new ComputationalResultsTableView(this);
+  m_computationalResultsTableView->setModel(m_computationalResultsModel);
+
+  ui->computationalResultsLayout->addWidget(m_computationalResultsTableView);
 }
 
 MoleculeDetailDialog::~MoleculeDetailDialog()
@@ -154,6 +163,13 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
 
   // setup export handler
   m_exportHandler->setMolecule(molecule);
+
+  // setup computational results tab
+  m_computationalResultsTableView->setModel(0);
+  m_computationalResultsModel->setQuery(
+    QUERY("inchikey" << obj.getStringField("inchikey")));
+  m_computationalResultsTableView->setModel(m_computationalResultsModel);
+  m_computationalResultsTableView->resizeColumnsToContents();
 }
 
 /// Sets the molecule to display from its InChI formula. Returns

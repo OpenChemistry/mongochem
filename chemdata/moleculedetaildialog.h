@@ -28,6 +28,8 @@ class MoleculeDetailDialog;
 class MoleculeRef;
 class OpenInEditorHandler;
 class ExportMoleculeHandler;
+class ComputationalResultsModel;
+class ComputationalResultsTableView;
 
 class MoleculeDetailDialog : public QDialog
 {
@@ -44,6 +46,8 @@ private:
   Ui::MoleculeDetailDialog *ui;
   ExportMoleculeHandler *m_exportHandler;
   OpenInEditorHandler *m_openInEditorHandler;
+  ComputationalResultsModel *m_computationalResultsModel;
+  ComputationalResultsTableView *m_computationalResultsTableView;
 };
 
 #endif // MOLECULEDETAILDIALOG_H

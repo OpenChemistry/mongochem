@@ -88,6 +88,12 @@ bool MongoDatabase::isConnected() const
   return m_db != 0;
 }
 
+/// Returns the connection to the mongo database.
+mongo::DBClientConnection* MongoDatabase::connection() const
+{
+  return m_db;
+}
+
 // --- Querying ------------------------------------------------------------ //
 /// Returns a molecule ref corresponding to the molecule with \p inchi.
 MoleculeRef MongoDatabase::findMoleculeFromInChI(const std::string &inchi)
