@@ -34,6 +34,7 @@ public:
   static MongoDatabase* instance();
 
   bool isConnected() const;
+  mongo::DBClientConnection* connection() const;
 
   MoleculeRef findMoleculeFromInChI(const std::string &inchi);
   MoleculeRef findMoleculeFromInChIKey(const std::string &inchikey);

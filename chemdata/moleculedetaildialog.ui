@@ -178,6 +178,16 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="computationalResultsTab">
+      <attribute name="title">
+       <string>Computational Results</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QVBoxLayout" name="computationalResultsLayout"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>

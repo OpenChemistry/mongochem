@@ -38,6 +38,8 @@ add_definitions(${QT_DEFINITIONS})
 
 set(chemdata_srcs
   chemdata.cpp
+  computationalresultsmodel.cpp
+  computationalresultstableview.cpp
   diagramtooltipitem.cpp
   exportmoleculehandler.cpp
   fingerprintsimilaritydialog.cpp
@@ -61,6 +63,8 @@ set(chemdata_srcs
 )
 
 qt4_wrap_cpp(moc_srcs
+  computationalresultsmodel.h
+  computationalresultstableview.h
   exportmoleculehandler.h
   fingerprintsimilaritydialog.h
   graphdialog.h
