@@ -62,29 +62,6 @@ set(chemdata_srcs
   substructurefiltermodel.cpp
 )
 
-qt4_wrap_cpp(moc_srcs
-  computationalresultsmodel.h
-  computationalresultstableview.h
-  exportmoleculehandler.h
-  fingerprintsimilaritydialog.h
-  graphdialog.h
-  histogramdialog.h
-  kmeansclusteringdialog.h
-  mainwindow.h
-  moleculedetaildialog.h
-  mongomodel.h
-  mongorecordmodel.h
-  mongotableview.h
-  openineditorhandler.h
-  parallelcoordinatesdialog.h
-  plotmatrixdialog.h
-  quickquerywidget.h
-  serversettingsdialog.h
-  similaritygraphwidget.h
-  structuresimilaritydialog.h
-  substructurefiltermodel.h
-)
-
 qt4_wrap_ui(ui_srcs
   fingerprintsimilaritydialog.ui
   graphdialog.ui
@@ -102,7 +79,8 @@ qt4_wrap_ui(ui_srcs
 # Need to add current binary dir to include path for UI file headers
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(chemdata MACOSX_BUNDLE ${chemdata_srcs} ${moc_srcs} ${ui_srcs})
+add_executable(chemdata MACOSX_BUNDLE ${chemdata_srcs} ${ui_srcs})
+set_target_properties(chemdata PROPERTIES AUTOMOC TRUE)
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkChartsCore vtkGUISupportQt
