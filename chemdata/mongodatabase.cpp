@@ -95,30 +95,31 @@ mongo::DBClientConnection* MongoDatabase::connection() const
 }
 
 // --- Querying ------------------------------------------------------------ //
-/// Returns a molecule ref corresponding to the molecule with \p inchi.
-MoleculeRef MongoDatabase::findMoleculeFromInChI(const std::string &inchi)
+/// Queries the database for a molecule molecule with \p identifier in
+/// \p format.
+MoleculeRef MongoDatabase::findMoleculeFromIdentifer(const std::string &identifier,
+                                                     const std::string &format)
 {
   if (!m_db)
     return MoleculeRef();
 
   std::string collection = moleculesCollectionName();
 
-  mongo::BSONObj obj = m_db->findOne(collection, QUERY("inchi" << inchi));
+  mongo::BSONObj obj = m_db->findOne(collection, QUERY(format << identifier));
 
   return createMoleculeRefForBSONObj(obj);
+}
+
+/// Returns a molecule ref corresponding to the molecule with \p inchi.
+MoleculeRef MongoDatabase::findMoleculeFromInChI(const std::string &inchi)
+{
+  return findMoleculeFromIdentifer(inchi, "inchi");
 }
 
 /// Returns a molecule ref corresponding to the molecule with \p inchikey.
 MoleculeRef MongoDatabase::findMoleculeFromInChIKey(const std::string &inchikey)
 {
-  if (!m_db)
-    return MoleculeRef();
-
-  std::string collection = moleculesCollectionName();
-
-  mongo::BSONObj obj = m_db->findOne(collection, QUERY("inchikey" << inchikey));
-
-  return createMoleculeRefForBSONObj(obj);
+  return findMoleculeFromIdentifer(inchikey, "inchikey");
 }
 
 /// Returns a molecule ref corresponding to the molecule represented

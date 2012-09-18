@@ -36,6 +36,10 @@ find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork REQUIRED)
 include_directories(SYSTEM ${QT_INCLUDES})
 add_definitions(${QT_DEFINITIONS})
 
+# MoleQueue is required for its RPC functions
+find_package(MoleQueue REQUIRED)
+include_directories(${MoleQueue_INCLUDE_DIRS})
+
 set(chemdata_srcs
   chemdata.cpp
   computationalresultsmodel.cpp
@@ -56,10 +60,12 @@ set(chemdata_srcs
   parallelcoordinatesdialog.cpp
   plotmatrixdialog.cpp
   quickquerywidget.cpp
+  rpclistener.cpp
   serversettingsdialog.cpp
   similaritygraphwidget.cpp
   structuresimilaritydialog.cpp
   substructurefiltermodel.cpp
+  ../thirdparty/jsoncpp/jsoncpp.cpp
 )
 
 qt4_wrap_ui(ui_srcs
@@ -79,12 +85,16 @@ qt4_wrap_ui(ui_srcs
 # Need to add current binary dir to include path for UI file headers
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+# for jsoncpp
+include_directories(../thirdparty/jsoncpp/)
+
 add_executable(chemdata MACOSX_BUNDLE ${chemdata_srcs} ${ui_srcs})
 set_target_properties(chemdata PROPERTIES AUTOMOC TRUE)
 target_link_libraries(chemdata ${MongoDB_LIBRARIES} ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   ${CHEMKIT_LIBRARIES} ${EXTRA_LINK_LIB} vtkChartsCore vtkGUISupportQt
-  vtkViewsContext2D vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL)
+  vtkViewsContext2D vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL
+  mqlocalsocketconnectionlistener)
 install(TARGETS chemdata DESTINATION "${INSTALL_RUNTIME_DIR}")
 
 if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)

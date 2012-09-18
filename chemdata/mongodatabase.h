@@ -36,6 +36,9 @@ public:
   bool isConnected() const;
   mongo::DBClientConnection* connection() const;
 
+
+  MoleculeRef findMoleculeFromIdentifer(const std::string &identifier,
+                                        const std::string &format);
   MoleculeRef findMoleculeFromInChI(const std::string &inchi);
   MoleculeRef findMoleculeFromInChIKey(const std::string &inchikey);
   MoleculeRef findMoleculeFromBSONObj(const mongo::BSONObj *obj);

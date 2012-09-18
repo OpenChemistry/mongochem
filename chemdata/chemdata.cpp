@@ -18,6 +18,7 @@
 #include <QtGui/QApplication>
 
 #include "mainwindow.h"
+#include "rpclistener.h"
 
 int main(int argc, char *argv[])
 {
@@ -35,8 +36,13 @@ int main(int argc, char *argv[])
   if(!settings.contains("collection"))
     settings.setValue("collection", "chem");
 
+  // create main gui window
   ChemData::MainWindow window;
   window.show();
+
+  // create rpc listener
+  ChemData::RpcListener listener;
+  listener.start();
 
   return app.exec();
 }
