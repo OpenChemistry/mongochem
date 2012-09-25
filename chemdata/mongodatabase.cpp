@@ -190,6 +190,67 @@ boost::shared_ptr<chemkit::Molecule> MongoDatabase::createMolecule(const Molecul
   return boost::shared_ptr<chemkit::Molecule>(molecule);
 }
 
+// --- Annotations --------------------------------------------------------- //
+/// Inserts a new annotation for the molecule refered to by \p ref.
+void MongoDatabase::addAnnotation(const MoleculeRef &ref,
+                                  const std::string &comment)
+{
+  if (!ref.isValid())
+    return;
+
+  // add new annotation
+  mongo::BSONObjBuilder annotation;
+  annotation.append("user", "unknown");
+  annotation.append("comment", comment);
+
+  // store annotations
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$push" << BSON("annotations" << annotation.obj())));
+}
+
+/// Deletes the annotation at \p index in the molecule refered to by \ref.
+void MongoDatabase::deleteAnnotation(const MoleculeRef &ref, size_t index)
+{
+  if (!ref.isValid())
+    return;
+
+  // identifer for the item in the annotations array
+  std::stringstream id;
+  id << "annotations." << index;
+
+  // set the value at index to null
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$unset" << BSON(id.str() << 1)));
+
+  // remove all null entries from the list
+  mongo::BSONObjBuilder builder;
+  builder.appendNull("annotations");
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$pull" << builder.obj()));
+}
+
+/// Updates the comment for the annotation at \p index in the molecule refered
+/// to by \ref.
+void MongoDatabase::updateAnnotation(const MoleculeRef &ref,
+                                     size_t index,
+                                     const std::string &comment)
+{
+  if (!ref.isValid())
+    return;
+
+  // identifer for the item in the annotations array
+  std::stringstream id;
+  id << "annotations." << index << ".comment";
+
+  // update the record with the new comment
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$set" << BSON(id.str() << comment)));
+}
+
 // --- Internal Methods ---------------------------------------------------- //
 /// Returns the name of the molecules collection.
 std::string MongoDatabase::moleculesCollectionName() const

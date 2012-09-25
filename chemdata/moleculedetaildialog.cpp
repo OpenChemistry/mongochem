@@ -20,6 +20,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 
+#include <QMenu>
 #include <QSettings>
 
 #include <chemkit/molecule.h>
@@ -49,8 +50,29 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   m_computationalResultsModel = new ComputationalResultsModel(this);
   m_computationalResultsTableView = new ComputationalResultsTableView(this);
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
-
   ui->computationalResultsLayout->addWidget(m_computationalResultsTableView);
+
+  // setup annotations tab
+  ui->annotationsTableWidget->setHorizontalHeaderLabels(QStringList()
+                                                        << "User"
+                                                        << "Comment");
+  connect(ui->addAnnotationButton,
+          SIGNAL(clicked()),
+          this,
+          SLOT(addNewAnnotation()));
+  connect(ui->annotationLineEdit,
+          SIGNAL(returnPressed()),
+          this,
+          SLOT(addNewAnnotation()));
+  connect(ui->annotationsTableWidget,
+          SIGNAL(itemChanged(QTableWidgetItem*)),
+          this,
+          SLOT(annotationItemChanged(QTableWidgetItem*)));
+  ui->annotationsTableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->annotationsTableWidget,
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          this,
+          SLOT(annotationRightClicked(const QPoint&)));
 }
 
 MoleculeDetailDialog::~MoleculeDetailDialog()
@@ -60,6 +82,9 @@ MoleculeDetailDialog::~MoleculeDetailDialog()
 
 void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
 {
+  // store the molecule ref
+  m_ref = moleculeRef;
+
   // load molecule from database
   MongoDatabase *db = MongoDatabase::instance();
   if (!db)
@@ -170,6 +195,9 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     QUERY("inchikey" << obj.getStringField("inchikey")));
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
   m_computationalResultsTableView->resizeColumnsToContents();
+
+  // setup annotations tab
+  reloadAnnotations();
 }
 
 /// Sets the molecule to display from its InChI formula. Returns
@@ -190,4 +218,102 @@ bool MoleculeDetailDialog::setMoleculeFromInchi(const std::string &inchi)
 
   setMolecule(molecule);
   return true;
+}
+
+void MoleculeDetailDialog::addNewAnnotation()
+{
+  QString text = ui->annotationLineEdit->text();
+  if (!text.isEmpty()) {
+    MongoDatabase *db = MongoDatabase::instance();
+    db->addAnnotation(m_ref, text.toStdString());
+    ui->annotationLineEdit->clear();
+    reloadAnnotations();
+  }
+}
+
+void MoleculeDetailDialog::annotationRightClicked(const QPoint &pos_)
+{
+  const QTableWidgetItem *item = ui->annotationsTableWidget->itemAt(pos_);
+  if (item) {
+    QMenu menu;
+    menu.addAction("Edit", this, SLOT(editCurrentAnnotation()));
+    menu.addAction("Delete", this, SLOT(deleteCurrentAnnotation()));
+    menu.exec(QCursor::pos());
+  }
+}
+
+void MoleculeDetailDialog::editCurrentAnnotation()
+{
+  int currentRow = ui->annotationsTableWidget->currentRow();
+  QTableWidgetItem *item = ui->annotationsTableWidget->item(currentRow, 1);
+  if (item)
+    ui->annotationsTableWidget->editItem(item);
+}
+
+void MoleculeDetailDialog::deleteCurrentAnnotation()
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  // delete the annotation
+  int currentRow = ui->annotationsTableWidget->currentRow();
+  db->deleteAnnotation(m_ref, static_cast<size_t>(currentRow));
+
+  // reload the annotations
+  reloadAnnotations();
+}
+
+void MoleculeDetailDialog::reloadAnnotations()
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  mongo::BSONObj obj = db->fetchMolecule(m_ref);
+
+  std::vector<mongo::BSONElement> annotations;
+  try {
+     annotations = obj["annotations"].Array();
+  }
+  catch (mongo::UserException) {
+    // no annotations for the molecule
+  }
+
+  // don't emit itemChanged() signals when building
+  ui->annotationsTableWidget->blockSignals(true);
+
+  ui->annotationsTableWidget->setRowCount(
+    static_cast<int>(annotations.size()));
+
+  for (size_t i = 0; i < annotations.size(); i++) {
+    mongo::BSONObj annotation = annotations[i].Obj();
+
+    const char *user = annotation.getStringField("user");
+    QTableWidgetItem *userItem = new QTableWidgetItem(user);
+    userItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    ui->annotationsTableWidget->setItem(i, 0, userItem);
+
+    const char *comment = annotation.getStringField("comment");
+    QTableWidgetItem *commentItem = new QTableWidgetItem(comment);
+    commentItem->setFlags(Qt::ItemIsEnabled
+                          | Qt::ItemIsSelectable
+                          | Qt::ItemIsEditable);
+    ui->annotationsTableWidget->setItem(i, 1, commentItem);
+  }
+
+  // unblock signals
+  ui->annotationsTableWidget->blockSignals(false);
+}
+
+void MoleculeDetailDialog::annotationItemChanged(QTableWidgetItem *item)
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  int row = item->row();
+  QString text = item->data(Qt::DisplayRole).toString();
+
+  db->updateAnnotation(m_ref, static_cast<size_t>(row), text.toStdString());
 }
