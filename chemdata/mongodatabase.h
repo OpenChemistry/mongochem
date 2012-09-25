@@ -53,6 +53,10 @@ public:
                         size_t index,
                         const std::string &comment);
 
+  void addTag(const MoleculeRef &ref, const std::string &tag);
+  void removeTag(const MoleculeRef &ref, const std::string &tag);
+  std::vector<std::string> fetchTags(const MoleculeRef &ref);
+
 private:
   MongoDatabase();
   ~MongoDatabase();

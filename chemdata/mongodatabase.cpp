@@ -16,6 +16,8 @@
 
 #include "mongodatabase.h"
 
+#include <boost/range/algorithm.hpp>
+
 #include <QSettings>
 
 // === MongoDatabase ======================================================= //
@@ -249,6 +251,46 @@ void MongoDatabase::updateAnnotation(const MoleculeRef &ref,
   m_db->update(moleculesCollectionName(),
                QUERY("_id" << ref.id()),
                BSON("$set" << BSON(id.str() << comment)));
+}
+
+// --- Tags ---------------------------------------------------------------- //
+/// Adds a new tag to the molecule refered to by \p ref.
+void MongoDatabase::addTag(const MoleculeRef &ref, const std::string &tag)
+{
+  if (!ref.isValid())
+    return;
+
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$addToSet" << BSON("tags" << tag)));
+}
+
+/// Removes the given tag from the molecule refered to by \p ref.
+void MongoDatabase::removeTag(const MoleculeRef &ref, const std::string &tag)
+{
+  if (!ref.isValid())
+    return;
+
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$pull" << BSON("tags" << tag)));
+}
+
+/// Returns a vector of tags for the molecule refered to by \p ref.
+std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
+{
+  std::vector<std::string> tags;
+
+  try {
+    mongo::BSONObj obj = fetchMolecule(ref);
+    boost::transform(obj["tags"].Array(),
+                     std::back_inserter(tags),
+                     boost::bind(&mongo::BSONElement::str, _1));
+  }
+  catch (mongo::UserException) {
+  }
+
+  return tags;
 }
 
 // --- Internal Methods ---------------------------------------------------- //

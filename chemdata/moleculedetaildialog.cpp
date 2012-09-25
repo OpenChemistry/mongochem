@@ -19,9 +19,11 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 #include <QMenu>
 #include <QSettings>
+#include <QInputDialog>
 
 #include <chemkit/molecule.h>
 
@@ -45,6 +47,13 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   m_openInEditorHandler = new OpenInEditorHandler(this);
   connect(ui->openInEditorButton, SIGNAL(clicked()),
           m_openInEditorHandler, SLOT(openInEditor()));
+
+  // setup tags
+  ui->tagsTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->tagsTextEdit,
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          this,
+          SLOT(tagsRightClicked(const QPoint&)));
 
   // setup computational results tab
   m_computationalResultsModel = new ComputationalResultsModel(this);
@@ -148,6 +157,9 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
       std::string smiles = molecule->formula("smiles");
       ui->smilesLineEdit->setText(smiles.c_str());
   }
+
+  // set tags
+  reloadTags();
 
   // set diagram
   mongo::BSONElement diagramElement = obj.getField("diagram");
@@ -316,4 +328,121 @@ void MoleculeDetailDialog::annotationItemChanged(QTableWidgetItem *item)
   QString text = item->data(Qt::DisplayRole).toString();
 
   db->updateAnnotation(m_ref, static_cast<size_t>(row), text.toStdString());
+}
+
+void MoleculeDetailDialog::reloadTags()
+{
+  ui->tagsTextEdit->clear();
+
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  std::vector<std::string> tags = db->fetchTags(m_ref);
+  std::string tagsString = boost::join(tags, ", ");
+  ui->tagsTextEdit->setText(tagsString.c_str());
+}
+
+void MoleculeDetailDialog::addNewTag()
+{
+  QString tag = QInputDialog::getText(this, "Add Tag", "Tag:");
+  if (tag.isEmpty())
+    return;
+
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  db->addTag(m_ref, tag.toStdString());
+  reloadTags();
+}
+
+void MoleculeDetailDialog::removeTag(const QString &tag)
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  db->removeTag(m_ref, tag.toStdString());
+
+  reloadTags();
+}
+
+void MoleculeDetailDialog::removeSelectedTag()
+{
+  QAction *sender_ = qobject_cast<QAction *>(sender());
+  if (!sender_)
+    return;
+
+  QString tag = sender_->data().toString();
+
+  if (!tag.isEmpty())
+    removeTag(tag);
+}
+
+void MoleculeDetailDialog::tagsRightClicked(const QPoint &pos_)
+{
+  QString tag;
+
+  QTextCursor cursor_ = ui->tagsTextEdit->cursorForPosition(pos_);
+  if (cursor_.atEnd()) {
+    // user clicked in empty space
+  }
+  else {
+    QTextDocument *document = ui->tagsTextEdit->document();
+
+    // find start of tag
+    QTextCursor tagStart = document->find(",",
+                                          cursor_,
+                                          QTextDocument::FindBackward);
+    if (tagStart.isNull()) {
+      // no comma, first tag in the list
+      QTextCursor start(document);
+      start.movePosition(QTextCursor::Start);
+      tagStart = start;
+    }
+    else {
+      // don't include the comma or space
+      tagStart.movePosition(QTextCursor::NextCharacter);
+      tagStart.movePosition(QTextCursor::NextCharacter);
+    }
+
+    // find end of tag
+    QTextCursor tagEnd = document->find(",",
+                                        cursor_);
+    if (tagEnd.isNull()) {
+      // no comma, last tag in the list
+      QTextCursor end(document);
+      end.movePosition(QTextCursor::End);
+      tagEnd = end;
+    }
+    else {
+      // don't include the comma
+      tagEnd.movePosition(QTextCursor::PreviousCharacter);
+    }
+
+    // select tag
+    ui->tagsTextEdit->setTextCursor(tagStart);
+    while (ui->tagsTextEdit->textCursor().position() < tagEnd.position()) {
+      ui->tagsTextEdit->moveCursor(QTextCursor::NextCharacter,
+                                   QTextCursor::KeepAnchor);
+    }
+
+    // get tag text
+    tag = ui->tagsTextEdit->textCursor().selectedText();
+  }
+
+  // create menu
+  QMenu menu;
+  if (!tag.isEmpty()) {
+    QAction *action = menu.addAction(QString("Remove Tag '%1'").arg(tag));
+    action->setData(tag);
+    connect(action, SIGNAL(triggered()), SLOT(removeSelectedTag()));
+    menu.addSeparator();
+  }
+  menu.addAction("Add New Tag", this, SLOT(addNewTag()));
+  menu.exec(QCursor::pos());
+
+  // clear selection
+  ui->tagsTextEdit->setTextCursor(QTextCursor());
 }

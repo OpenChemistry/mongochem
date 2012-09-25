@@ -52,6 +52,11 @@ private slots:
   void deleteCurrentAnnotation();
   void reloadAnnotations();
   void annotationItemChanged(QTableWidgetItem *item);
+  void reloadTags();
+  void addNewTag();
+  void removeTag(const QString &tag);
+  void removeSelectedTag();
+  void tagsRightClicked(const QPoint &pos);
 
 private:
   MoleculeRef m_ref;
