@@ -19,8 +19,6 @@
 
 #include <QObject>
 
-#include <mongo/client/dbclient.h>
-
 #include <chemkit/molecule.h>
 
 #include "moleculeref.h"
