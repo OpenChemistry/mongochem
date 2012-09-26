@@ -208,7 +208,9 @@ void MongoDatabase::addAnnotation(const MoleculeRef &ref,
   // store annotations
   m_db->update(moleculesCollectionName(),
                QUERY("_id" << ref.id()),
-               BSON("$push" << BSON("annotations" << annotation.obj())));
+               BSON("$push" << BSON("annotations" << annotation.obj())),
+               false,
+               true);
 }
 
 /// Deletes the annotation at \p index in the molecule refered to by \ref.
@@ -224,14 +226,18 @@ void MongoDatabase::deleteAnnotation(const MoleculeRef &ref, size_t index)
   // set the value at index to null
   m_db->update(moleculesCollectionName(),
                QUERY("_id" << ref.id()),
-               BSON("$unset" << BSON(id.str() << 1)));
+               BSON("$unset" << BSON(id.str() << 1)),
+               false,
+               true);
 
   // remove all null entries from the list
   mongo::BSONObjBuilder builder;
   builder.appendNull("annotations");
   m_db->update(moleculesCollectionName(),
                QUERY("_id" << ref.id()),
-               BSON("$pull" << builder.obj()));
+               BSON("$pull" << builder.obj()),
+               false,
+               true);
 }
 
 /// Updates the comment for the annotation at \p index in the molecule refered
@@ -250,7 +256,9 @@ void MongoDatabase::updateAnnotation(const MoleculeRef &ref,
   // update the record with the new comment
   m_db->update(moleculesCollectionName(),
                QUERY("_id" << ref.id()),
-               BSON("$set" << BSON(id.str() << comment)));
+               BSON("$set" << BSON(id.str() << comment)),
+               false,
+               true);
 }
 
 // --- Tags ---------------------------------------------------------------- //
@@ -262,7 +270,9 @@ void MongoDatabase::addTag(const MoleculeRef &ref, const std::string &tag)
 
   m_db->update(moleculesCollectionName(),
                QUERY("_id" << ref.id()),
-               BSON("$addToSet" << BSON("tags" << tag)));
+               BSON("$addToSet" << BSON("tags" << tag)),
+               false,
+               true);
 }
 
 /// Removes the given tag from the molecule refered to by \p ref.
@@ -273,7 +283,9 @@ void MongoDatabase::removeTag(const MoleculeRef &ref, const std::string &tag)
 
   m_db->update(moleculesCollectionName(),
                QUERY("_id" << ref.id()),
-               BSON("$pull" << BSON("tags" << tag)));
+               BSON("$pull" << BSON("tags" << tag)),
+               false,
+               true);
 }
 
 /// Returns a vector of tags for the molecule refered to by \p ref.
