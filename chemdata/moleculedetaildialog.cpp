@@ -23,10 +23,10 @@
 
 #include <QMenu>
 #include <QSettings>
-#include <QInputDialog>
 
 #include <chemkit/molecule.h>
 
+#include "addtagdialog.h"
 #include "mongodatabase.h"
 #include "openineditorhandler.h"
 #include "exportmoleculehandler.h"
@@ -345,15 +345,15 @@ void MoleculeDetailDialog::reloadTags()
 
 void MoleculeDetailDialog::addNewTag()
 {
-  QString tag = QInputDialog::getText(this, "Add Tag", "Tag:");
-  if (tag.isEmpty())
+  std::string tag = AddTagDialog::getTag("molecules", this);
+  if (tag.empty())
     return;
 
   MongoDatabase *db = MongoDatabase::instance();
   if (!db)
     return;
 
-  db->addTag(m_ref, tag.toStdString());
+  db->addTag(m_ref, tag);
   reloadTags();
 }
 

@@ -56,6 +56,9 @@ public:
   void addTag(const MoleculeRef &ref, const std::string &tag);
   void removeTag(const MoleculeRef &ref, const std::string &tag);
   std::vector<std::string> fetchTags(const MoleculeRef &ref);
+  std::vector<std::string> fetchTagsWithPrefix(const std::string &collection,
+                                               const std::string &prefix,
+                                               size_t limit = 0);
 
 private:
   MongoDatabase();

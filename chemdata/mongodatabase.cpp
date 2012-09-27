@@ -14,9 +14,12 @@
 
 ******************************************************************************/
 
+#include <set>
+
 #include "mongodatabase.h"
 
 #include <boost/range/algorithm.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <QSettings>
 
@@ -303,6 +306,58 @@ std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
   }
 
   return tags;
+}
+
+/// Returns a vector of all tags for \p collection that start with \p prefix.
+std::vector<std::string>
+MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
+                                   const std::string &prefix,
+                                   size_t limit)
+{
+  // get full collection name (e.g. "chem.molecules")
+  QSettings settings;
+  QString base_collection = settings.value("collection", "chem").toString();
+  std::string collection_string = base_collection.toStdString()
+                                  + "."
+                                  + collection;
+
+  // a limit of zero means we should return all tags
+  if(limit == 0)
+    limit = std::numeric_limits<size_t>::max();
+
+  // fetch all documents with a tags array and return just the tags array
+  mongo::BSONObj to_return = BSON("tags" << true);
+  std::auto_ptr<mongo::DBClientCursor> cursor =
+    m_db->query(collection_string,
+                QUERY("tags" << BSON("$exists" << true)),
+                0,
+                0,
+                &to_return);
+
+  // build set of tags
+  std::set<std::string> tags;
+
+  // add each tag to the set
+  while (cursor->more() && tags.size() < limit) {
+    mongo::BSONObj obj = cursor->next();
+    if (obj.isEmpty())
+      continue;
+
+    try {
+      std::vector<mongo::BSONElement> array = obj["tags"].Array();
+
+      for(size_t i = 0; i < array.size() && tags.size() < limit; i++){
+        std::string tag = array[i].str();
+        if(boost::starts_with(tag, prefix))
+          tags.insert(tag);
+      }
+    }
+    catch (mongo::UserException) {
+    }
+  }
+
+  // return as a vector
+  return std::vector<std::string>(tags.begin(), tags.end());
 }
 
 // --- Internal Methods ---------------------------------------------------- //
