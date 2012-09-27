@@ -402,6 +402,13 @@ void MoleculeDetailDialog::tagsRightClicked(const QPoint &pos_)
       tagStart = start;
     }
     else {
+      // work-around for qt versions before 4.8.1 where the behavior of
+      // QTextCursor::movePosition() change when the cursor has an active
+      // selection (see qt commit 1b031759)
+      #if QT_VERSION < 0x040801
+      tagStart.movePosition(QTextCursor::PreviousCharacter);
+      #endif
+
       // don't include the comma or space
       tagStart.movePosition(QTextCursor::NextCharacter);
       tagStart.movePosition(QTextCursor::NextCharacter);
