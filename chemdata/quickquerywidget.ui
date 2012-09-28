@@ -23,6 +23,11 @@
      </item>
      <item>
       <property name="text">
+       <string>Tag</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
        <string>Formula</string>
       </property>
      </item>

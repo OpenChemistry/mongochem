@@ -47,6 +47,19 @@ public:
   std::vector<mongo::BSONObj> fetchMolecules(const std::vector<MoleculeRef> &molecules);
   boost::shared_ptr<chemkit::Molecule> createMolecule(const MoleculeRef &ref);
 
+  void addAnnotation(const MoleculeRef &ref, const std::string &comment);
+  void deleteAnnotation(const MoleculeRef &ref, size_t index);
+  void updateAnnotation(const MoleculeRef &ref,
+                        size_t index,
+                        const std::string &comment);
+
+  void addTag(const MoleculeRef &ref, const std::string &tag);
+  void removeTag(const MoleculeRef &ref, const std::string &tag);
+  std::vector<std::string> fetchTags(const MoleculeRef &ref);
+  std::vector<std::string> fetchTagsWithPrefix(const std::string &collection,
+                                               const std::string &prefix,
+                                               size_t limit = 0);
+
 private:
   MongoDatabase();
   ~MongoDatabase();

@@ -19,11 +19,14 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/algorithm/string/join.hpp>
 
+#include <QMenu>
 #include <QSettings>
 
 #include <chemkit/molecule.h>
 
+#include "addtagdialog.h"
 #include "mongodatabase.h"
 #include "openineditorhandler.h"
 #include "exportmoleculehandler.h"
@@ -45,12 +48,40 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   connect(ui->openInEditorButton, SIGNAL(clicked()),
           m_openInEditorHandler, SLOT(openInEditor()));
 
+  // setup tags
+  ui->tagsTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->tagsTextEdit,
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          this,
+          SLOT(tagsRightClicked(const QPoint&)));
+
   // setup computational results tab
   m_computationalResultsModel = new ComputationalResultsModel(this);
   m_computationalResultsTableView = new ComputationalResultsTableView(this);
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
-
   ui->computationalResultsLayout->addWidget(m_computationalResultsTableView);
+
+  // setup annotations tab
+  ui->annotationsTableWidget->setHorizontalHeaderLabels(QStringList()
+                                                        << "User"
+                                                        << "Comment");
+  connect(ui->addAnnotationButton,
+          SIGNAL(clicked()),
+          this,
+          SLOT(addNewAnnotation()));
+  connect(ui->annotationLineEdit,
+          SIGNAL(returnPressed()),
+          this,
+          SLOT(addNewAnnotation()));
+  connect(ui->annotationsTableWidget,
+          SIGNAL(itemChanged(QTableWidgetItem*)),
+          this,
+          SLOT(annotationItemChanged(QTableWidgetItem*)));
+  ui->annotationsTableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(ui->annotationsTableWidget,
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          this,
+          SLOT(annotationRightClicked(const QPoint&)));
 }
 
 MoleculeDetailDialog::~MoleculeDetailDialog()
@@ -60,6 +91,9 @@ MoleculeDetailDialog::~MoleculeDetailDialog()
 
 void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
 {
+  // store the molecule ref
+  m_ref = moleculeRef;
+
   // load molecule from database
   MongoDatabase *db = MongoDatabase::instance();
   if (!db)
@@ -124,6 +158,9 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
       ui->smilesLineEdit->setText(smiles.c_str());
   }
 
+  // set tags
+  reloadTags();
+
   // set diagram
   mongo::BSONElement diagramElement = obj.getField("diagram");
   if (!diagramElement.eoo()) {
@@ -170,6 +207,9 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     QUERY("inchikey" << obj.getStringField("inchikey")));
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
   m_computationalResultsTableView->resizeColumnsToContents();
+
+  // setup annotations tab
+  reloadAnnotations();
 }
 
 /// Sets the molecule to display from its InChI formula. Returns
@@ -190,4 +230,226 @@ bool MoleculeDetailDialog::setMoleculeFromInchi(const std::string &inchi)
 
   setMolecule(molecule);
   return true;
+}
+
+void MoleculeDetailDialog::addNewAnnotation()
+{
+  QString text = ui->annotationLineEdit->text();
+  if (!text.isEmpty()) {
+    MongoDatabase *db = MongoDatabase::instance();
+    db->addAnnotation(m_ref, text.toStdString());
+    ui->annotationLineEdit->clear();
+    reloadAnnotations();
+  }
+}
+
+void MoleculeDetailDialog::annotationRightClicked(const QPoint &pos_)
+{
+  const QTableWidgetItem *item = ui->annotationsTableWidget->itemAt(pos_);
+  if (item) {
+    QMenu menu;
+    menu.addAction("Edit", this, SLOT(editCurrentAnnotation()));
+    menu.addAction("Delete", this, SLOT(deleteCurrentAnnotation()));
+    menu.exec(QCursor::pos());
+  }
+}
+
+void MoleculeDetailDialog::editCurrentAnnotation()
+{
+  int currentRow = ui->annotationsTableWidget->currentRow();
+  QTableWidgetItem *item = ui->annotationsTableWidget->item(currentRow, 1);
+  if (item)
+    ui->annotationsTableWidget->editItem(item);
+}
+
+void MoleculeDetailDialog::deleteCurrentAnnotation()
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  // delete the annotation
+  int currentRow = ui->annotationsTableWidget->currentRow();
+  db->deleteAnnotation(m_ref, static_cast<size_t>(currentRow));
+
+  // reload the annotations
+  reloadAnnotations();
+}
+
+void MoleculeDetailDialog::reloadAnnotations()
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  mongo::BSONObj obj = db->fetchMolecule(m_ref);
+
+  std::vector<mongo::BSONElement> annotations;
+  try {
+     annotations = obj["annotations"].Array();
+  }
+  catch (mongo::UserException) {
+    // no annotations for the molecule
+  }
+
+  // don't emit itemChanged() signals when building
+  ui->annotationsTableWidget->blockSignals(true);
+
+  ui->annotationsTableWidget->setRowCount(
+    static_cast<int>(annotations.size()));
+
+  for (size_t i = 0; i < annotations.size(); i++) {
+    mongo::BSONObj annotation = annotations[i].Obj();
+
+    const char *user = annotation.getStringField("user");
+    QTableWidgetItem *userItem = new QTableWidgetItem(user);
+    userItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
+    ui->annotationsTableWidget->setItem(i, 0, userItem);
+
+    const char *comment = annotation.getStringField("comment");
+    QTableWidgetItem *commentItem = new QTableWidgetItem(comment);
+    commentItem->setFlags(Qt::ItemIsEnabled
+                          | Qt::ItemIsSelectable
+                          | Qt::ItemIsEditable);
+    ui->annotationsTableWidget->setItem(i, 1, commentItem);
+  }
+
+  // unblock signals
+  ui->annotationsTableWidget->blockSignals(false);
+}
+
+void MoleculeDetailDialog::annotationItemChanged(QTableWidgetItem *item)
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  int row = item->row();
+  QString text = item->data(Qt::DisplayRole).toString();
+
+  db->updateAnnotation(m_ref, static_cast<size_t>(row), text.toStdString());
+}
+
+void MoleculeDetailDialog::reloadTags()
+{
+  ui->tagsTextEdit->clear();
+
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  std::vector<std::string> tags = db->fetchTags(m_ref);
+  std::string tagsString = boost::join(tags, ", ");
+  ui->tagsTextEdit->setText(tagsString.c_str());
+}
+
+void MoleculeDetailDialog::addNewTag()
+{
+  std::string tag = AddTagDialog::getTag("molecules", this);
+  if (tag.empty())
+    return;
+
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  db->addTag(m_ref, tag);
+  reloadTags();
+}
+
+void MoleculeDetailDialog::removeTag(const QString &tag)
+{
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return;
+
+  db->removeTag(m_ref, tag.toStdString());
+
+  reloadTags();
+}
+
+void MoleculeDetailDialog::removeSelectedTag()
+{
+  QAction *sender_ = qobject_cast<QAction *>(sender());
+  if (!sender_)
+    return;
+
+  QString tag = sender_->data().toString();
+
+  if (!tag.isEmpty())
+    removeTag(tag);
+}
+
+void MoleculeDetailDialog::tagsRightClicked(const QPoint &pos_)
+{
+  QString tag;
+
+  QTextCursor cursor_ = ui->tagsTextEdit->cursorForPosition(pos_);
+  if (cursor_.atEnd()) {
+    // user clicked in empty space
+  }
+  else {
+    QTextDocument *document = ui->tagsTextEdit->document();
+
+    // find start of tag
+    QTextCursor tagStart = document->find(",",
+                                          cursor_,
+                                          QTextDocument::FindBackward);
+    if (tagStart.isNull()) {
+      // no comma, first tag in the list
+      QTextCursor start(document);
+      start.movePosition(QTextCursor::Start);
+      tagStart = start;
+    }
+    else {
+      // work-around for qt versions before 4.8.1 where the behavior of
+      // QTextCursor::movePosition() change when the cursor has an active
+      // selection (see qt commit 1b031759)
+      #if QT_VERSION < 0x040801
+      tagStart.movePosition(QTextCursor::PreviousCharacter);
+      #endif
+
+      // don't include the comma or space
+      tagStart.movePosition(QTextCursor::NextCharacter);
+      tagStart.movePosition(QTextCursor::NextCharacter);
+    }
+
+    // find end of tag
+    QTextCursor tagEnd = document->find(",",
+                                        cursor_);
+    if (tagEnd.isNull()) {
+      // no comma, last tag in the list
+      QTextCursor end(document);
+      end.movePosition(QTextCursor::End);
+      tagEnd = end;
+    }
+    else {
+      // don't include the comma
+      tagEnd.movePosition(QTextCursor::PreviousCharacter);
+    }
+
+    // select tag
+    ui->tagsTextEdit->setTextCursor(tagStart);
+    while (ui->tagsTextEdit->textCursor().position() < tagEnd.position()) {
+      ui->tagsTextEdit->moveCursor(QTextCursor::NextCharacter,
+                                   QTextCursor::KeepAnchor);
+    }
+
+    // get tag text
+    tag = ui->tagsTextEdit->textCursor().selectedText();
+  }
+
+  // create menu
+  QMenu menu;
+  if (!tag.isEmpty()) {
+    QAction *action = menu.addAction(QString("Remove Tag '%1'").arg(tag));
+    action->setData(tag);
+    connect(action, SIGNAL(triggered()), SLOT(removeSelectedTag()));
+    menu.addSeparator();
+  }
+  menu.addAction("Add New Tag", this, SLOT(addNewTag()));
+  menu.exec(QCursor::pos());
+
+  // clear selection
+  ui->tagsTextEdit->setTextCursor(QTextCursor());
 }

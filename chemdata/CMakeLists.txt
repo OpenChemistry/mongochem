@@ -41,6 +41,7 @@ find_package(MoleQueue REQUIRED)
 include_directories(${MoleQueue_INCLUDE_DIRS})
 
 set(chemdata_srcs
+  addtagdialog.cpp
   chemdata.cpp
   computationalresultsmodel.cpp
   computationalresultstableview.cpp
@@ -69,6 +70,7 @@ set(chemdata_srcs
 )
 
 qt4_wrap_ui(ui_srcs
+  addtagdialog.ui
   fingerprintsimilaritydialog.ui
   graphdialog.ui
   histogramdialog.ui

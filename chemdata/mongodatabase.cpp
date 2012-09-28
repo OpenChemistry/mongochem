@@ -14,7 +14,12 @@
 
 ******************************************************************************/
 
+#include <set>
+
 #include "mongodatabase.h"
+
+#include <boost/range/algorithm.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <QSettings>
 
@@ -188,6 +193,171 @@ boost::shared_ptr<chemkit::Molecule> MongoDatabase::createMolecule(const Molecul
     molecule->setName(nameElement.str());
 
   return boost::shared_ptr<chemkit::Molecule>(molecule);
+}
+
+// --- Annotations --------------------------------------------------------- //
+/// Inserts a new annotation for the molecule refered to by \p ref.
+void MongoDatabase::addAnnotation(const MoleculeRef &ref,
+                                  const std::string &comment)
+{
+  if (!ref.isValid())
+    return;
+
+  // add new annotation
+  mongo::BSONObjBuilder annotation;
+  annotation.append("user", "unknown");
+  annotation.append("comment", comment);
+
+  // store annotations
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$push" << BSON("annotations" << annotation.obj())),
+               false,
+               true);
+}
+
+/// Deletes the annotation at \p index in the molecule refered to by \ref.
+void MongoDatabase::deleteAnnotation(const MoleculeRef &ref, size_t index)
+{
+  if (!ref.isValid())
+    return;
+
+  // identifer for the item in the annotations array
+  std::stringstream id;
+  id << "annotations." << index;
+
+  // set the value at index to null
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$unset" << BSON(id.str() << 1)),
+               false,
+               true);
+
+  // remove all null entries from the list
+  mongo::BSONObjBuilder builder;
+  builder.appendNull("annotations");
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$pull" << builder.obj()),
+               false,
+               true);
+}
+
+/// Updates the comment for the annotation at \p index in the molecule refered
+/// to by \ref.
+void MongoDatabase::updateAnnotation(const MoleculeRef &ref,
+                                     size_t index,
+                                     const std::string &comment)
+{
+  if (!ref.isValid())
+    return;
+
+  // identifer for the item in the annotations array
+  std::stringstream id;
+  id << "annotations." << index << ".comment";
+
+  // update the record with the new comment
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$set" << BSON(id.str() << comment)),
+               false,
+               true);
+}
+
+// --- Tags ---------------------------------------------------------------- //
+/// Adds a new tag to the molecule refered to by \p ref.
+void MongoDatabase::addTag(const MoleculeRef &ref, const std::string &tag)
+{
+  if (!ref.isValid())
+    return;
+
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$addToSet" << BSON("tags" << tag)),
+               false,
+               true);
+}
+
+/// Removes the given tag from the molecule refered to by \p ref.
+void MongoDatabase::removeTag(const MoleculeRef &ref, const std::string &tag)
+{
+  if (!ref.isValid())
+    return;
+
+  m_db->update(moleculesCollectionName(),
+               QUERY("_id" << ref.id()),
+               BSON("$pull" << BSON("tags" << tag)),
+               false,
+               true);
+}
+
+/// Returns a vector of tags for the molecule refered to by \p ref.
+std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
+{
+  std::vector<std::string> tags;
+
+  try {
+    mongo::BSONObj obj = fetchMolecule(ref);
+    boost::transform(obj["tags"].Array(),
+                     std::back_inserter(tags),
+                     boost::bind(&mongo::BSONElement::str, _1));
+  }
+  catch (mongo::UserException) {
+  }
+
+  return tags;
+}
+
+/// Returns a vector of all tags for \p collection that start with \p prefix.
+std::vector<std::string>
+MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
+                                   const std::string &prefix,
+                                   size_t limit)
+{
+  // get full collection name (e.g. "chem.molecules")
+  QSettings settings;
+  QString base_collection = settings.value("collection", "chem").toString();
+  std::string collection_string = base_collection.toStdString()
+                                  + "."
+                                  + collection;
+
+  // a limit of zero means we should return all tags
+  if(limit == 0)
+    limit = std::numeric_limits<size_t>::max();
+
+  // fetch all documents with a tags array and return just the tags array
+  mongo::BSONObj to_return = BSON("tags" << true);
+  std::auto_ptr<mongo::DBClientCursor> cursor =
+    m_db->query(collection_string,
+                QUERY("tags" << BSON("$exists" << true)),
+                0,
+                0,
+                &to_return);
+
+  // build set of tags
+  std::set<std::string> tags;
+
+  // add each tag to the set
+  while (cursor->more() && tags.size() < limit) {
+    mongo::BSONObj obj = cursor->next();
+    if (obj.isEmpty())
+      continue;
+
+    try {
+      std::vector<mongo::BSONElement> array = obj["tags"].Array();
+
+      for(size_t i = 0; i < array.size() && tags.size() < limit; i++){
+        std::string tag = array[i].str();
+        if(boost::starts_with(tag, prefix))
+          tags.insert(tag);
+      }
+    }
+    catch (mongo::UserException) {
+    }
+  }
+
+  // return as a vector
+  return std::vector<std::string>(tags.begin(), tags.end());
 }
 
 // --- Internal Methods ---------------------------------------------------- //

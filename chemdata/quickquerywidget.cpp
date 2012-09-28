@@ -53,6 +53,11 @@ mongo::Query QuickQueryWidget::query() const
   if(value_.isEmpty()){
     return mongo::Query();
   }
+  else if (field_ == "tag") {
+    mongo::BSONArrayBuilder builder;
+    builder.append(value_.toStdString());
+    return QUERY("tags" << BSON("$in" << builder.arr()));
+  }
   else if(field_ == "structure"){
     chemkit::Molecule molecule(value_.toStdString(), "smiles");
     int heavyAtomCount =
