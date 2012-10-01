@@ -71,6 +71,7 @@
 #include "structuresimilaritydialog.h"
 #include "kmeansclusteringdialog.h"
 #include "mongodatabase.h"
+#include "importcsvfiledialog.h"
 
 namespace {
 
@@ -196,6 +197,8 @@ MainWindow::MainWindow()
 
   connect(m_ui->actionCalculateFingerprints, SIGNAL(activated()),
           this, SLOT(calculateAndStoreFingerprints()));
+  connect(m_ui->actionImportCsv, SIGNAL(activated()),
+          this, SLOT(importCsvFile()));
 
   setupTable();
   connectToDatabase();
@@ -705,6 +708,13 @@ bool MainWindow::calculateAndStoreFingerprints(const std::string &name)
   }
 
   return true;
+}
+
+void MainWindow::importCsvFile()
+{
+  ImportCsvFileDialog dialog;
+  dialog.openFile();
+  dialog.exec();
 }
 
 }

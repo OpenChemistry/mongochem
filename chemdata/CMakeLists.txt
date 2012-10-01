@@ -50,6 +50,7 @@ set(chemdata_srcs
   fingerprintsimilaritydialog.cpp
   graphdialog.cpp
   histogramdialog.cpp
+  importcsvfiledialog.cpp
   kmeansclusteringdialog.cpp
   mainwindow.cpp
   moleculedetaildialog.cpp
@@ -74,6 +75,7 @@ qt4_wrap_ui(ui_srcs
   fingerprintsimilaritydialog.ui
   graphdialog.ui
   histogramdialog.ui
+  importcsvfiledialog.ui
   kmeansclusteringdialog.ui
   mainwindow.ui
   moleculedetaildialog.ui
