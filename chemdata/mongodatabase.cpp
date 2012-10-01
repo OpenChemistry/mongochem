@@ -54,7 +54,7 @@ MongoDatabase::MongoDatabase()
 /// Destroys the mongo database object.
 MongoDatabase::~MongoDatabase()
 {
-  delete m_db;
+  disconnect();
 }
 
 /// Returns an instance of the singleton mongo database.
@@ -69,21 +69,33 @@ MongoDatabase* MongoDatabase::instance()
     QSettings settings;
     std::string host = settings.value("hostname").toString().toStdString();
     try {
+      std::cout << "connecting to: " << host;
+      std::flush(std::cout);
       db->connect(host);
-      std::cout << "Connected to: " << host << std::endl;
-      singleton.m_db = db;
+      std::cout << " -- success" << std::endl;
     }
     catch (mongo::DBException &e) {
-      std::cerr << "Failed to connect to MongoDB at '"
+      std::cout << " -- failure" << std::endl;
+      std::cerr << "Error: Failed to connect to MongoDB at '"
                 << host
                 << "': "
                 << e.what()
                 << std::endl;
       delete db;
+      db = 0;
     }
+
+    singleton.m_db = db;
   }
 
   return &singleton;
+}
+
+/// Disconnect from the currently connected MongoDB server.
+void MongoDatabase::disconnect()
+{
+  delete m_db;
+  m_db = 0;
 }
 
 /// Returns \c true if the database object is connected to the mongo

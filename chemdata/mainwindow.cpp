@@ -203,7 +203,6 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-  delete m_db;
   delete m_model;
   m_model = 0;
   delete m_ui;
@@ -212,9 +211,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::connectToDatabase()
 {
-  // remove current database connection
-  delete m_db;
-  m_db = new mongo::DBClientConnection;
+  // disconnect the current mongodatabase instance
+  if (m_db)
+    MongoDatabase::instance()->disconnect();
 
   // remove current model
   delete m_model;
@@ -222,20 +221,13 @@ void MainWindow::connectToDatabase()
   m_ui->tableView->setModel(m_model);
 
   // connect to database
-  QSettings settings;
-  std::string host = settings.value("hostname").toString().toStdString();
-  try {
-    m_db->connect(host);
-    std::cout << "Connected to: " << host << std::endl;
-  }
-  catch (mongo::DBException &e) {
-    std::cerr << "Failed to connect to MongoDB at '" << host  << "': " << e.what() << std::endl;
-    delete m_db;
-    m_db = 0;
+  m_db = MongoDatabase::instance()->connection();
+  if (!m_db) {
     emit connectionFailed();
     return;
   }
 
+  // setup model
   m_model = new MongoModel(m_db, this);
   m_ui->tableView->setModel(m_model);
   m_ui->tableView->resizeColumnsToContents();
