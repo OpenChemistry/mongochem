@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
     settings.setValue("port", "27017");
   if(!settings.contains("collection"))
     settings.setValue("collection", "chem");
+  if(!settings.contains("user"))
+    settings.setValue("user", "unknown");
 
   // create main gui window
   ChemData::MainWindow window;
