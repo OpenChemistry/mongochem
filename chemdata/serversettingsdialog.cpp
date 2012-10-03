@@ -31,6 +31,7 @@ ServerSettingsDialog::ServerSettingsDialog(QWidget *parent_)
   ui->hostLineEdit->setText(settings.value("hostname").toString());
   ui->portLineEdit->setText(settings.value("port").toString());
   ui->collectionLineEdit->setText(settings.value("collection").toString());
+  ui->userNameLineEdit->setText(settings.value("user").toString());
 }
 
 ServerSettingsDialog::~ServerSettingsDialog()
@@ -51,6 +52,11 @@ QString ServerSettingsDialog::port() const
 QString ServerSettingsDialog::collection() const
 {
   return ui->collectionLineEdit->text();
+}
+
+QString ServerSettingsDialog::userName() const
+{
+  return ui->userNameLineEdit->text();
 }
 
 }

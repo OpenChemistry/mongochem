@@ -36,6 +36,7 @@ public:
   QString host() const;
   QString port() const;
   QString collection() const;
+  QString userName() const;
 
 private:
   Ui::ServerSettingsDialog *ui;

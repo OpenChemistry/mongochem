@@ -312,6 +312,7 @@ void MainWindow::showServerSettings()
     settings.setValue("hostname", dialog.host());
     settings.setValue("port", dialog.port());
     settings.setValue("collection", dialog.collection());
+    settings.setValue("user", dialog.userName());
 
     // reload collection
     connectToDatabase();

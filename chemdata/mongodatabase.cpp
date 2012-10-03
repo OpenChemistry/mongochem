@@ -111,6 +111,14 @@ mongo::DBClientConnection* MongoDatabase::connection() const
   return m_db;
 }
 
+/// Returns the current user name.
+std::string MongoDatabase::userName() const
+{
+  QSettings settings;
+
+  return settings.value("user", "unknown").toString().toStdString();
+}
+
 // --- Querying ------------------------------------------------------------ //
 /// Queries the database for a molecule molecule with \p identifier in
 /// \p format.
@@ -217,7 +225,7 @@ void MongoDatabase::addAnnotation(const MoleculeRef &ref,
 
   // add new annotation
   mongo::BSONObjBuilder annotation;
-  annotation.append("user", "unknown");
+  annotation.append("user", userName());
   annotation.append("comment", comment);
 
   // store annotations
