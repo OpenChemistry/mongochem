@@ -30,7 +30,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -38,6 +38,7 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionAddNewData"/>
+    <addaction name="actionImportCsv"/>
     <addaction name="actionServerSettings"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -141,6 +142,11 @@
   <action name="actionCalculateFingerprints">
    <property name="text">
     <string>Calculate Fingerprints</string>
+   </property>
+  </action>
+  <action name="actionImportCsv">
+   <property name="text">
+    <string>Import CSV</string>
    </property>
   </action>
  </widget>

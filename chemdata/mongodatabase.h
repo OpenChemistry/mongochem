@@ -48,6 +48,18 @@ public:
   std::vector<mongo::BSONObj> fetchMolecules(const std::vector<MoleculeRef> &molecules);
   boost::shared_ptr<chemkit::Molecule> createMolecule(const MoleculeRef &ref);
 
+  template<class T>
+  void setMoleculeProperty(const MoleculeRef &ref,
+                           const std::string &property,
+                           const T &value)
+  {
+    m_db->update(moleculesCollectionName(),
+                 QUERY("_id" << ref.id()),
+                 BSON("$set" << BSON(property << value)),
+                 true,
+                 true);
+  }
+
   void addAnnotation(const MoleculeRef &ref, const std::string &comment);
   void deleteAnnotation(const MoleculeRef &ref, size_t index);
   void updateAnnotation(const MoleculeRef &ref,

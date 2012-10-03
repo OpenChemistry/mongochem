@@ -151,6 +151,8 @@ protected slots:
 
   void runQuery();
 
+  void importCsvFile();
+
 signals:
   void connectionFailed();
 };
