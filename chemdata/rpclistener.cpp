@@ -86,7 +86,9 @@ void RpcListener::messageReceived(const MoleQueue::Message message)
 
   bool ok = reader.parse(message.data().constData(), root);
   if (!ok) {
-    conn->send(MoleQueue::Message("{json parse error}"));
+    Json::Value reply;
+    reply["error"] = "Invalid JSON";
+    conn->send(MoleQueue::Message(reply));
     return;
   }
 
@@ -100,15 +102,15 @@ void RpcListener::messageReceived(const MoleQueue::Message message)
     if (molecule.isValid()) {
       mongo::BSONObj obj = db->fetchMolecule(molecule);
 
-      std::stringstream reply;
-      reply << "{ \"name\" : \""
-            << obj.getStringField("name")
-            << "\"}";
-      conn->send(MoleQueue::Message(reply.str().c_str()));
+      Json::Value reply;
+      reply["name"] = obj.getStringField("name");
+      conn->send(MoleQueue::Message(reply));
     }
     else {
       // error
-      conn->send(MoleQueue::Message("{error}"));
+      Json::Value reply;
+      reply["error"] = "Invalid Molecule Identifier";
+      conn->send(MoleQueue::Message(reply));
     }
   }
   else if (method == "convert_molecule_identifier") {
@@ -120,22 +122,22 @@ void RpcListener::messageReceived(const MoleQueue::Message message)
       db->findMoleculeFromIdentifer(identifier, input_format);
 
     if(!molecule.isValid()){
-      conn->send(MoleQueue::Message("{\"error\" : \"invalid molecule identifier\"}"));
+      Json::Value reply;
+      reply["error"] = "Invalid Molecule Identifier";
+      conn->send(MoleQueue::Message(reply));
       return;
     }
 
     mongo::BSONObj obj = db->fetchMolecule(molecule);
 
-    std::stringstream reply;
-    reply << "{ \""
-          << output_format
-          << "\" : \""
-          << obj.getStringField(output_format.c_str())
-          << "\"}";
-    conn->send(MoleQueue::Message(reply.str().c_str()));
+    Json::Value reply;
+    reply[output_format] = obj.getStringField(output_format.c_str());
+    conn->send(MoleQueue::Message(reply));
   }
   else {
-    conn->send(MoleQueue::Message("{\"error\" : \"invalid method\"}"));
+    Json::Value reply;
+    reply["error"] = "Invalid RPC Method";
+    conn->send(MoleQueue::Message(reply));
   }
 }
 
