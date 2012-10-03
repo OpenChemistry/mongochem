@@ -33,6 +33,7 @@ class MongoDatabase
 public:
   static MongoDatabase* instance();
 
+  void disconnect();
   bool isConnected() const;
   mongo::DBClientConnection* connection() const;
 
