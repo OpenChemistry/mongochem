@@ -22,6 +22,7 @@
 #include <QMessageBox>
 #include <QContextMenuEvent>
 
+#include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
 
 #include "mongodatabase.h"
