@@ -110,8 +110,8 @@ bool DiagramTooltipItem::Paint(vtkContext2D *painter)
 
   // determine where to draw the tooltip
   vtkVector2f drawPosition = this->GetPositionVector();
-  int drawPositionX = static_cast<int>(drawPosition.X());
-  int drawPositionY = static_cast<int>(drawPosition.Y());
+  int drawPositionX = static_cast<int>(drawPosition.GetX());
+  int drawPositionY = static_cast<int>(drawPosition.GetY());
   if(drawPositionX + tooltipImage.width() > this->Scene->GetViewWidth()){
     drawPosition[0] -= static_cast<float>(tooltipImage.width());
   }
@@ -120,14 +120,14 @@ bool DiagramTooltipItem::Paint(vtkContext2D *painter)
   }
 
   // draw background rect
-  painter->DrawRect(drawPosition.X(),
-                    drawPosition.Y(),
+  painter->DrawRect(drawPosition.GetX(),
+                    drawPosition.GetY(),
                     static_cast<float>(tooltipImage.width()),
                     static_cast<float>(tooltipImage.height()));
 
   // draw molecule diagram
-  painter->DrawImage(drawPosition.X(),
-                     drawPosition.Y(),
+  painter->DrawImage(drawPosition.GetX(),
+                     drawPosition.GetY(),
                      vtkImage);
 
   // cleanup memory
