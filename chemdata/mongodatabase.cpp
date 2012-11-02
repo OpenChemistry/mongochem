@@ -316,15 +316,17 @@ std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
 {
   std::vector<std::string> tags;
 
-  try {
-    mongo::BSONObj obj = fetchMolecule(ref);
-    boost::transform(obj["tags"].Array(),
-                     std::back_inserter(tags),
-                     boost::bind(&mongo::BSONElement::str, _1));
-  }
-  catch (...){
-    // mongo threw a mongo::UserException or bson::assertion exception
-    // which means the molecule does't have a tags array so just return
+  mongo::BSONObj obj = fetchMolecule(ref);
+  if (obj.hasField("tags") && obj["tags"].isABSONObj()) {
+    try {
+      boost::transform(obj["tags"].Array(),
+                       std::back_inserter(tags),
+                       boost::bind(&mongo::BSONElement::str, _1));
+    }
+    catch (...){
+      // mongo threw a mongo::UserException or bson::assertion exception
+      // which means the molecule does't have a tags array so just return
+    }
   }
 
   return tags;
@@ -365,18 +367,20 @@ MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
     if (obj.isEmpty())
       continue;
 
-    try {
-      std::vector<mongo::BSONElement> array = obj["tags"].Array();
+    if (obj.hasField("tags") && obj["tags"].isABSONObj()) {
+      try {
+        std::vector<mongo::BSONElement> array = obj["tags"].Array();
 
-      for(size_t i = 0; i < array.size() && tags.size() < limit; i++){
-        std::string tag = array[i].str();
-        if(boost::starts_with(tag, prefix))
-          tags.insert(tag);
+        for (size_t i = 0; i < array.size() && tags.size() < limit; i++) {
+          std::string tag = array[i].str();
+          if (boost::starts_with(tag, prefix))
+            tags.insert(tag);
+        }
       }
-    }
-    catch (...){
-      // mongo threw a mongo::UserException or bson::assertion exception
-      // which means the molecule does't have a tags array so just return
+      catch (...){
+        // mongo threw a mongo::UserException or bson::assertion exception
+        // which means the molecule does't have a tags array so just return
+      }
     }
   }
 
