@@ -18,8 +18,6 @@
 
 #include "mongodatabase.h"
 
-#include <mongo/bson/bson.h>
-
 #include <boost/range/algorithm.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -324,11 +322,9 @@ std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
                      std::back_inserter(tags),
                      boost::bind(&mongo::BSONElement::str, _1));
   }
-  catch (mongo::UserException) {
-      // older mongo client libraries throw this exception
-  }
-  catch (bson::assertion) {
-      // newer mongo client libraries throw this exception
+  catch (...){
+    // mongo threw a mongo::UserException or bson::assertion exception
+    // which means the molecule does't have a tags array so just return
   }
 
   return tags;
@@ -378,7 +374,9 @@ MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
           tags.insert(tag);
       }
     }
-    catch (mongo::UserException) {
+    catch (...){
+      // mongo threw a mongo::UserException or bson::assertion exception
+      // which means the molecule does't have a tags array so just return
     }
   }
 

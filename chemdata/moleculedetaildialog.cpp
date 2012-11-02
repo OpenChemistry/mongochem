@@ -26,8 +26,6 @@
 
 #include <chemkit/molecule.h>
 
-#include <mongo/bson/bson.h>
-
 #include "addtagdialog.h"
 #include "mongodatabase.h"
 #include "openineditorhandler.h"
@@ -290,11 +288,9 @@ void MoleculeDetailDialog::reloadAnnotations()
   try {
      annotations = obj["annotations"].Array();
   }
-  catch (mongo::UserException) {
-    // no annotations for the molecule
-  }
-  catch (bson::assertion) {
-    // no annotations for the molecule
+  catch (...){
+    // mongo threw a mongo::UserException or bson::assertion exception
+    // which means the molecule does't have a tags array so just return
   }
 
   // don't emit itemChanged() signals when building
