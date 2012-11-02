@@ -26,6 +26,8 @@
 
 #include <chemkit/molecule.h>
 
+#include <mongo/bson/bson.h>
+
 #include "addtagdialog.h"
 #include "mongodatabase.h"
 #include "openineditorhandler.h"
@@ -289,6 +291,9 @@ void MoleculeDetailDialog::reloadAnnotations()
      annotations = obj["annotations"].Array();
   }
   catch (mongo::UserException) {
+    // no annotations for the molecule
+  }
+  catch (bson::assertion) {
     // no annotations for the molecule
   }
 

@@ -18,6 +18,8 @@
 
 #include "mongodatabase.h"
 
+#include <mongo/bson/bson.h>
+
 #include <boost/range/algorithm.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
@@ -323,6 +325,10 @@ std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
                      boost::bind(&mongo::BSONElement::str, _1));
   }
   catch (mongo::UserException) {
+      // older mongo client libraries throw this exception
+  }
+  catch (bson::assertion) {
+      // newer mongo client libraries throw this exception
   }
 
   return tags;
