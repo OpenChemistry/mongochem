@@ -285,12 +285,14 @@ void MoleculeDetailDialog::reloadAnnotations()
   mongo::BSONObj obj = db->fetchMolecule(m_ref);
 
   std::vector<mongo::BSONElement> annotations;
-  try {
-     annotations = obj["annotations"].Array();
-  }
-  catch (...){
-    // mongo threw a mongo::UserException or bson::assertion exception
-    // which means the molecule does't have a tags array so just return
+  if (obj.hasField("annotations") && obj["annotations"].isABSONObj()) {
+    try {
+      annotations = obj["annotations"].Array();
+    }
+    catch (...){
+      // mongo threw a mongo::UserException or bson::assertion exception
+      // which means the molecule does't have a tags array so just return
+    }
   }
 
   // don't emit itemChanged() signals when building
