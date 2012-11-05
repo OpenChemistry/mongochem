@@ -78,7 +78,7 @@ void OpenInEditorHandler::openInEditor()
   QTemporaryFile tempFile("XXXXXX.cml");
   tempFile.setAutoRemove(false);
   if (tempFile.open()) {
-    QString tempFilePath = QDir::tempPath() + QDir::separator() + tempFile.fileName();
+    QString tempFilePath = tempFile.fileName();
 
     // predict 3d coordinates
     chemkit::CoordinatePredictor::predictCoordinates(molecule_.get());
