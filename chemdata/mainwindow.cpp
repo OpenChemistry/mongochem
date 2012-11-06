@@ -254,30 +254,30 @@ void MainWindow::setupTable()
 
 void MainWindow::showGraphs()
 {
-  GraphDialog dialog(this);
+  GraphDialog *dialog = new GraphDialog(this);
 
-  dialog.exec();
+  dialog->show();
 }
 
 void MainWindow::showHistogram()
 {
-  HistogramDialog dialog(this);
+  HistogramDialog *dialog = new HistogramDialog(this);
 
-  dialog.exec();
+  dialog->show();
 }
 
 void MainWindow::showPlotMatrix()
 {
-  PlotMatrixDialog dialog(this);
+  PlotMatrixDialog *dialog = new PlotMatrixDialog(this);
 
-  dialog.exec();
+  dialog->show();
 }
 
 void MainWindow::showParallelCoordinates()
 {
-  ParallelCoordinatesDialog dialog(this);
+  ParallelCoordinatesDialog *dialog = new ParallelCoordinatesDialog(this);
 
-  dialog.exec();
+  dialog->show();
 }
 
 void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
