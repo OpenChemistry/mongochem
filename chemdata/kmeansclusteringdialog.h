@@ -19,8 +19,6 @@
 
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include <vtkType.h>
 
 #include <QDialog>
@@ -54,28 +52,21 @@ public:
 
   void setDescriptor(int index, const QString &descriptor);
   QString descriptor(int index);
-  void setDescriptorEnabled(int index, bool enabled = true);
-  bool isDescriptorEnabled(int index) const;
 
 signals:
   void moleculeDoubleClicked(vtkIdType id);
 
 private slots:
   void kValueSpinBoxChanged(int value);
-  void showCubeAxesToggled(bool value);
-  void showAxisLabelsToggled(bool value);
   void resetCamera();
-  void cubeAxesLocationChanged(const QString &value);
   void xDescriptorChanged(const QString &descriptor);
   void yDescriptorChanged(const QString &descriptor);
   void zDescriptorChanged(const QString &descriptor);
-  void xDescriptorEnabledToggled(bool value);
-  void yDescriptorEnabledToggled(bool value);
-  void zDescriptorEnabledToggled(bool value);
   void viewMouseEvent(QMouseEvent *event);
 
 private:
   void setupDescriptors();
+  void runKMeansStatistics();
 
 private:
   KMeansClusteringDialogPrivate* const d;
