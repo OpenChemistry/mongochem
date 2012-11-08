@@ -22,6 +22,7 @@
 
 #include <vtkNew.h>
 #include <vtkType.h>
+#include <vtkAnnotationLink.h>
 
 namespace mongo
 {
@@ -79,6 +80,7 @@ protected:
   DetailDialog *m_detail;
   MongoModel *m_model;
   QuickQueryWidget *m_queryWidget;
+  vtkNew<vtkAnnotationLink> m_annotationLink;
 
 protected slots:
   /** Show the graphs dialog. */

@@ -233,28 +233,28 @@ void MainWindow::setupTable()
 void MainWindow::showGraphs()
 {
   GraphDialog *dialog = new GraphDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 
 void MainWindow::showHistogram()
 {
   HistogramDialog *dialog = new HistogramDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 
 void MainWindow::showPlotMatrix()
 {
   PlotMatrixDialog *dialog = new PlotMatrixDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 
 void MainWindow::showParallelCoordinates()
 {
   ParallelCoordinatesDialog *dialog = new ParallelCoordinatesDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 

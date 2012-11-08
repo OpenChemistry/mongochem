@@ -29,6 +29,8 @@
 #include <vtkPlotParallelCoordinates.h>
 #include <vtkContextScene.h>
 #include <vtkFloatArray.h>
+#include <vtkAnnotationLink.h>
+#include <vtkEventQtSlotConnect.h>
 
 using namespace mongo;
 
@@ -44,11 +46,9 @@ ParallelCoordinatesDialog::ParallelCoordinatesDialog(QWidget *parent_)
 
   setupTable();
 
-  vtkChartParallelCoordinates *chart = vtkChartParallelCoordinates::New();
-  chart->GetPlot(0)->SetInputData(m_table.GetPointer());
-  chart->SetColumnVisibilityAll(true);
-  m_chartView->GetScene()->AddItem(chart);
-  chart->Delete();
+  m_chart->GetPlot(0)->SetInputData(m_table.GetPointer());
+  m_chart->SetColumnVisibilityAll(true);
+  m_chartView->GetScene()->AddItem(m_chart.GetPointer());
 
   QVBoxLayout *graphLayout = new QVBoxLayout;
   graphLayout->addWidget(m_vtkWidget);
@@ -58,6 +58,24 @@ ParallelCoordinatesDialog::ParallelCoordinatesDialog(QWidget *parent_)
 ParallelCoordinatesDialog::~ParallelCoordinatesDialog()
 {
   delete ui;
+}
+
+void ParallelCoordinatesDialog::setAnnotationLink(vtkAnnotationLink *link)
+{
+  // disconnect from previous annoation link
+  m_annotationEventConnector->Disconnect();
+
+  // setup annotation link
+  m_chart->SetAnnotationLink(link);
+
+  // listen to annotation changed events
+  m_annotationEventConnector->Connect(link,
+                                      vtkCommand::AnnotationChangedEvent,
+                                      m_vtkWidget,
+                                      SLOT(update()));
+
+  // update render view
+  m_vtkWidget->update();
 }
 
 void ParallelCoordinatesDialog::setupTable()

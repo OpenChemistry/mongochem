@@ -22,9 +22,11 @@
 #include <vtkNew.h>
 
 class QVTKWidget;
-class vtkChartXY;
 class vtkContextView;
 class vtkTable;
+class vtkChartParallelCoordinates;
+class vtkAnnotationLink;
+class vtkEventQtSlotConnect;
 
 namespace Ui {
   class ParallelCoordinatesDialog;
@@ -38,6 +40,8 @@ public:
   explicit ParallelCoordinatesDialog(QWidget *parent = 0);
   ~ParallelCoordinatesDialog();
 
+  void setAnnotationLink(vtkAnnotationLink *link);
+
 private:
   void setupTable();
 
@@ -45,7 +49,9 @@ private:
   Ui::ParallelCoordinatesDialog *ui;
   QVTKWidget *m_vtkWidget;
   vtkNew<vtkTable> m_table;
+  vtkNew<vtkChartParallelCoordinates> m_chart;
   vtkNew<vtkContextView> m_chartView;
+  vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
 };
 
 #endif // PARALLELCOORDINATESDIALOG_H

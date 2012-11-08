@@ -29,6 +29,8 @@
 #include <vtkContextScene.h>
 #include <vtkFloatArray.h>
 #include <vtkStringArray.h>
+#include <vtkAnnotationLink.h>
+#include <vtkEventQtSlotConnect.h>
 
 #include "diagramtooltipitem.h"
 
@@ -46,15 +48,13 @@ PlotMatrixDialog::PlotMatrixDialog(QWidget *parent_)
 
   setupTable();
 
-  vtkScatterPlotMatrix *plotMatrix = vtkScatterPlotMatrix::New();
   vtkNew<DiagramTooltipItem> tooltip;
-  plotMatrix->SetTooltip(tooltip.GetPointer());
-  plotMatrix->SetIndexedLabels(
+  m_plotMatrix->SetTooltip(tooltip.GetPointer());
+  m_plotMatrix->SetIndexedLabels(
     vtkStringArray::SafeDownCast(m_table->GetColumnByName("name")));
   m_table->RemoveColumnByName("name");
-  m_chartView->GetScene()->AddItem(plotMatrix);
-  plotMatrix->SetInput(m_table.GetPointer());
-  plotMatrix->Delete();
+  m_chartView->GetScene()->AddItem(m_plotMatrix.GetPointer());
+  m_plotMatrix->SetInput(m_table.GetPointer());
 
   QVBoxLayout *graphLayout = new QVBoxLayout;
   graphLayout->addWidget(m_vtkWidget);
@@ -64,6 +64,24 @@ PlotMatrixDialog::PlotMatrixDialog(QWidget *parent_)
 PlotMatrixDialog::~PlotMatrixDialog()
 {
   delete ui;
+}
+
+void PlotMatrixDialog::setAnnotationLink(vtkAnnotationLink *link)
+{
+  // disconnect from previous annoation link
+  m_annotationEventConnector->Disconnect();
+
+  // setup annotation link (not sure how to do this for plot-matrix)
+//  m_chart->SetAnnotationLink(link);
+
+  // listen to annotation changed events
+  m_annotationEventConnector->Connect(link,
+                                      vtkCommand::AnnotationChangedEvent,
+                                      m_vtkWidget,
+                                      SLOT(update()));
+
+  // update render view
+  m_vtkWidget->update();
 }
 
 void PlotMatrixDialog::setupTable()

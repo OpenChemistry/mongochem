@@ -25,6 +25,8 @@ class QVTKWidget;
 class vtkChartXY;
 class vtkContextView;
 class vtkTable;
+class vtkAnnotationLink;
+class vtkEventQtSlotConnect;
 
 namespace Ui {
 class GraphDialog;
@@ -38,6 +40,8 @@ public:
   explicit GraphDialog(QWidget *parent = 0);
   ~GraphDialog();
 
+  void setAnnotationLink(vtkAnnotationLink *link);
+
 private slots:
   void showClicked();
 
@@ -47,6 +51,7 @@ private:
   vtkNew<vtkTable> m_table;
   vtkNew<vtkContextView> m_chartView;
   vtkNew<vtkChartXY> m_chart;
+  vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
 };
 
 #endif // GRAPHDIALOG_H

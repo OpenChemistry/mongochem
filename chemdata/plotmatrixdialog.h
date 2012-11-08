@@ -25,6 +25,9 @@ class QVTKWidget;
 class vtkChartXY;
 class vtkContextView;
 class vtkTable;
+class vtkScatterPlotMatrix;
+class vtkAnnotationLink;
+class vtkEventQtSlotConnect;
 
 namespace Ui {
     class PlotMatrixDialog;
@@ -38,6 +41,8 @@ public:
   explicit PlotMatrixDialog(QWidget *parent = 0);
   ~PlotMatrixDialog();
 
+  void setAnnotationLink(vtkAnnotationLink *link);
+
 private:
   void setupTable();
 
@@ -45,7 +50,9 @@ private:
   Ui::PlotMatrixDialog *ui;
   QVTKWidget *m_vtkWidget;
   vtkNew<vtkTable> m_table;
+  vtkNew<vtkScatterPlotMatrix> m_plotMatrix;
   vtkNew<vtkContextView> m_chartView;
+  vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
 };
 
 #endif // PLOTMATRIXDIALOG_H

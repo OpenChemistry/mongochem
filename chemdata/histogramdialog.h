@@ -25,6 +25,8 @@ class QVTKWidget;
 class vtkChartXY;
 class vtkContextView;
 class vtkTable;
+class vtkAnnotationLink;
+class vtkEventQtSlotConnect;
 
 namespace Ui {
 class HistogramDialog;
@@ -37,6 +39,8 @@ class HistogramDialog : public QDialog
 public:
   explicit HistogramDialog(QWidget *parent = 0);
   ~HistogramDialog();
+
+  void setAnnotationLink(vtkAnnotationLink *link);
 
 private slots:
   void setDescriptor(const QString &name);
@@ -51,6 +55,7 @@ private:
   vtkNew<vtkTable> m_histogramTable;
   vtkNew<vtkContextView> m_chartView;
   vtkNew<vtkChartXY> m_chart;
+  vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
 };
 
 #endif // HISTOGRAMDIALOG_H
