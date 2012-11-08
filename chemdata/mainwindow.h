@@ -66,7 +66,7 @@ public slots:
     */
   bool calculateAndStoreFingerprints(const std::string &name = "fp2");
 
-protected:
+private:
   void setupTable();
   void setupCharts();
   void addMoleculesFromFile(const QString &fileName);
@@ -80,7 +80,7 @@ protected:
   MongoModel *m_model;
   QuickQueryWidget *m_queryWidget;
 
-protected slots:
+private slots:
   /** Show the graphs dialog. */
   void showGraphs();
 
