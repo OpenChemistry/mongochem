@@ -30,15 +30,6 @@ namespace mongo
 
 #include "moleculeref.h"
 
-class QVTKWidget;
-class vtkContextView;
-class vtkAnnotationLink;
-class vtkEventQtSlotConnect;
-class vtkExtractSelectedRows;
-class vtkChartXY;
-class vtkObject;
-class vtkCommand;
-
 class QuickQueryWidget;
 
 namespace Ui {
@@ -84,27 +75,9 @@ protected:
   void connectToDatabase();
 
   Ui::MainWindow *m_ui;
-
-  vtkNew<vtkAnnotationLink> m_link;
-
-  QVTKWidget *m_vtkWidget;
-  vtkNew<vtkContextView> m_chartView;
-
-  QVTKWidget *m_vtkWidget2;
-  vtkNew<vtkContextView> m_chartView2;
-
-  QVTKWidget *m_vtkWidget3;
-  vtkNew<vtkContextView> m_chartView3;
-  vtkChartXY *m_chart3;
-
-  vtkNew<vtkEventQtSlotConnect> Connector;
-  vtkNew<vtkEventQtSlotConnect> Connector2;
-  vtkNew<vtkExtractSelectedRows> m_extract;
-
   mongo::DBClientConnection *m_db;
   DetailDialog *m_detail;
   MongoModel *m_model;
-  QDialog *m_dialog;
   QuickQueryWidget *m_queryWidget;
 
 protected slots:
@@ -143,11 +116,6 @@ protected slots:
 
   /** Clears the database of all molecules */
   void clearDatabase();
-
-  void selectionChanged();
-
-  void chartPointClicked(vtkObject *caller, unsigned long vtk_event,
-                         void* client_data, void *client_data2, vtkCommand*);
 
   void runQuery();
 

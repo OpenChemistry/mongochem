@@ -25,12 +25,7 @@
 
 #include <mongo/client/dbclient.h>
 
-#include <QtGui/QSplitter>
-#include <QtGui/QDialog>
-#include <QtGui/QVBoxLayout>
 #include <QtGui/QFileDialog>
-#include <QtCore/QDebug>
-#include <QtCore/QProcess>
 #include <QtCore/QSettings>
 #include <QtGui/QPainter>
 #include <QtGui/QStyledItemDelegate>
@@ -38,23 +33,6 @@
 #include <QtGui/QAbstractTextDocumentLayout>
 #include <QtGui/QDockWidget>
 #include <QtGui/QMessageBox>
-
-#include <QVTKWidget.h>
-#include <QVTKInteractor.h>
-#include <vtkContextView.h>
-#include <vtkGenericOpenGLRenderWindow.h>
-#include <vtkContextScene.h>
-#include <vtkChartXY.h>
-#include <vtkChartParallelCoordinates.h>
-#include <vtkAxis.h>
-#include <vtkFloatArray.h>
-#include <vtkStringArray.h>
-#include <vtkPlot.h>
-#include <vtkTable.h>
-#include <vtkAnnotationLink.h>
-#include <vtkExtractSelectedRows.h>
-#include <vtkEventQtSlotConnect.h>
-#include <vtkSelection.h>
 
 #include <chemkit/molecule.h>
 #include <chemkit/fingerprint.h>
@@ -523,34 +501,6 @@ void MainWindow::clearDatabase()
   m_db->dropCollection(collection + ".descriptors.xlogp3");
   m_db->dropCollection(collection + ".descriptors.mass");
   m_db->dropCollection(collection + ".descriptors.tpsa");
-}
-
-void MainWindow::selectionChanged()
-{
-  m_extract->Update();
-
-  m_extract->Update();
-  m_chart3->RecalculateBounds();
-  m_vtkWidget3->update();
-
-  m_vtkWidget->update();
-  m_vtkWidget2->update();
-}
-
-void MainWindow::chartPointClicked(vtkObject *, unsigned long,
-                                   void*, void *client_data2,
-                                   vtkCommand*)
-{
-  vtkChartPlotData *plot = static_cast<vtkChartPlotData*>(client_data2);
-  qDebug() << "Series Name:" << plot->SeriesName.c_str()
-           << "Index:" << plot->Index;
-
-  m_ui->tableView->selectRow(plot->Index);
-
-/*  emit pointClicked(QString(plot->SeriesName.c_str()),
-                    Vector2f(plot->Position.GetData()),
-                    Vector2i(plot->ScreenPosition.GetData()),
-                    plot->Index); */
 }
 
 void MainWindow::runQuery()
