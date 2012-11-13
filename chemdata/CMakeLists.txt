@@ -9,7 +9,7 @@ if(WIN32)
   set(Boost_USE_STATIC_LIBS ON)
 endif()
 # MongoDB uses several boost components we need to link in
-find_package(Boost COMPONENTS thread filesystem program_options system iostreams)
+find_package(Boost COMPONENTS thread chrono filesystem program_options system iostreams)
 if(WIN32)
   add_definitions("-DBOOST_ALL_NO_LIB")
 endif()
