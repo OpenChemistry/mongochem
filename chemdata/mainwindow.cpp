@@ -161,7 +161,8 @@ MainWindow::MainWindow()
           this, SLOT(showParallelCoordinates()));
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
-  connect(m_ui->tableView, SIGNAL(doubleClicked(QModelIndex)), SLOT(showMoleculeDetailsDialog(QModelIndex)));
+  connect(m_ui->tableView, SIGNAL(showMoleculeDetails(MoleculeRef)),
+          this, SLOT(showMoleculeDetailsDialog(MoleculeRef)));
   connect(m_ui->tableView, SIGNAL(showSimilarMolecules(MoleculeRef)),
           this, SLOT(showSimilarMolecules(MoleculeRef)));
   connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
@@ -258,12 +259,8 @@ void MainWindow::showParallelCoordinates()
   dialog->show();
 }
 
-void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
+void MainWindow::showMoleculeDetailsDialog(MoleculeRef ref)
 {
-  MongoDatabase *db = MongoDatabase::instance();
-  mongo::BSONObj *obj = static_cast<mongo::BSONObj *>(index.internalPointer());
-  MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
-
   if (ref.isValid()) {
     MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
     dialog->setMolecule(ref);
@@ -274,11 +271,6 @@ void MainWindow::showMoleculeDetailsDialog(const QModelIndex &index)
                           "Error",
                           "Failed to find molecule from index.");
   }
-}
-
-void MainWindow::showMoleculeDetailsDialog(vtkIdType id)
-{
-  showMoleculeDetailsDialog(m_model->index(static_cast<int>(id), 0));
 }
 
 void MainWindow::showServerSettings()
@@ -303,9 +295,6 @@ void MainWindow::showKMeansClusteringDialog()
   KMeansClusteringDialog *dialog = new KMeansClusteringDialog(this);
 
   dialog->setMolecules(m_model->molecules());
-
-  connect(dialog, SIGNAL(moleculeDoubleClicked(vtkIdType)),
-          this, SLOT(showMoleculeDetailsDialog(vtkIdType)));
 
   dialog->show();
 }

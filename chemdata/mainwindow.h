@@ -93,11 +93,9 @@ protected slots:
   /** Show the parallel coordinates dialog. */
   void showParallelCoordinates();
 
-  /** Show the molecule details dialog. */
-  void showMoleculeDetailsDialog(const QModelIndex &index);
-
-  /** Show the molecule details dialog given an id. */
-  void showMoleculeDetailsDialog(vtkIdType id);
+  /** Show the molecule details dialog for the molecule referred to
+   *  by \p ref. */
+  void showMoleculeDetailsDialog(MoleculeRef ref);
 
   /** Show the server settings dialog. */
   void showServerSettings();
