@@ -53,6 +53,9 @@ MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
   connect(m_network, SIGNAL(finished(QNetworkReply*)),
           this, SLOT(replyFinished(QNetworkReply*)));
 
+  connect(this, SIGNAL(doubleClicked(QModelIndex)),
+          this, SLOT(moleculeDoubleClicked(QModelIndex)));
+
   m_openInEditorHandler = new OpenInEditorHandler(this);
 }
 
@@ -172,8 +175,10 @@ void MongoTableView::fetchImage()
 void MongoTableView::showMoleculeDetailsDialog()
 {
   MongoDatabase *db = MongoDatabase::instance();
+
+  QModelIndex index = currentSourceModelIndex();
   mongo::BSONObj *obj =
-    static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
+    static_cast<mongo::BSONObj *>(index.internalPointer());
   MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
 
   if (ref.isValid()) {
@@ -190,8 +195,9 @@ void MongoTableView::showMoleculeDetailsDialog()
 
 void MongoTableView::copyInChIToClipboard()
 {
+  QModelIndex index = currentSourceModelIndex();
   mongo::BSONObj *obj =
-    static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
+    static_cast<mongo::BSONObj *>(index.internalPointer());
   if (obj) {
     mongo::BSONElement inchiElement = obj->getField("inchi");
 
@@ -256,11 +262,39 @@ void MongoTableView::replyFinished(QNetworkReply *reply)
 void MongoTableView::showSimilarMoleculesClicked()
 {
   MongoDatabase *db = MongoDatabase::instance();
+  QModelIndex index = currentSourceModelIndex();
   mongo::BSONObj *obj =
-    static_cast<mongo::BSONObj *>(currentIndex().internalPointer());
+    static_cast<mongo::BSONObj *>(index.internalPointer());
   MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
 
   emit showSimilarMolecules(ref);
+}
+
+void MongoTableView::moleculeDoubleClicked(const QModelIndex &index_)
+{
+  Q_UNUSED(index_);
+
+  MongoDatabase *db = MongoDatabase::instance();
+  QModelIndex index = currentSourceModelIndex();
+  mongo::BSONObj *obj =
+    static_cast<mongo::BSONObj *>(index.internalPointer());
+  MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
+
+  emit showMoleculeDetails(ref);
+}
+
+QModelIndex MongoTableView::currentSourceModelIndex() const
+{
+  QModelIndex index = currentIndex();
+
+  // if we have a filter model we need to map the current index to
+  // the source model's index which contains the BSONObj pointer
+  if(QSortFilterProxyModel *filterModel =
+       qobject_cast<QSortFilterProxyModel *>(model())){
+    index = filterModel->mapToSource(index);
+  }
+
+  return index;
 }
 
 } // End of namespace

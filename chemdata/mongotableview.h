@@ -42,6 +42,10 @@ signals:
   /** Emitted when the user queries for molecules similar to \p ref. */
   void showSimilarMolecules(MoleculeRef ref);
 
+  /** Emitted when the user requests the molecule details for \p ref either
+   *  by clicking "Show Detail" or double-clicking on the molecule. */
+  void showMoleculeDetails(MoleculeRef ref);
+
 protected slots:
   /** Attempt to fetch the structure of a CAS number from the NIH resolver. */
   void fetchByCas();
@@ -63,6 +67,13 @@ protected slots:
 
   /** Query the database for similar molecules. */
   void showSimilarMoleculesClicked();
+
+  /** Called when the user double clicks on a molecule. */
+  void moleculeDoubleClicked(const QModelIndex &index);
+
+private:
+  /** Returns the currently selected model index. */
+  QModelIndex currentSourceModelIndex() const;
 
 protected:
   /** Used for fetching data from web services. */
