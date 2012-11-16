@@ -51,16 +51,16 @@ bool SelectionFilterModel::filterAcceptsRow(int source_row,
 {
   Q_UNUSED(source_parent);
 
-  if(m_selection->GetNumberOfNodes() < 1)
+  if (m_selection->GetNumberOfNodes() < 1)
     return false;
 
   vtkSelectionNode *node = m_selection->GetNode(0);
-  if(!node)
+  if (!node)
     return false;
 
   vtkIdTypeArray *selectionArray =
     vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
-  if(!selectionArray)
+  if (!selectionArray)
     return false;
 
   return selectionArray->LookupValue(static_cast<vtkIdType>(source_row)) != -1;

@@ -675,13 +675,12 @@ void MainWindow::setShowSelectedMolecules(bool enabled)
 {
   // delete the old model if it is not the main model (e.g. it
   // is a filter model such as SelectionFilterModel)
-  if(m_ui->tableView->model() != m_model){
+  if (m_ui->tableView->model() != m_model)
     m_ui->tableView->model()->deleteLater();
-  }
   m_ui->tableView->setModel(m_model);
 
   // add a selection filter model if enabled
-  if(enabled){
+  if (enabled) {
     SelectionFilterModel *filterModel = new SelectionFilterModel(this);
     filterModel->setSourceModel(m_model);
     filterModel->setSelection(m_annotationLink->GetCurrentSelection());
