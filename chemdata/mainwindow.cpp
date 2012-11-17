@@ -34,6 +34,8 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QMessageBox>
 
+#include <vtkAnnotationLink.h>
+
 #include <chemkit/molecule.h>
 #include <chemkit/fingerprint.h>
 #include <chemkit/moleculefile.h>
@@ -50,6 +52,7 @@
 #include "kmeansclusteringdialog.h"
 #include "mongodatabase.h"
 #include "importcsvfiledialog.h"
+#include "selectionfiltermodel.h"
 
 namespace {
 
@@ -178,6 +181,14 @@ MainWindow::MainWindow()
           this, SLOT(calculateAndStoreFingerprints()));
   connect(m_ui->actionImportCsv, SIGNAL(activated()),
           this, SLOT(importCsvFile()));
+  connect(m_ui->actionShowSelectedMolecules, SIGNAL(toggled(bool)),
+          this, SLOT(setShowSelectedMolecules(bool)));
+
+  // setup annotation link
+  m_annotationEventConnector->Connect(m_annotationLink.GetPointer(),
+                                      vtkCommand::AnnotationChangedEvent,
+                                      this,
+                                      SLOT(updateSelectionFilterModel()));
 
   setupTable();
   connectToDatabase();
@@ -234,28 +245,28 @@ void MainWindow::setupTable()
 void MainWindow::showGraphs()
 {
   GraphDialog *dialog = new GraphDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 
 void MainWindow::showHistogram()
 {
   HistogramDialog *dialog = new HistogramDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 
 void MainWindow::showPlotMatrix()
 {
   PlotMatrixDialog *dialog = new PlotMatrixDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 
 void MainWindow::showParallelCoordinates()
 {
   ParallelCoordinatesDialog *dialog = new ParallelCoordinatesDialog(this);
-
+  dialog->setAnnotationLink(m_annotationLink.GetPointer());
   dialog->show();
 }
 
@@ -647,6 +658,30 @@ void MainWindow::importCsvFile()
   ImportCsvFileDialog dialog;
   dialog.openFile();
   dialog.exec();
+}
+
+void MainWindow::setShowSelectedMolecules(bool enabled)
+{
+  // delete the old model if it is not the main model (e.g. it
+  // is a filter model such as SelectionFilterModel)
+  if (m_ui->tableView->model() != m_model)
+    m_ui->tableView->model()->deleteLater();
+  m_ui->tableView->setModel(m_model);
+
+  // add a selection filter model if enabled
+  if (enabled) {
+    SelectionFilterModel *filterModel = new SelectionFilterModel(this);
+    filterModel->setSourceModel(m_model);
+    filterModel->setSelection(m_annotationLink->GetCurrentSelection());
+    m_ui->tableView->setModel(filterModel);
+    m_ui->tableView->resizeColumnsToContents();
+  }
+}
+
+void MainWindow::updateSelectionFilterModel()
+{
+  // update selection filter model
+  setShowSelectedMolecules(m_ui->actionShowSelectedMolecules->isChecked());
 }
 
 }

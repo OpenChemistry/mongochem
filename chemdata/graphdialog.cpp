@@ -34,6 +34,8 @@
 #include <vtkTable.h>
 #include <vtkContextView.h>
 #include <vtkChartXY.h>
+#include <vtkAnnotationLink.h>
+#include <vtkEventQtSlotConnect.h>
 
 #include "diagramtooltipitem.h"
 
@@ -93,6 +95,24 @@ GraphDialog::GraphDialog(QWidget *parent_)
 GraphDialog::~GraphDialog()
 {
   delete ui;
+}
+
+void GraphDialog::setAnnotationLink(vtkAnnotationLink *link)
+{
+  // disconnect from previous annoation link
+  m_annotationEventConnector->Disconnect();
+
+  // setup annotation link
+  m_chart->SetAnnotationLink(link);
+
+  // listen to annotation changed events
+  m_annotationEventConnector->Connect(link,
+                                      vtkCommand::AnnotationChangedEvent,
+                                      m_vtkWidget,
+                                      SLOT(update()));
+
+  // update render view
+  m_vtkWidget->update();
 }
 
 void GraphDialog::showClicked()

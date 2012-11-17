@@ -14,44 +14,29 @@
 
 ******************************************************************************/
 
-#ifndef GRAPHDIALOG_H
-#define GRAPHDIALOG_H
+#ifndef CHEMDATA_SELECTIONFILTERMODEL_H
+#define CHEMDATA_SELECTIONFILTERMODEL_H
 
-#include <QDialog>
+#include <QSortFilterProxyModel>
 
-#include <vtkNew.h>
+#include <vtkSelection.h>
 
-class QVTKWidget;
-class vtkChartXY;
-class vtkContextView;
-class vtkTable;
-class vtkAnnotationLink;
-class vtkEventQtSlotConnect;
-
-namespace Ui {
-class GraphDialog;
-}
-
-class GraphDialog : public QDialog
+class SelectionFilterModel : public QSortFilterProxyModel
 {
   Q_OBJECT
 
 public:
-  explicit GraphDialog(QWidget *parent = 0);
-  ~GraphDialog();
+  explicit SelectionFilterModel(QObject *parent = 0);
+  ~SelectionFilterModel();
 
-  void setAnnotationLink(vtkAnnotationLink *link);
+  void setSelection(vtkSelection *selection);
 
-private slots:
-  void showClicked();
+protected:
+  bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
+  bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
 
 private:
-  Ui::GraphDialog *ui;
-  QVTKWidget *m_vtkWidget;
-  vtkNew<vtkTable> m_table;
-  vtkNew<vtkContextView> m_chartView;
-  vtkNew<vtkChartXY> m_chart;
-  vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
+  vtkSelection *m_selection;
 };
 
-#endif // GRAPHDIALOG_H
+#endif // CHEMDATA_SELECTIONFILTERMODEL_H

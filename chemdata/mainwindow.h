@@ -22,6 +22,8 @@
 
 #include <vtkNew.h>
 #include <vtkType.h>
+#include <vtkAnnotationLink.h>
+#include <vtkEventQtSlotConnect.h>
 
 namespace mongo
 {
@@ -79,6 +81,8 @@ protected:
   DetailDialog *m_detail;
   MongoModel *m_model;
   QuickQueryWidget *m_queryWidget;
+  vtkNew<vtkAnnotationLink> m_annotationLink;
+  vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
 
 protected slots:
   /** Show the graphs dialog. */
@@ -118,6 +122,9 @@ protected slots:
   void runQuery();
 
   void importCsvFile();
+
+  void setShowSelectedMolecules(bool enabled);
+  void updateSelectionFilterModel();
 
 signals:
   void connectionFailed();

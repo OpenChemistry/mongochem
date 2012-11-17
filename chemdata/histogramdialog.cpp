@@ -36,6 +36,8 @@
 #include <vtkAxis.h>
 #include <vtkStringArray.h>
 #include <vtkMathUtilities.h>
+#include <vtkAnnotationLink.h>
+#include <vtkEventQtSlotConnect.h>
 
 using namespace mongo;
 
@@ -159,6 +161,24 @@ HistogramDialog::HistogramDialog(QWidget *parent_)
 HistogramDialog::~HistogramDialog()
 {
   delete ui;
+}
+
+void HistogramDialog::setAnnotationLink(vtkAnnotationLink *link)
+{
+  // disconnect from previous annoation link
+  m_annotationEventConnector->Disconnect();
+
+  // setup annotation link
+  m_chart->SetAnnotationLink(link);
+
+  // listen to annotation changed events
+  m_annotationEventConnector->Connect(link,
+                                      vtkCommand::AnnotationChangedEvent,
+                                      m_vtkWidget,
+                                      SLOT(update()));
+
+  // update render view
+  m_vtkWidget->update();
 }
 
 void HistogramDialog::setDescriptor(const QString &name)

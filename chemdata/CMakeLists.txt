@@ -63,6 +63,7 @@ set(chemdata_srcs
   plotmatrixdialog.cpp
   quickquerywidget.cpp
   rpclistener.cpp
+  selectionfiltermodel.cpp
   serversettingsdialog.cpp
   similaritygraphwidget.cpp
   structuresimilaritydialog.cpp
