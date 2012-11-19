@@ -68,7 +68,7 @@ public slots:
     */
   bool calculateAndStoreFingerprints(const std::string &name = "fp2");
 
-protected:
+private:
   void setupTable();
   void setupCharts();
   void addMoleculesFromFile(const QString &fileName);
@@ -84,7 +84,7 @@ protected:
   vtkNew<vtkAnnotationLink> m_annotationLink;
   vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
 
-protected slots:
+private slots:
   /** Show the graphs dialog. */
   void showGraphs();
 
