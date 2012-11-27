@@ -305,9 +305,14 @@ void MainWindow::showKMeansClusteringDialog()
   // create and show the dialog
   KMeansClusteringDialog *dialog = new KMeansClusteringDialog(this);
 
-  dialog->setMolecules(m_model->molecules());
+  connect(dialog, SIGNAL(moleculeDoubleClicked(vtkIdType)),
+          this, SLOT(showMoleculeDetailsDialog(vtkIdType)));
 
+  // pop-up dialog before setting molecules (which could take some time)
   dialog->show();
+  qApp->processEvents();
+
+  dialog->setMolecules(m_model->molecules());
 }
 
 void MainWindow::showFingerprintSimilarityDialog()
