@@ -36,6 +36,8 @@
 #include <vtkSmartPointer.h>
 #include <vtkKMeansStatistics.h>
 
+#include <boost/array.hpp>
+
 #include <chemkit/molecule.h>
 #include <chemkit/moleculardescriptor.h>
 
