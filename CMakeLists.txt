@@ -21,6 +21,7 @@ if(ENABLE_TESTING)
   enable_testing()
 endif()
 
+# source directory
 add_subdirectory(chemdata)
 
 option(BUILD_DOCUMENTATION "Build project documentation" OFF)
