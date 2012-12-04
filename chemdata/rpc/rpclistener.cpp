@@ -16,6 +16,8 @@
 
 #include "rpclistener.h"
 
+#include <QCoreApplication>
+
 #include <sstream>
 
 #include <chemdata/core/mongodatabase.h>
@@ -133,6 +135,9 @@ void RpcListener::messageReceived(const MoleQueue::Message message)
     Json::Value reply;
     reply[output_format] = obj.getStringField(output_format.c_str());
     conn->send(MoleQueue::Message(reply));
+  }
+  else if(method == "kill"){
+    qApp->quit();
   }
   else {
     Json::Value reply;

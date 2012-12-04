@@ -1,7 +1,9 @@
 import json
+import time
 import socket
 import struct
 import StringIO
+import subprocess
 
 class Connection:
   def __init__(self, name = "chemdata"):
@@ -36,4 +38,15 @@ class Connection:
       return {}
 
   def close(self):
+    # send the kill signal
+    self.send_json({'jsonrpc' : '2.0', 'method' : 'kill'})
+
+    # close socket
     self.sock.close()
+
+def start_chemdata(executable_filename):
+  # run chemdata in a child process
+  subprocess.Popen(executable_filename)
+
+  # wait for chemdata to start
+  time.sleep(3)

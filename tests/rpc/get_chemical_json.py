@@ -1,4 +1,6 @@
-
+import os
+import sys
+import time
 import unittest
 import chemdatarpc
 
@@ -7,6 +9,10 @@ class GetChemicalJsonTest(unittest.TestCase):
   @classmethod
   def setUpClass(self):
     self.conn = chemdatarpc.Connection()
+
+  @classmethod
+  def tearDownClass(self):
+    self.conn.close()
 
   def test_ethanol(self):
     self.conn.send_json(
@@ -24,4 +30,8 @@ class GetChemicalJsonTest(unittest.TestCase):
     self.assertEqual(reply["name"], "ethanol")
 
 if __name__ == '__main__':
-  unittest.main()
+  # start chemdata
+  chemdatarpc.start_chemdata(sys.argv[1])
+
+  # run the tests
+  unittest.main(argv = [sys.argv[0]])
