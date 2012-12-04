@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Chemistry Data Explorer</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="ChemData::MongoTableView" name="tableView">
+      <attribute name="verticalHeaderVisible">
+       <bool>false</bool>
+      </attribute>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_File">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionAddNewData"/>
+    <addaction name="actionImportCsv"/>
+    <addaction name="actionServerSettings"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menu_View">
+    <property name="title">
+     <string>&amp;View</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionShowSelectedMolecules"/>
+   </widget>
+   <widget class="QMenu" name="menu_Help">
+    <property name="title">
+     <string>&amp;Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <widget class="QMenu" name="menuChart">
+    <property name="title">
+     <string>Chart</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuClustering">
+    <property name="title">
+     <string>C&amp;lustering</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionCalculateFingerprints"/>
+   </widget>
+   <addaction name="menu_File"/>
+   <addaction name="menuChart"/>
+   <addaction name="menuClustering"/>
+   <addaction name="menu_View"/>
+   <addaction name="menuTools"/>
+   <addaction name="menu_Help"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+  </action>
+  <action name="actionAddNewData">
+   <property name="text">
+    <string>&amp;Add New Data</string>
+   </property>
+  </action>
+  <action name="actionGraphs">
+   <property name="text">
+    <string>&amp;Scatter Plot</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionServerSettings">
+   <property name="text">
+    <string>&amp;Server Settings</string>
+   </property>
+  </action>
+  <action name="actionPlotMatrix">
+   <property name="text">
+    <string>Plot &amp;Matrix</string>
+   </property>
+  </action>
+  <action name="actionParallelCoordinates">
+   <property name="text">
+    <string>&amp;Parallel Coordinates</string>
+   </property>
+  </action>
+  <action name="actionHistogram">
+   <property name="text">
+    <string>&amp;Histogram</string>
+   </property>
+  </action>
+  <action name="actionFingerprintSimilarity">
+   <property name="text">
+    <string>Fingerprint Similarity</string>
+   </property>
+  </action>
+  <action name="actionStructureSimilarity">
+   <property name="text">
+    <string>Structure Similarity</string>
+   </property>
+  </action>
+  <action name="actionKMeans">
+   <property name="text">
+    <string>K-Means</string>
+   </property>
+  </action>
+  <action name="actionCalculateFingerprints">
+   <property name="text">
+    <string>Calculate Fingerprints</string>
+   </property>
+  </action>
+  <action name="actionImportCsv">
+   <property name="text">
+    <string>Import CSV</string>
+   </property>
+  </action>
+  <action name="actionShowSelectedMolecules">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Selected Molecules</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ChemData::MongoTableView</class>
+   <extends>QTableView</extends>
+   <header>mongotableview.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>activated()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
