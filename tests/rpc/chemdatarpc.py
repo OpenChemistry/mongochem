@@ -46,7 +46,7 @@ class Connection:
 
 def start_chemdata(executable_filename):
   # run chemdata in a child process
-  subprocess.Popen(executable_filename)
+  subprocess.Popen([executable_filename, "--testing"])
 
   # wait for chemdata to start
   time.sleep(3)
