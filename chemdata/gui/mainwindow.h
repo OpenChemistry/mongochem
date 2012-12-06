@@ -97,13 +97,12 @@ private slots:
 
   void runQuery();
 
-  void importCsvFile();
-
   void setShowSelectedMolecules(bool enabled);
   void updateSelectionFilterModel();
 
   void showChartWidget();
   void showClusteringWidget();
+  void showImportDialog();
 
 signals:
   void connectionFailed();

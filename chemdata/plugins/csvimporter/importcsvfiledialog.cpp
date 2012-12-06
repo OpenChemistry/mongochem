@@ -23,10 +23,8 @@
 
 #include <chemdata/core/mongodatabase.h>
 
-namespace ChemData {
-
 ImportCsvFileDialog::ImportCsvFileDialog(QWidget *parent_)
-  : QDialog(parent_),
+  : AbstractImportDialog(parent_),
     ui(new Ui::ImportCsvFileDialog)
 {
   ui->setupUi(this);
@@ -107,13 +105,14 @@ void ImportCsvFileDialog::openFile()
 
 void ImportCsvFileDialog::import()
 {
-  MongoDatabase *db = MongoDatabase::instance();
+  ChemData::MongoDatabase *db = ChemData::MongoDatabase::instance();
 
   int keyColumn = 0;
 
   for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
     QString key = ui->tableWidget->item(i, keyColumn)->text();
-    MoleculeRef molecule = db->findMoleculeFromInChIKey(key.toStdString());
+    ChemData::MoleculeRef molecule =
+      db->findMoleculeFromInChIKey(key.toStdString());
 
     for (int j = 1; j < ui->tableWidget->columnCount(); j++) {
       QString name = ui->tableWidget->horizontalHeaderItem(j)->text();
@@ -128,5 +127,3 @@ void ImportCsvFileDialog::import()
   // close the dialog
   accept();
 }
-
-} // end ChemData namespace

@@ -17,17 +17,15 @@
 #ifndef IMPORTCSVFILEDIALOG_H
 #define IMPORTCSVFILEDIALOG_H
 
-#include <QDialog>
+#include <chemdata/gui/abstractimportdialog.h>
 
 namespace Ui {
 class ImportCsvFileDialog;
 }
 
-namespace ChemData {
-
 /// The ImportCsvFileDialog class provides a dialog allowing for the user
 /// to import molecular descriptor data from a CSV file.
-class ImportCsvFileDialog : public QDialog
+class ImportCsvFileDialog : public ChemData::AbstractImportDialog
 {
   Q_OBJECT
 
@@ -48,7 +46,5 @@ private:
   Ui::ImportCsvFileDialog *ui;
   QString m_fileName;
 };
-
-} // end ChemData namespace
 
 #endif // IMPORTCSVFILEDIALOG_H
