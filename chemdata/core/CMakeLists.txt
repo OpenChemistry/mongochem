@@ -18,4 +18,5 @@ target_link_libraries(ChemDataCore
   ${Boost_LIBRARIES}
   ${QT_LIBRARIES}
   ${CHEMKIT_LIBRARIES}
+  ${EXTRA_LINK_LIB}
 )

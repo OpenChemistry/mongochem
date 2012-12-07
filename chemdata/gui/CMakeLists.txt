@@ -52,6 +52,7 @@ target_link_libraries(ChemDataGui
   ${Boost_LIBRARIES}
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   ${CHEMKIT_LIBRARIES}
+  ${EXTRA_LINK_LIB}
   ChemDataCore
   vtkChartsCore vtkGUISupportQt vtkViewsContext2D vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL
 )
