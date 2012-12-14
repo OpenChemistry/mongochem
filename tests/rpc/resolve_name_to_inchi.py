@@ -1,4 +1,6 @@
-
+import os
+import sys
+import time
 import unittest
 import chemdatarpc
 
@@ -9,6 +11,10 @@ class ResolveNameToInchiTest(unittest.TestCase):
   @classmethod
   def setUpClass(self):
     self.conn = chemdatarpc.Connection()
+
+  @classmethod
+  def tearDownClass(self):
+    self.conn.close()
 
   def test_ethanol(self):
     self.conn.send_json(
@@ -28,4 +34,8 @@ class ResolveNameToInchiTest(unittest.TestCase):
     self.assertEqual(reply["inchi"], "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3")
 
 if __name__ == '__main__':
-  unittest.main()
+  # start chemdata
+  chemdatarpc.start_chemdata(sys.argv[1])
+
+  # run the tests
+  unittest.main(argv = [sys.argv[0]])

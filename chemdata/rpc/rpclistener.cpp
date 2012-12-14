@@ -16,6 +16,8 @@
 
 #include "rpclistener.h"
 
+#include <QCoreApplication>
+
 #include <sstream>
 
 #include <chemdata/core/mongodatabase.h>
@@ -133,6 +135,14 @@ void RpcListener::messageReceived(const MoleQueue::Message message)
     Json::Value reply;
     reply[output_format] = obj.getStringField(output_format.c_str());
     conn->send(MoleQueue::Message(reply));
+  }
+  else if (method == "kill") {
+    // only allow chemdata to be killed through rpc if it was
+    // started with the '--testing' flag
+    if (qApp->arguments().contains("--testing"))
+      qApp->quit();
+    else
+      qDebug() << "Ignoring kill command. Start with '--testing' to enable.";
   }
   else {
     Json::Value reply;

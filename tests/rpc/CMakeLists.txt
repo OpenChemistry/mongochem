@@ -1,4 +1,4 @@
-find_package(PythonInterp REQUIRED)
+find_package(PythonInterp 2.7 REQUIRED)
 
 set(tests
   get_chemical_json
@@ -7,6 +7,8 @@ set(tests
 
 foreach(test ${tests})
   add_test(NAME ${test}
-           COMMAND ${PYTHON_EXECUTABLE}
-                   ${CMAKE_CURRENT_SOURCE_DIR}/${test}.py)
+    COMMAND ${PYTHON_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/${test}.py
+      $<TARGET_FILE:chemdata>)
+  set_property(TEST ${test} PROPERTY RUN_SERIAL 1)
 endforeach()
