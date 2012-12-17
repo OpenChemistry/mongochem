@@ -37,8 +37,13 @@
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuImport">
+     <property name="title">
+      <string>Import</string>
+     </property>
+    </widget>
     <addaction name="actionAddNewData"/>
-    <addaction name="actionImportCsv"/>
+    <addaction name="menuImport"/>
     <addaction name="actionServerSettings"/>
     <addaction name="actionQuit"/>
    </widget>

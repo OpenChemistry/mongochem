@@ -11,12 +11,12 @@ include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 set(SOURCES
   abstractvtkchartwidget.cpp
   abstractclusteringwidget.cpp
+  abstractimportdialog.cpp
   addtagdialog.cpp
   computationalresultsmodel.cpp
   computationalresultstableview.cpp
   diagramtooltipitem.cpp
   exportmoleculehandler.cpp
-  importcsvfiledialog.cpp
   mainwindow.cpp
   moleculedetaildialog.cpp
   mongomodel.cpp
@@ -31,7 +31,6 @@ set(SOURCES
 
 qt4_wrap_ui(UI_SOURCES
   addtagdialog.ui
-  importcsvfiledialog.ui
   mainwindow.ui
   moleculedetaildialog.ui
   quickquerywidget.ui

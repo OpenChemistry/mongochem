@@ -48,11 +48,11 @@
 
 #include "abstractvtkchartwidget.h"
 #include "abstractclusteringwidget.h"
+#include "abstractimportdialog.h"
 #include "quickquerywidget.h"
 #include "serversettingsdialog.h"
 #include "moleculedetaildialog.h"
 #include <chemdata/core/mongodatabase.h>
-#include "importcsvfiledialog.h"
 #include "selectionfiltermodel.h"
 
 namespace {
@@ -167,8 +167,6 @@ MainWindow::MainWindow()
 
   connect(m_ui->actionCalculateFingerprints, SIGNAL(activated()),
           this, SLOT(calculateAndStoreFingerprints()));
-  connect(m_ui->actionImportCsv, SIGNAL(activated()),
-          this, SLOT(importCsvFile()));
   connect(m_ui->actionShowSelectedMolecules, SIGNAL(toggled(bool)),
           this, SLOT(setShowSelectedMolecules(bool)));
 
@@ -185,6 +183,20 @@ MainWindow::MainWindow()
 
     qDebug() << "loading plugin: " << fileName;
     pluginManager->loadPlugin((pluginDirectoryPath + "/" + fileName).toStdString());
+  }
+
+  // setup importer plugins
+  std::vector<std::string> importerPlugins = AbstractImportDialog::importers();
+  for (size_t i = 0; i < importerPlugins.size(); i++) {
+    QString name = QString::fromStdString(importerPlugins[i]);
+
+    // create menu action
+    QAction *action = new QAction(name, this);
+    action->setData(name);
+    connect(action, SIGNAL(triggered()), this, SLOT(showImportDialog()));
+
+    // add action to import menu
+    m_ui->menuImport->addAction(action);
   }
 
   // setup chart plugins
@@ -574,13 +586,6 @@ bool MainWindow::calculateAndStoreFingerprints(const std::string &name)
   return true;
 }
 
-void MainWindow::importCsvFile()
-{
-  ImportCsvFileDialog dialog;
-  dialog.openFile();
-  dialog.exec();
-}
-
 void MainWindow::setShowSelectedMolecules(bool enabled)
 {
   // delete the old model if it is not the main model (e.g. it
@@ -642,5 +647,22 @@ void MainWindow::showClusteringWidget()
   widget->setMolecules(m_model->molecules());
 }
 
+void MainWindow::showImportDialog()
+{
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (!action)
+    return;
+
+  std::string name = action->data().toString().toStdString();
+
+  // create import dialog widget
+  AbstractImportDialog *dialog = AbstractImportDialog::create(name);
+
+  // show dialog
+  dialog->exec();
+
+  // delete dialog
+  delete dialog;
+}
 
 } // end ChemData namespace

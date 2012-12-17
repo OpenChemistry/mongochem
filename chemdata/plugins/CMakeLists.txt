@@ -8,6 +8,7 @@ find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
 include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
+add_subdirectory(csvimporter)
 add_subdirectory(histogram)
 add_subdirectory(kmeansclustering)
 add_subdirectory(parallelcoordinates)
