@@ -1,0 +1,41 @@
+/******************************************************************************
+
+  This source file is part of the MongoChem project.
+
+  Copyright 2012 Kitware, Inc.
+
+  This source code is released under the New BSD License, (the "License").
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+******************************************************************************/
+
+#include <QtCore/QtPlugin>
+
+@PluginIncludes@
+
+namespace MongoChem {
+
+class @PluginName@Factory : public QObject, public @PluginType@Factory
+{
+  Q_OBJECT
+  Q_INTERFACES(MongoChem::@PluginType@Factory)
+
+public:
+  explicit @PluginName@Factory(QObject *parent_ = 0) : QObject(parent_) {}
+
+  @PluginType@ * createInstance() { return new @PluginClass@; }
+
+  QString identifier() const { return "@PluginDescription@"; }
+
+};
+
+}
+
+Q_EXPORT_PLUGIN2(@PluginName@, MongoChem::@PluginName@Factory)
+
+#include "@PluginName@Plugin.moc"

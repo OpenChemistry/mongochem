@@ -1,7 +1,7 @@
 find_package(Doxygen REQUIRED)
 
-set(doxygen_source_dirs "${ChemData_SOURCE_DIR}/chemdata")
-set(doxygen_output_dir "${ChemData_BINARY_DIR}/docs")
+set(doxygen_source_dirs "${MongoChem_SOURCE_DIR}/mongochem")
+set(doxygen_output_dir "${MongoChem_BINARY_DIR}/docs")
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/doxyfile.in"
   "${CMAKE_CURRENT_BINARY_DIR}/doxyfile")

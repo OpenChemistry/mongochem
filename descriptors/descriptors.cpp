@@ -1,6 +1,6 @@
 /******************************************************************************
 
-  This source file is part of the ChemData project.
+  This source file is part of the MongoChem project.
 
   Copyright 2011 Kitware, Inc.
 

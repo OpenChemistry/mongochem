@@ -2,13 +2,13 @@ import os
 import sys
 import time
 import unittest
-import chemdatarpc
+import mongochemrpc
 
 # This tests the "get_chemical_json" RPC method.
 class GetChemicalJsonTest(unittest.TestCase):
   @classmethod
   def setUpClass(self):
-    self.conn = chemdatarpc.Connection()
+    self.conn = mongochemrpc.Connection()
 
   @classmethod
   def tearDownClass(self):
@@ -30,8 +30,8 @@ class GetChemicalJsonTest(unittest.TestCase):
     self.assertEqual(reply["name"], "ethanol")
 
 if __name__ == '__main__':
-  # start chemdata
-  chemdatarpc.start_chemdata(sys.argv[1])
+  # start mongochem
+  mongochemrpc.start_mongochem(sys.argv[1])
 
   # run the tests
   unittest.main(argv = [sys.argv[0]])

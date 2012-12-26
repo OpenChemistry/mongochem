@@ -6,7 +6,7 @@ import StringIO
 import subprocess
 
 class Connection:
-  def __init__(self, name = "chemdata"):
+  def __init__(self, name = "mongochem"):
     # create socket
     self.sock = socket.socket(socket.AF_UNIX,
                               socket.SOCK_STREAM)
@@ -44,9 +44,9 @@ class Connection:
     # close socket
     self.sock.close()
 
-def start_chemdata(executable_filename):
-  # run chemdata in a child process
+def start_mongochem(executable_filename):
+  # run mongochem in a child process
   subprocess.Popen([executable_filename, "--testing"])
 
-  # wait for chemdata to start
+  # wait for mongochem to start
   time.sleep(3)
