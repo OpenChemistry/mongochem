@@ -18,7 +18,10 @@
 #include <QtGui/QApplication>
 
 #include "mainwindow.h"
-#include <mongochem/gui/rpclistener.h>
+
+#ifdef MongoChem_ENABLE_RPC
+# include <mongochem/gui/rpclistener.h>
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -42,9 +45,11 @@ int main(int argc, char *argv[])
   MongoChem::MainWindow window;
   window.show();
 
+#ifdef MongoChem_ENABLE_RPC
   // create rpc listener
   MongoChem::RpcListener listener;
   listener.start();
+#endif
 
   return app.exec();
 }

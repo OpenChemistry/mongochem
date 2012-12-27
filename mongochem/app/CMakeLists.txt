@@ -13,8 +13,11 @@ include_directories(SYSTEM ${VTK_INCLUDE_DIRS}
 include_directories(${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR})
 
-# For JsonCpp
-include_directories(SYSTEM ${MongoChem_SOURCE_DIR}/thirdparty/jsoncpp/)
+if(MongoChem_ENABLE_RPC)
+  # For JsonCpp
+  include_directories(SYSTEM ${MongoChem_SOURCE_DIR}/thirdparty/jsoncpp/)
+  add_definitions(MongoChem_ENABLE_RPC)
+endif()
 
 set(SOURCES
   main.cpp
