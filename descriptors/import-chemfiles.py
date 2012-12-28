@@ -86,7 +86,7 @@ except:
   print 'Failed to load server settings'
   sys.exit(-1)
 
-# connect to chemdata mongo server
+# connect to mongochem mongo server
 connection = pymongo.Connection(host, port)
 db = connection[collection_name]
 molecules_collection = db['molecules']

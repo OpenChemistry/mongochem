@@ -2,7 +2,7 @@ import os
 import sys
 import time
 import unittest
-import chemdatarpc
+import mongochemrpc
 
 # the ResolveNameToInchiTest tests the "convert_molecule_identifier"
 # RPC method for converting molecule names (e.g. 'ethanol') to InChI
@@ -10,7 +10,7 @@ import chemdatarpc
 class ResolveNameToInchiTest(unittest.TestCase):
   @classmethod
   def setUpClass(self):
-    self.conn = chemdatarpc.Connection()
+    self.conn = mongochemrpc.Connection()
 
   @classmethod
   def tearDownClass(self):
@@ -34,8 +34,8 @@ class ResolveNameToInchiTest(unittest.TestCase):
     self.assertEqual(reply["inchi"], "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3")
 
 if __name__ == '__main__':
-  # start chemdata
-  chemdatarpc.start_chemdata(sys.argv[1])
+  # start mongochem
+  mongochemrpc.start_mongochem(sys.argv[1])
 
   # run the tests
   unittest.main(argv = [sys.argv[0]])
