@@ -1,6 +1,6 @@
 [hooks]
 	url = git://source.openchemistry.org/openchemistry.git
 [gerrit]
-	project = chemdata
+	project = mongochem
 	site = http://review.source.kitware.com
-	pushurl = $username@review.source.kitware.com:chemdata
+	pushurl = $username@review.source.kitware.com:mongochem
