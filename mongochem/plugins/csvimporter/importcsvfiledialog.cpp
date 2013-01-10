@@ -19,7 +19,9 @@
 
 #include <QFile>
 #include <QDebug>
+#include <QString>
 #include <QFileDialog>
+#include <QStringList>
 
 #include "mongodatabase.h"
 
@@ -67,14 +69,37 @@ void ImportCsvFileDialog::setFileName(const QString &fileName_)
     // read each data line
     int index = 0;
     while (true) {
+      // read line from file
       QString line = file.readLine().trimmed();
       if (line.isEmpty())
         break;
 
+      // make space for the new row
       ui->tableWidget->setRowCount(index + 1);
 
+      // parse each item in line into a list of strings
+      QStringList items;
+      QString current;
+      bool inQuotes = false;
+
+      foreach (const QChar &ch, line) {
+        if(ch == '"')
+          inQuotes = !inQuotes;
+        else if(ch == ',' && !inQuotes){
+          items.append(current);
+          current.clear();
+        }
+        else
+          current.append(ch);
+      }
+
+      // add final item
+      if(!current.isEmpty())
+        items.append(current);
+
+      // add items to the table
       int column = 0;
-      foreach (const QString &string, line.split(",")) {
+      foreach (const QString &string, items) {
         if (column >= ui->tableWidget->columnCount())
           break;
 
@@ -83,6 +108,7 @@ void ImportCsvFileDialog::setFileName(const QString &fileName_)
         ++column;
       }
 
+      // go to next index
       ++index;
     }
   }
