@@ -62,9 +62,14 @@ void ImportCsvFileDialog::setFileName(const QString &fileName_)
       return;
     }
 
+    // get separator (default to comma if none specified)
+    QChar separator = ',';
+    if (!ui->separatorLineEdit->text().isEmpty())
+      separator = ui->separatorLineEdit->text()[0];
+
     // first line is titles
     QString titles = file.readLine().trimmed();
-    QStringList titlesList = titles.split(",", QString::SkipEmptyParts);
+    QStringList titlesList = titles.split(separator, QString::SkipEmptyParts);
     ui->tableWidget->setColumnCount(titlesList.size());
     ui->tableWidget->setHorizontalHeaderLabels(titlesList);
 
@@ -138,7 +143,7 @@ void ImportCsvFileDialog::setFileName(const QString &fileName_)
         if (ch == '"') {
           inQuotes = !inQuotes;
         }
-        else if (ch == ',' && !inQuotes) {
+        else if (ch == separator && !inQuotes) {
           items.append(current);
           current.clear();
         }
