@@ -45,9 +45,21 @@
     </widget>
    </item>
    <item>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>Column Mapping</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTableWidget" name="mappingTableWidget"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
-      <string>File Data</string>
+      <string>Preview</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
