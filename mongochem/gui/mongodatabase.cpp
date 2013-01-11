@@ -90,8 +90,8 @@ std::string MongoDatabase::userName() const
   return settings.value("user", "unknown").toString().toStdString();
 }
 
-MoleculeRef MongoDatabase::findMoleculeFromIdentifer(const std::string &identifier,
-                                                     const std::string &format)
+MoleculeRef MongoDatabase::findMoleculeFromIdentifier(const std::string &identifier,
+                                                      const std::string &format)
 {
   if (!m_db)
     return MoleculeRef();
@@ -103,12 +103,12 @@ MoleculeRef MongoDatabase::findMoleculeFromIdentifer(const std::string &identifi
 
 MoleculeRef MongoDatabase::findMoleculeFromInChI(const std::string &inchi)
 {
-  return findMoleculeFromIdentifer(inchi, "inchi");
+  return findMoleculeFromIdentifier(inchi, "inchi");
 }
 
 MoleculeRef MongoDatabase::findMoleculeFromInChIKey(const std::string &inchikey)
 {
-  return findMoleculeFromIdentifer(inchikey, "inchikey");
+  return findMoleculeFromIdentifier(inchikey, "inchikey");
 }
 
 MoleculeRef MongoDatabase::findMoleculeFromBSONObj(const mongo::BSONObj *obj)
