@@ -43,6 +43,7 @@ public slots:
 
 private slots:
   void import();
+  void updateTypeComboBox(const QString &role);
 
 private:
   Ui::ImportCsvFileDialog *ui;
