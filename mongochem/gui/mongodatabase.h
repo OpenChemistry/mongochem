@@ -76,8 +76,8 @@ public:
    * Queries the database for a molecule molecule with \p identifier in \p
    * format.
    */
-  MoleculeRef findMoleculeFromIdentifer(const std::string &identifier,
-                                        const std::string &format);
+  MoleculeRef findMoleculeFromIdentifier(const std::string &identifier,
+                                         const std::string &format);
 
   /** Returns a molecule ref corresponding to the molecule with \p inchi. */
   MoleculeRef findMoleculeFromInChI(const std::string &inchi);

@@ -124,7 +124,7 @@ void RpcListener::messageReceived(const MoleQueue::Message message)
     std::string output_format = root["params"]["output_format"].asString();
 
     MongoChem::MoleculeRef molecule =
-      db->findMoleculeFromIdentifer(identifier, input_format);
+      db->findMoleculeFromIdentifier(identifier, input_format);
 
     if (!molecule.isValid()) {
       Json::Value reply;
