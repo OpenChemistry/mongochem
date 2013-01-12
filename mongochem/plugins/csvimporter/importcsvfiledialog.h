@@ -45,6 +45,9 @@ private slots:
   void import();
   void columnMappingTableCellChanged(int row, int column);
   void updateTypeComboBox(const QString &role);
+  void delimiterComboBoxChanged(int index);
+  QChar delimiterCharacter() const;
+  void closeCurrentFile();
 
 private:
   Ui::ImportCsvFileDialog *ui;

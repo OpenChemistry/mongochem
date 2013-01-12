@@ -41,6 +41,8 @@ ImportCsvFileDialog::ImportCsvFileDialog(QWidget *parent_)
           this, SLOT(reject()));
   connect(ui->mappingTableWidget, SIGNAL(cellChanged(int, int)),
           this, SLOT(columnMappingTableCellChanged(int,int)));
+  connect(ui->delimiterComboBox, SIGNAL(currentIndexChanged(int)),
+          this, SLOT(delimiterComboBoxChanged(int)));
 }
 
 ImportCsvFileDialog::~ImportCsvFileDialog()
@@ -64,10 +66,8 @@ void ImportCsvFileDialog::setFileName(const QString &fileName_)
       return;
     }
 
-    // get separator (default to comma if none specified)
-    QChar separator = ',';
-    if (!ui->separatorLineEdit->text().isEmpty())
-      separator = ui->separatorLineEdit->text()[0];
+    // get separator character (default to comma if none specified)
+    QChar separator = delimiterCharacter();
 
     // first line is titles
     QString titles = file.readLine().trimmed();
@@ -265,15 +265,8 @@ void ImportCsvFileDialog::import()
     importedMoleculeCount++;
   }
 
-  // cleanup the dialog
-  m_fileName.clear();
-  ui->fileNameLineEdit->clear();
-  ui->tableWidget->clear();
-  ui->tableWidget->setRowCount(0);
-  ui->tableWidget->setColumnCount(0);
-  ui->mappingTableWidget->clear();
-  ui->mappingTableWidget->setRowCount(0);
-  ui->mappingTableWidget->setColumnCount(0);
+  // clear the preview
+  closeCurrentFile();
 
   // present information dialog
   QMessageBox::information(this,
@@ -341,4 +334,55 @@ void ImportCsvFileDialog::updateTypeComboBox(const QString &role)
     typeComboBox->addItem("Numeric (Integral)");
     typeComboBox->addItem("Text");
   }
+}
+
+void ImportCsvFileDialog::delimiterComboBoxChanged(int index)
+{
+  Q_UNUSED(index)
+
+  // reparse file (if one is open)
+  if (!m_fileName.isEmpty()) {
+    // store file name
+    QString fileName_ = m_fileName;
+
+    // close the current file
+    closeCurrentFile();
+
+    // re-open the file
+    setFileName(fileName_);
+  }
+}
+
+QChar ImportCsvFileDialog::delimiterCharacter() const
+{
+  // mapping between the entries in the delimiter selection
+  // combo box and the actual character to use. this should
+  // be updated if the ui changes to add/remove delimiters
+  switch (ui->delimiterComboBox->currentIndex()) {
+  case 0:
+    return ',';
+  case 1:
+    return ':';
+  case 2:
+    return '|';
+  case 3:
+    return '\t';
+  case 4:
+    return ' ';
+  default:
+    return ',';
+  }
+}
+
+void ImportCsvFileDialog::closeCurrentFile()
+{
+  // cleanup the dialog
+  m_fileName.clear();
+  ui->fileNameLineEdit->clear();
+  ui->tableWidget->clear();
+  ui->tableWidget->setRowCount(0);
+  ui->tableWidget->setColumnCount(0);
+  ui->mappingTableWidget->clear();
+  ui->mappingTableWidget->setRowCount(0);
+  ui->mappingTableWidget->setColumnCount(0);
 }

@@ -44,17 +44,45 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QLabel" name="separatorLabel">
+         <widget class="QLabel" name="delimiterLabel">
           <property name="text">
-           <string>Separator:</string>
+           <string>Delimiter:</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="separatorLineEdit">
-          <property name="text">
-           <string>,</string>
+         <widget class="QComboBox" name="delimiterComboBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
+          <item>
+           <property name="text">
+            <string>Comma (&quot;,&quot;)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Colon (&quot;:&quot;)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Bar (&quot;|&quot;)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Tab (&quot;    &quot;)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Space (&quot; &quot;)</string>
+           </property>
+          </item>
          </widget>
         </item>
        </layout>
