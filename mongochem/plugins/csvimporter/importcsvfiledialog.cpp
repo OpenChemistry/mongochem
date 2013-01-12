@@ -39,6 +39,8 @@ ImportCsvFileDialog::ImportCsvFileDialog(QWidget *parent_)
           this, SLOT(import()));
   connect(ui->cancelButton, SIGNAL(clicked()),
           this, SLOT(reject()));
+  connect(ui->mappingTableWidget, SIGNAL(cellChanged(int, int)),
+          this, SLOT(columnMappingTableCellChanged(int,int)));
 }
 
 ImportCsvFileDialog::~ImportCsvFileDialog()
@@ -283,6 +285,19 @@ void ImportCsvFileDialog::import()
 
   // close the dialog
   accept();
+}
+
+void ImportCsvFileDialog::columnMappingTableCellChanged(int row, int column)
+{
+  // get table item
+  QTableWidgetItem *item = ui->mappingTableWidget->item(row, column);
+  if (!item)
+    return;
+
+  // update column header in preview table
+  QTableWidgetItem *headerItem = ui->tableWidget->horizontalHeaderItem(row);
+  if (headerItem)
+    headerItem->setText(item->text());
 }
 
 void ImportCsvFileDialog::updateTypeComboBox(const QString &role)

@@ -43,6 +43,7 @@ public slots:
 
 private slots:
   void import();
+  void columnMappingTableCellChanged(int row, int column);
   void updateTypeComboBox(const QString &role);
 
 private:
