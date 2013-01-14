@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QStringList>
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include "mongodatabase.h"
 
@@ -369,6 +370,11 @@ QChar ImportCsvFileDialog::delimiterCharacter() const
     return '\t';
   case 4:
     return ' ';
+  case 5:
+    if (!ui->customDelimiterLineEdit->text().isEmpty())
+      return ui->customDelimiterLineEdit->text()[0];
+    else
+      return ',';
   default:
     return ',';
   }
