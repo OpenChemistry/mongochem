@@ -52,6 +52,7 @@ private slots:
 private:
   Ui::ImportCsvFileDialog *ui;
   QString m_fileName;
+  char m_customDelimiter;
 };
 
 #endif // IMPORTCSVFILEDIALOG_H

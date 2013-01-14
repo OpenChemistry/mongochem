@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QStringList>
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include "mongodatabase.h"
 
@@ -340,6 +341,25 @@ void ImportCsvFileDialog::delimiterComboBoxChanged(int index)
 {
   Q_UNUSED(index)
 
+  if (index == 5) {
+    // prompt user for custom delimiter
+    for(;;) {
+      QString delimiter = QInputDialog::getText(this,
+                                                tr("Custom Delimiter"),
+                                                tr("Enter custom delimiter"));
+
+      if (delimiter.size() == 1) {
+        m_customDelimiter = delimiter[0].toAscii();
+        break;
+      }
+      else {
+        QMessageBox::critical(this,
+                              tr("Invalid Custom Delimiter"),
+                              tr("Please Enter Valid Delimiter"));
+      }
+    }
+  }
+
   // reparse file (if one is open)
   if (!m_fileName.isEmpty()) {
     // store file name
@@ -369,6 +389,8 @@ QChar ImportCsvFileDialog::delimiterCharacter() const
     return '\t';
   case 4:
     return ' ';
+  case 5:
+    return m_customDelimiter;
   default:
     return ',';
   }
