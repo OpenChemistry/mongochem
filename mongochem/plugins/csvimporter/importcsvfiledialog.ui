@@ -83,6 +83,25 @@
             <string>Space (&quot; &quot;)</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Other</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Custom Delimiter:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="customDelimiterLineEdit">
+          <property name="maxLength">
+           <number>1</number>
+          </property>
          </widget>
         </item>
        </layout>

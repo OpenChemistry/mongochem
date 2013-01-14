@@ -24,6 +24,7 @@
 #include <QFileDialog>
 #include <QStringList>
 #include <QMessageBox>
+#include <QInputDialog>
 
 #include "mongodatabase.h"
 
@@ -43,6 +44,8 @@ ImportCsvFileDialog::ImportCsvFileDialog(QWidget *parent_)
           this, SLOT(columnMappingTableCellChanged(int,int)));
   connect(ui->delimiterComboBox, SIGNAL(currentIndexChanged(int)),
           this, SLOT(delimiterComboBoxChanged(int)));
+  connect(ui->customDelimiterLineEdit, SIGNAL(textChanged(const QString&)),
+          this, SLOT(delimiterLineEditChanged(const QString&)));
 }
 
 ImportCsvFileDialog::~ImportCsvFileDialog()
@@ -353,6 +356,22 @@ void ImportCsvFileDialog::delimiterComboBoxChanged(int index)
   }
 }
 
+void ImportCsvFileDialog::delimiterLineEditChanged(const QString &text)
+{
+  Q_UNUSED(text)
+
+  int otherIndex = 5; // index of 'Other' in the combo box
+
+  if (ui->delimiterComboBox->currentIndex() != otherIndex) {
+    // set the combo box to 'Other'
+    ui->delimiterComboBox->setCurrentIndex(otherIndex);
+  }
+  else {
+    // trigger update explicitly
+    delimiterComboBoxChanged(otherIndex);
+  }
+}
+
 QChar ImportCsvFileDialog::delimiterCharacter() const
 {
   // mapping between the entries in the delimiter selection
@@ -369,6 +388,11 @@ QChar ImportCsvFileDialog::delimiterCharacter() const
     return '\t';
   case 4:
     return ' ';
+  case 5:
+    if (!ui->customDelimiterLineEdit->text().isEmpty())
+      return ui->customDelimiterLineEdit->text()[0];
+    else
+      return ',';
   default:
     return ',';
   }

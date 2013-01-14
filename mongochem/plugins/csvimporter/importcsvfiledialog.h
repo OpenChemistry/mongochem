@@ -46,6 +46,7 @@ private slots:
   void columnMappingTableCellChanged(int row, int column);
   void updateTypeComboBox(const QString &role);
   void delimiterComboBoxChanged(int index);
+  void delimiterLineEditChanged(const QString &text);
   QChar delimiterCharacter() const;
   void closeCurrentFile();
 
