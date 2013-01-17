@@ -18,6 +18,7 @@ class GetChemicalJsonTest(unittest.TestCase):
     self.conn.send_json(
       {
         'jsonrpc' : '2.0',
+        'id' : 0,
         'method' : 'get_chemical_json',
         'params' : {
           'inchi' : "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
@@ -27,7 +28,7 @@ class GetChemicalJsonTest(unittest.TestCase):
 
     reply = self.conn.recv_json()
 
-    self.assertEqual(reply["name"], "ethanol")
+    self.assertEqual(reply["result"], "ethanol")
 
 if __name__ == '__main__':
   # start mongochem

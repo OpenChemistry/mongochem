@@ -39,7 +39,7 @@ class Connection:
 
   def close(self):
     # send the kill signal
-    self.send_json({'jsonrpc' : '2.0', 'method' : 'kill'})
+    self.send_json({'jsonrpc' : '2.0', 'id' : 0, 'method' : 'kill'})
 
     # close socket
     self.sock.close()

@@ -67,7 +67,7 @@ function(mongochem_add_private_library name)
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
 endfunction()
 
-option(MongoChem_ENABLE_RPC "Enable RPC server" OFF)
+option(MongoChem_ENABLE_RPC "Enable RPC server" ON)
 
 add_subdirectory(gui)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/gui")

@@ -19,6 +19,7 @@
 
 #include <QObject>
 
+#include <molequeue/transport/jsonrpc.h>
 #include <molequeue/transport/connection.h>
 #include <molequeue/transport/connectionlistener.h>
 
@@ -41,13 +42,11 @@ public:
   void start();
 
 private slots:
-  void connectionEstablished(MoleQueue::Connection *);
-  void connectionDisconnected();
   void connectionError(MoleQueue::ConnectionListener::Error, const QString &);
-  void messageReceived(const MoleQueue::Message message);
+  void messageReceived(const MoleQueue::Message &message);
 
 private:
-  std::vector<MoleQueue::Connection *> m_connections;
+  MoleQueue::JsonRpc *m_rpc;
   MoleQueue::ConnectionListener *m_connectionListener;
 };
 

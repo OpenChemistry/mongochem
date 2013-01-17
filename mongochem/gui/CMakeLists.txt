@@ -26,7 +26,6 @@ set(SOURCES
   selectionfiltermodel.cpp
   serversettingsdialog.cpp
   substructurefiltermodel.cpp
-  ${MongoChem_SOURCE_DIR}/thirdparty/jsoncpp/jsoncpp.cpp
 )
 
 qt4_wrap_ui(UI_SOURCES
@@ -41,8 +40,6 @@ if(MongoChem_ENABLE_RPC)
   # MoleQueue is required for its RPC functions.
   find_package(MoleQueue REQUIRED)
   include_directories(${MoleQueue_INCLUDE_DIRS})
-  # For JsonCpp
-  include_directories(SYSTEM ${MongoChem_SOURCE_DIR}/thirdparty/jsoncpp/)
 endif()
 
 # Need to add current binary dir to include path for UI file headers

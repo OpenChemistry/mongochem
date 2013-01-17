@@ -14,9 +14,10 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MongoChem_ENABLE_RPC)
-  # For JsonCpp
-  include_directories(SYSTEM ${MongoChem_SOURCE_DIR}/thirdparty/jsoncpp/)
-  add_definitions(MongoChem_ENABLE_RPC)
+  # For Qt5Json
+  find_package(MoleQueue REQUIRED)
+  include_directories(${MoleQueue_INCLUDE_DIRS})
+  add_definitions(-DMongoChem_ENABLE_RPC)
 endif()
 
 set(SOURCES

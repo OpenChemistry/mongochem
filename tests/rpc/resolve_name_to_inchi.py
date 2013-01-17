@@ -20,6 +20,7 @@ class ResolveNameToInchiTest(unittest.TestCase):
     self.conn.send_json(
       {
         'jsonrpc' : '2.0',
+        'id' : 0,
         'method' : 'convert_molecule_identifier',
         'params' : {
           'identifier' : 'ethanol',
@@ -31,7 +32,7 @@ class ResolveNameToInchiTest(unittest.TestCase):
 
     reply = self.conn.recv_json()
 
-    self.assertEqual(reply["inchi"], "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3")
+    self.assertEqual(reply["result"], "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3")
 
 if __name__ == '__main__':
   # start mongochem
