@@ -19,11 +19,11 @@
 
 #include <QObject>
 
-#include <molequeue/transport/jsonrpc.h>
-#include <molequeue/transport/connection.h>
 #include <molequeue/transport/connectionlistener.h>
 
-#include <vector>
+namespace MoleQueue {
+class JsonRpc;
+}
 
 namespace MongoChem {
 

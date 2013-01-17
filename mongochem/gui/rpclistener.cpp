@@ -23,6 +23,7 @@
 #include "qjsonvalue.h"
 #include "qjsonobject.h"
 
+#include <molequeue/transport/jsonrpc.h>
 #include <molequeue/transport/localsocketconnectionlistener.h>
 
 namespace MongoChem {
