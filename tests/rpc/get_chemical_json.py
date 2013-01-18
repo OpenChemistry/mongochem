@@ -4,7 +4,7 @@ import time
 import unittest
 import mongochemrpc
 
-# This tests the "get_chemical_json" RPC method.
+# This tests the "getChemicalJson" RPC method.
 class GetChemicalJsonTest(unittest.TestCase):
   @classmethod
   def setUpClass(self):
@@ -19,7 +19,7 @@ class GetChemicalJsonTest(unittest.TestCase):
       {
         'jsonrpc' : '2.0',
         'id' : 0,
-        'method' : 'get_chemical_json',
+        'method' : 'getChemicalJson',
         'params' : {
           'inchi' : "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
         }

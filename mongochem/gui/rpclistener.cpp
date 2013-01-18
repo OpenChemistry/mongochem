@@ -67,7 +67,7 @@ void RpcListener::messageReceived(const MoleQueue::Message &message)
   QString method = message.method();
   QJsonObject params = message.params().toObject();
 
-  if (method == "get_chemical_json") {
+  if (method == "getChemicalJson") {
     std::string inchi = params["inchi"].toString().toStdString();
 
     MongoChem::MoleculeRef molecule = db->findMoleculeFromInChI(inchi);
@@ -88,11 +88,11 @@ void RpcListener::messageReceived(const MoleQueue::Message &message)
       response.send();
     }
   }
-  else if (method == "convert_molecule_identifier") {
+  else if (method == "convertMoleculeIdentifier") {
     std::string identifier = params["identifier"].toString().toStdString();
-    std::string input_format = params["input_format"].toString().toStdString();
+    std::string input_format = params["inputFormat"].toString().toStdString();
     std::string output_format =
-      params["output_format"].toString().toStdString();
+      params["outputFormat"].toString().toStdString();
 
     MongoChem::MoleculeRef molecule =
       db->findMoleculeFromIdentifier(identifier, input_format);

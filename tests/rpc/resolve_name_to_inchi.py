@@ -4,7 +4,7 @@ import time
 import unittest
 import mongochemrpc
 
-# the ResolveNameToInchiTest tests the "convert_molecule_identifier"
+# the ResolveNameToInchiTest tests the "convertMoleculeIdentifier"
 # RPC method for converting molecule names (e.g. 'ethanol') to InChI
 # and InChIKeys
 class ResolveNameToInchiTest(unittest.TestCase):
@@ -21,11 +21,11 @@ class ResolveNameToInchiTest(unittest.TestCase):
       {
         'jsonrpc' : '2.0',
         'id' : 0,
-        'method' : 'convert_molecule_identifier',
+        'method' : 'convertMoleculeIdentifier',
         'params' : {
           'identifier' : 'ethanol',
-          'input_format' : 'name',
-          'output_format' : 'inchi'
+          'inputFormat' : 'name',
+          'outputFormat' : 'inchi'
         }
       }
     )
