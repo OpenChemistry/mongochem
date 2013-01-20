@@ -47,7 +47,7 @@ endif()
 
 include(CPack)
 
-if(BUILD_TESTING)
+if(ENABLE_TESTING)
   include(BuildPackageTest)
   BuildPackageTest_Add("MongoChem" "${CMAKE_CURRENT_BINARY_DIR}")
   add_subdirectory(tests)
