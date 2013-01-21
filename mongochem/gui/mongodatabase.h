@@ -91,6 +91,22 @@ public:
   MoleculeRef findMoleculeFromBSONObj(const mongo::BSONObj *obj);
 
   /**
+   * Creates a new molecule for @p identifier with @p format. Returns a
+   * reference to the newly created molecule.
+   *
+   * If the molecule already exists in the database no action is performed
+   * and a reference to the existing molecule is returned.
+   *
+   * The following line formats are supported:
+   *   - InChI
+   *   - SMILES
+   *
+   * If @p format is not supported a null reference is returned.
+   */
+  MoleculeRef importMoleculeFromIdentifier(const std::string &identifier,
+                                           const std::string &format);
+
+  /**
    * Returns a BSONObj containing the data for the molecule referenced by \p
    * molecule.
    */
