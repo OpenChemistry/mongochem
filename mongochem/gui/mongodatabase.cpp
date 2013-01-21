@@ -139,11 +139,8 @@ MongoDatabase::importMoleculeFromIdentifier(const std::string &identifier,
     return MoleculeRef();
   }
 
-  // generate identifiers
-  std::string formula = molecule->formula();
-  std::string inchi = molecule->formula("inchi");
+  // generate inchikey
   std::string inchikey = molecule->formula("inchikey");
-  std::string smiles = molecule->formula("smiles");
 
   // check if molecule already exists
   MoleculeRef ref = findMoleculeFromInChIKey(inchikey);
@@ -151,6 +148,11 @@ MongoDatabase::importMoleculeFromIdentifier(const std::string &identifier,
     // molecule exists so just return a reference to it
     return ref;
   }
+
+  // generate identifiers
+  std::string formula = molecule->formula();
+  std::string inchi = molecule->formula("inchi");
+  std::string smiles = molecule->formula("smiles");
 
   // generate descriptors
   double mass = molecule->mass();

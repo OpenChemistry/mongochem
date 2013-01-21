@@ -285,8 +285,18 @@ void ImportCsvFileDialog::import()
         db->findMoleculeFromIdentifier(key.toStdString(),
                                        identifierName.toStdString());
 
-    if (!molecule.isValid()) {
-      qDebug() << "failed to find molecule from " <<
+    // if not found, import the molecule
+    if (!molecule) {
+      molecule =
+        db->importMoleculeFromIdentifier(key.toStdString(),
+                                         identifierName.toStdString());
+    }
+
+    // if we failed to import, print an error.
+    //
+    // @todo refactor this and display to the user in the gui
+    if (!molecule) {
+      qDebug() << "failed to import molecule from " <<
                identifierName <<
                 " identifier: " <<
                 key;

@@ -25,8 +25,8 @@ namespace MongoChem {
 class ObjectRef
 {
 private:
-  typedef void (ObjectRef::*bool_type)();
-  void true_bool_type() { }
+  typedef void (ObjectRef::*boolType)();
+  void trueBoolType() { }
 
 public:
   /** Creates a new object reference with \p id_. */
@@ -46,14 +46,14 @@ public:
    *
    * This allows the reference to be used as a predicate:
    * @code
-   * ObjectRef ref = ...
-   * if (ref)
-   *   // use ref
+     ObjectRef ref = ...
+     if (ref)
+       // use ref
    * @endcode
    */
-  operator bool_type() const
+  operator boolType() const
   {
-    return isValid() ? &ObjectRef::true_bool_type : 0;
+    return isValid() ? &ObjectRef::trueBoolType : 0;
   }
 
 private:
