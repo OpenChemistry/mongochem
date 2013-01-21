@@ -128,9 +128,8 @@ void ImportCsvFileDialog::setFileName(const QString &fileName_)
       }
     }
 
-    // read each data line
-    int index = 0;
-    while (true) {
+    // read first 25 data lines
+    for (int index = 0; index < 25; index++) {
       // read line from file
       QString line = file.readLine().trimmed();
       if (line.isEmpty())
@@ -171,9 +170,6 @@ void ImportCsvFileDialog::setFileName(const QString &fileName_)
         ui->tableWidget->setItem(index, column, item);
         ++column;
       }
-
-      // go to next index
-      ++index;
     }
   }
 
@@ -238,12 +234,49 @@ void ImportCsvFileDialog::import()
     }
   }
 
+  // open the file
+  QFile file(m_fileName);
+  if (!file.open(QFile::ReadOnly)) {
+    QMessageBox::critical(this,
+                          tr("Error"),
+                          tr("Failed to open file: %1")
+                            .arg(file.errorString()));
+    return;
+  }
+
   // import data
+  QChar separator = delimiterCharacter();
   int importedMoleculeCount = 0;
-  for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
-    QString key = ui->tableWidget->item(i, identifierColumn)->text();
+  while (true) {
+    // read line from file
+    QString line = file.readLine().trimmed();
+    if (line.isEmpty())
+      break;
+
+    // parse each item in line into a list of strings
+    QStringList items;
+    QString current;
+    bool inQuotes = false;
+
+    foreach (const QChar &ch, line) {
+      if (ch == '"') {
+        inQuotes = !inQuotes;
+      }
+      else if (ch == separator && !inQuotes) {
+        items.append(current);
+        current.clear();
+      }
+      else {
+        current.append(ch);
+      }
+    }
+
+    // add final item
+    if (!current.isEmpty())
+      items.append(current);
 
     // look up molecule from identifier
+    QString key = items.value(identifierColumn, QString());
     MongoChem::MoleculeRef molecule =
         db->findMoleculeFromIdentifier(key.toStdString(),
                                        identifierName.toStdString());
@@ -256,9 +289,10 @@ void ImportCsvFileDialog::import()
       continue;
     }
 
+    // add descriptor values
     foreach (int j, descriptorColumns) {
       QString name = ui->tableWidget->horizontalHeaderItem(j)->text();
-      QString value = ui->tableWidget->item(i, j)->text();
+      QString value = items.value(j);
 
       db->setMoleculeProperty(molecule,
                               "descriptors." + name.toStdString(),
