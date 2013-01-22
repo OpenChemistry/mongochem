@@ -123,6 +123,63 @@ MoleculeRef MongoDatabase::findMoleculeFromBSONObj(const mongo::BSONObj *obj)
   return findMoleculeFromInChIKey(inchikeyElement.str());
 }
 
+MoleculeRef
+MongoDatabase::importMoleculeFromIdentifier(const std::string &identifier,
+                                            const std::string &format)
+{
+  if (!m_db)
+    return MoleculeRef();
+
+  // create molecule
+  boost::scoped_ptr<chemkit::Molecule>
+    molecule(new chemkit::Molecule(identifier, format));
+
+  if (!molecule) {
+    // format is not supported or identifier is invalid
+    return MoleculeRef();
+  }
+
+  // generate inchikey
+  std::string inchikey = molecule->formula("inchikey");
+
+  // check if molecule already exists
+  MoleculeRef ref = findMoleculeFromInChIKey(inchikey);
+  if (ref) {
+    // molecule exists so just return a reference to it
+    return ref;
+  }
+
+  // generate identifiers
+  std::string formula = molecule->formula();
+  std::string inchi = molecule->formula("inchi");
+  std::string smiles = molecule->formula("smiles");
+
+  // generate descriptors
+  double mass = molecule->mass();
+  int atomCount = static_cast<int>(molecule->atomCount());
+  int heavyAtomCount =
+    static_cast<int>(molecule->atomCount() - molecule->atomCount("H"));
+
+  // create object id
+  mongo::OID id = mongo::OID::gen();
+
+  // create bson object
+  mongo::BSONObjBuilder b;
+  b << "_id" << id;
+  b << "formula" << formula;
+  b << "inchi" << inchi;
+  b << "inchikey" << inchikey;
+  b << "smiles" << smiles;
+  b << "mass" << mass;
+  b << "atomCount" << atomCount;
+  b << "heavyAtomCount" << heavyAtomCount;
+
+  // insert molecule
+  m_db->insert(moleculesCollectionName(), b.obj());
+
+  return MoleculeRef(id);
+}
+
 mongo::BSONObj MongoDatabase::fetchMolecule(const MoleculeRef &molecule)
 {
   if (!m_db)

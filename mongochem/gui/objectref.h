@@ -24,6 +24,10 @@ namespace MongoChem {
 /** \brief The ObjectRef class represents an abstract object in a database. */
 class ObjectRef
 {
+private:
+  typedef void (ObjectRef::*boolType)();
+  void trueBoolType() { }
+
 public:
   /** Creates a new object reference with \p id_. */
   ObjectRef(const mongo::OID &id_ = mongo::OID()) : m_id(id_) { }
@@ -36,6 +40,21 @@ public:
 
   /** Returns \c true if the object reference is valid. */
   bool isValid() const { return m_id.isSet(); }
+
+  /**
+   * Returns @c true if the ObjectRef refers to a valid object.
+   *
+   * This allows the reference to be used as a predicate:
+   * @code
+     ObjectRef ref = ...
+     if (ref)
+       // use ref
+   * @endcode
+   */
+  operator boolType() const
+  {
+    return isValid() ? &ObjectRef::trueBoolType : 0;
+  }
 
 private:
   mongo::OID m_id;
