@@ -142,6 +142,41 @@ public:
 
 namespace MongoChem {
 
+template<class Factory>
+inline QMap<QString, Factory *>
+MainWindow::loadFactoryPlugins(QMenu *menu, const char *slot)
+{
+  MongoChem::PluginManager *manager = MongoChem::PluginManager::instance();
+
+  QMap<QString, Factory *> map;
+
+  foreach (Factory *factory, manager->pluginFactories<Factory>()) {
+    // print debugging message
+    qDebug() << "Loaded a factory with ID" << factory->identifier();
+
+    // get the factory's name
+    const QString &name = factory->identifier();
+
+    // ensure that the name is unique
+    if (map.contains(name)) {
+      qDebug() << "Duplicate plugin found:" << name
+               << "\nDiscarding duplicate plugins - IDs must be unique.";
+      continue;
+    }
+
+    // add name and factory to the map
+    map[name] = factory;
+
+    // create a new menu action for this plugin
+    QAction *action = new QAction(name, this);
+    action->setData(name);
+    connect(action, SIGNAL(triggered()), this, slot);
+    menu->addAction(action);
+  }
+
+  return map;
+}
+
 MainWindow::MainWindow()
   : m_db(0),
     m_model(0)
@@ -175,92 +210,20 @@ MainWindow::MainWindow()
   MongoChem::PluginManager *manager = MongoChem::PluginManager::instance();
   manager->load();
 
-  // Load and set up the chart plugins.
-  QList<AbstractVtkChartWidgetFactory *> chartFactories =
-      manager->pluginFactories<AbstractVtkChartWidgetFactory>();
-  qDebug() << chartFactories.size() << "chart factories loaded.";
-  foreach (AbstractVtkChartWidgetFactory *factory, chartFactories) {
-    qDebug() << "Loaded a chart factory with ID" << factory->identifier();
-    QString name = factory->identifier();
-    if (m_charts.contains(name)) {
-      // The IDs must be unique.
-      qDebug() << "Duplicate chart plugin found:" << name
-               << "\nDiscarding duplicate plugins - IDs must be unique.";
-      continue;
-    }
-    // Create a new menu action for this chart.
-    QAction *action = new QAction(name, this);
-    action->setData(name);
-    connect(action, SIGNAL(triggered()), this, SLOT(showChartWidget()));
-    // FIXME: port the Avogadro logic to dynamically build the menus.
-    AbstractVtkChartWidget *chart = factory->createInstance();
-    if (chart) {
-      // FIXME: These plugins need to be made into real dialogs so that the
-      // parenting can be set up correctly. Right now they must be deleted
-      // manually, or they will leak.
-      chart->setParent(0);
-      m_charts[name] = chart;
-      m_ui->menuChart->addAction(action);
-    }
-  }
+  m_charts =
+    loadFactoryPlugins<AbstractVtkChartWidgetFactory>(
+      m_ui->menuChart,
+      SLOT(showChartWidget()));
 
-  // Load and set up the clustering plugins.
-  QList<AbstractClusteringWidgetFactory *> clusterFactories =
-      manager->pluginFactories<AbstractClusteringWidgetFactory>();
-  qDebug() << clusterFactories.size() << "clustering factories loaded.";
-  foreach (AbstractClusteringWidgetFactory *factory, clusterFactories) {
-    qDebug() << "Loaded a clustering factory with ID" << factory->identifier();
-    QString name = factory->identifier();
-    if (m_clustering.contains(name)) {
-      // The IDs must be unique.
-      qDebug() << "Duplicate clustering plugin found:" << name
-               << "\nDiscarding duplicate plugins - IDs must be unique.";
-      continue;
-    }
-    // Create a new menu action for this chart.
-    QAction *action = new QAction(name, this);
-    action->setData(name);
-    connect(action, SIGNAL(triggered()), this, SLOT(showClusteringWidget()));
-    // FIXME: port the Avogadro logic to dynamically build the menus.
-    AbstractClusteringWidget *clustering = factory->createInstance();
-    if (clustering) {
-      // FIXME: These plugins need to be made into real dialogs so that the
-      // parenting can be set up correctly. Right now they must be deleted
-      // manually, or they will leak.
-      clustering->setParent(0);
-      m_clustering[name] = clustering;
-      m_ui->menuClustering->addAction(action);
-    }
-  }
+  m_clustering =
+    loadFactoryPlugins<AbstractClusteringWidgetFactory>(
+      m_ui->menuClustering,
+      SLOT(showClusteringWidget()));
 
-  // Load and set up the importer plugins.
-  QList<AbstractImportDialogFactory *> importerFactories =
-      manager->pluginFactories<AbstractImportDialogFactory>();
-  qDebug() << importerFactories.size() << "clustering factories loaded.";
-  foreach (AbstractImportDialogFactory *factory, importerFactories) {
-    qDebug() << "Loaded an importer factory with ID" << factory->identifier();
-    QString name = factory->identifier();
-    if (m_importers.contains(name)) {
-      // The IDs must be unique.
-      qDebug() << "Duplicate importer plugin found:" << name
-               << "\nDiscarding duplicate plugins - IDs must be unique.";
-      continue;
-    }
-    // Create a new menu action for this chart.
-    QAction *action = new QAction(name, this);
-    action->setData(name);
-    connect(action, SIGNAL(triggered()), this, SLOT(showImportDialog()));
-    // FIXME: port the Avogadro logic to dynamically build the menus.
-    AbstractImportDialog *importer = factory->createInstance();
-    if (importer) {
-      // FIXME: These plugins need to be made into real dialogs so that the
-      // parenting can be set up correctly. Right now they must be deleted
-      // manually, or they will leak.
-      importer->setParent(0);
-      m_importers[name] = importer;
-      m_ui->menuImport->addAction(action);
-    }
-  }
+  m_importers =
+    loadFactoryPlugins<AbstractImportDialogFactory>(
+      m_ui->menuImport,
+      SLOT(showImportDialog()));
 
   // setup annotation link
   m_annotationEventConnector->Connect(m_annotationLink.GetPointer(),
@@ -279,9 +242,9 @@ MainWindow::~MainWindow()
   delete m_ui;
   m_ui = 0;
 
-  qDeleteAll(m_charts);
-  qDeleteAll(m_clustering);
-  qDeleteAll(m_importers);
+  qDeleteAll(m_charts.values());
+  qDeleteAll(m_clustering.values());
+  qDeleteAll(m_importers.values());
 }
 
 void MainWindow::connectToDatabase()
@@ -660,9 +623,13 @@ void MainWindow::showChartWidget()
     return;
 
   QString name = action->data().toString();
+
   // Show the chart widget.
-  AbstractVtkChartWidget *widget = m_charts[name];
+  AbstractVtkChartWidgetFactory *factory = m_charts[name];
+  AbstractVtkChartWidget *widget = factory->createInstance();
   if (widget) {
+    widget->setParent(this);
+    widget->setWindowFlags(Qt::Dialog);
     widget->setSelectionLink(m_annotationLink.GetPointer());
     widget->show();
   }
@@ -676,8 +643,11 @@ void MainWindow::showClusteringWidget()
 
   QString name = action->data().toString();
   // Show the clustering widget.
-  AbstractClusteringWidget *widget = m_clustering[name];
+  AbstractClusteringWidgetFactory *factory = m_clustering[name];
+  AbstractClusteringWidget *widget = factory->createInstance();
   if (widget) {
+    widget->setParent(this);
+    widget->setWindowFlags(Qt::Dialog);
     connect(widget, SIGNAL(moleculeDoubleClicked(MongoChem::MoleculeRef)),
             this, SLOT(showMoleculeDetailsDialog(MongoChem::MoleculeRef)));
     widget->show();
@@ -695,9 +665,12 @@ void MainWindow::showImportDialog()
   QString name = action->data().toString();
 
   // Show the import dialog.
-  AbstractImportDialog *dialog = m_importers[name];
-  if (dialog)
+  AbstractImportDialogFactory *factory = m_importers[name];
+  AbstractImportDialog *dialog = factory->createInstance();
+  if (dialog) {
+    dialog->setParent(this);
     dialog->exec();
+  }
 }
 
 } // end MongoChem namespace
