@@ -664,15 +664,28 @@ void MainWindow::showImportDialog()
   if (!action)
     return;
 
-  QString name = action->data().toString();
+  const QString &name = action->data().toString();
 
-  // Show the import dialog.
-  AbstractImportDialogFactory *factory = m_importers[name];
-  AbstractImportDialog *dialog = factory->createInstance();
+  AbstractImportDialog *dialog = m_importerInstances.value(name, 0);
   if (dialog) {
-    dialog->setParent(this);
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->exec();
+    // reuse existing instance
+    dialog->show();
+  }
+  else {
+    // create new dialog instance
+    AbstractImportDialogFactory *factory = m_importers[name];
+    dialog = factory->createInstance();
+
+    if (dialog) {
+      // set parent
+      dialog->setParent(this, dialog->windowFlags());
+
+      // store new instance
+      m_importerInstances[name] = dialog;
+
+      // show new dialog
+      dialog->exec();
+    }
   }
 }
 

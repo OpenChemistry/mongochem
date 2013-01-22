@@ -37,6 +37,7 @@ namespace Ui {
 }
 
 namespace MongoChem {
+class AbstractImportDialog;
 class AbstractVtkChartWidgetFactory;
 class AbstractClusteringWidgetFactory;
 class AbstractImportDialogFactory;
@@ -98,6 +99,14 @@ private:
   QMap<QString, MongoChem::AbstractVtkChartWidgetFactory *> m_charts;
   QMap<QString, MongoChem::AbstractClusteringWidgetFactory *> m_clustering;
   QMap<QString, MongoChem::AbstractImportDialogFactory *> m_importers;
+
+
+  /**
+   * Import dialogs are singletons and are kept around in the background
+   * even after they're closed. This map stores the names and instances
+   * of previously created dialogs. They are deleted when MongoChem exits.
+   */
+  QMap<QString, AbstractImportDialog *> m_importerInstances;
 
 private slots:
   /** Show the molecule details dialog for the molecule referred to
