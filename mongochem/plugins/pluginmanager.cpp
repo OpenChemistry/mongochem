@@ -18,7 +18,6 @@
 #include "mongochemstaticqtplugins.h"
 
 #include <QtCore/QCoreApplication>
-#include <QtCore/QMutex>
 #include <QtCore/QPluginLoader>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
@@ -77,16 +76,9 @@ PluginManager::~PluginManager()
 
 PluginManager * PluginManager::instance()
 {
-  static QMutex mutex;
-  // Compiler initializes this static pointer to 0.
-  static PluginManager *pluginManagerInstance;
-  if (!pluginManagerInstance) {
-    mutex.lock();
-    if (!pluginManagerInstance)
-      pluginManagerInstance = new PluginManager(QCoreApplication::instance());
-    mutex.unlock();
-  }
-  return pluginManagerInstance;
+  static PluginManager singleton;
+
+  return &singleton;
 }
 
 void PluginManager::load()
