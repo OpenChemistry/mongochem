@@ -37,9 +37,9 @@ namespace Ui {
 }
 
 namespace MongoChem {
-class AbstractVtkChartWidget;
-class AbstractClusteringWidget;
-class AbstractImportDialog;
+class AbstractVtkChartWidgetFactory;
+class AbstractClusteringWidgetFactory;
+class AbstractImportDialogFactory;
 }
 
 namespace MongoChem {
@@ -87,9 +87,17 @@ private:
   vtkNew<vtkAnnotationLink> m_annotationLink;
   vtkNew<vtkEventQtSlotConnect> m_annotationEventConnector;
 
-  QMap<QString, MongoChem::AbstractVtkChartWidget *> m_charts;
-  QMap<QString, MongoChem::AbstractClusteringWidget *> m_clustering;
-  QMap<QString, MongoChem::AbstractImportDialog *> m_importers;
+  /**
+   * Generic method to load factory plugins. Returns a map of the factory
+   * name to a factory instance. Also adds a QAction to @p menu and connects
+   * its triggered() signal to @p slot.
+   */
+  template<class Factory>
+  QMap<QString, Factory *> loadFactoryPlugins(QMenu *menu, const char *slot);
+
+  QMap<QString, MongoChem::AbstractVtkChartWidgetFactory *> m_charts;
+  QMap<QString, MongoChem::AbstractClusteringWidgetFactory *> m_clustering;
+  QMap<QString, MongoChem::AbstractImportDialogFactory *> m_importers;
 
 private slots:
   /** Show the molecule details dialog for the molecule referred to
