@@ -25,9 +25,10 @@ set(SOURCES
   mainwindow.cpp
 )
 
+qt4_add_resources(RCC_SOURCES mongochem.qrc)
 qt4_wrap_ui(UI_SOURCES mainwindow.ui)
 
-add_executable(mongochem MACOSX_BUNDLE ${SOURCES} ${UI_SOURCES})
+add_executable(mongochem MACOSX_BUNDLE ${SOURCES} ${UI_SOURCES} ${RCC_SOURCES})
 set_target_properties(mongochem PROPERTIES AUTOMOC TRUE)
 target_link_libraries(mongochem
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}

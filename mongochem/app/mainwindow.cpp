@@ -184,6 +184,9 @@ MainWindow::MainWindow()
   m_ui = new Ui::MainWindow;
   m_ui->setupUi(this);
 
+  QIcon icon(":/icons/mongochem.png");
+  setWindowIcon(icon);
+
   // add query dock widget
   m_queryWidget = new QuickQueryWidget;
   connect(m_queryWidget, SIGNAL(queryClicked()), SLOT(runQuery()));
