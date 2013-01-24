@@ -82,8 +82,8 @@ MongoModel::MongoModel(mongo::DBClientConnection *db, QObject *parent_)
   d = new MongoModel::Private;
   d->db = db;
 
-  // show entire database by default
-  setQuery(Query());
+  // Show the first 500 molecules in the database by default.
+  setQuery(Query(), 500);
 
   d->m_fields << "diagram"
               << "name"
@@ -100,7 +100,7 @@ MongoModel::~MongoModel()
   delete d;
 }
 
-void MongoModel::setQuery(const mongo::Query &query)
+void MongoModel::setQuery(const mongo::Query &query, int limit, int skip)
 {
   d->m_rowObjects.clear();
 
@@ -108,11 +108,10 @@ void MongoModel::setQuery(const mongo::Query &query)
     QSettings settings;
     std::string collection =
         settings.value("collection", "chem").toString().toStdString();
-    d->cursor = d->db->query(collection + ".molecules", query);
+    d->cursor = d->db->query(collection + ".molecules", query, limit, skip);
 
-    while(d->cursor->more()){
+    while (d->cursor->more())
       d->m_rowObjects.push_back(d->cursor->next().copy());
-    }
 
     qDebug() << "Loaded: " << d->m_rowObjects.size() << "rows";
   }

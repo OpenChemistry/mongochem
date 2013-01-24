@@ -40,7 +40,7 @@ public:
   explicit MongoModel(mongo::DBClientConnection *db, QObject *parent = 0);
   ~MongoModel();
 
-  void setQuery(const mongo::Query &query);
+  void setQuery(const mongo::Query &query, int limit = 0, int skip = 0);
 
   QModelIndex parent(const QModelIndex & index) const;
   int rowCount(const QModelIndex & parent = QModelIndex()) const;
