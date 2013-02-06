@@ -66,6 +66,16 @@ public:
   /** Set the 2D image for the molecule at row. */
   bool setImage2D(int row, const QByteArray &image);
 
+  /**
+   * Returns \c true if the model can load more data for the current query.
+   */
+  bool hasMoreData() const;
+
+  /**
+   * Requests that the model load \p count more rows of data.
+   */
+  void loadMoreData(int count = 100);
+
 private:
   class Private;
   Private *d;

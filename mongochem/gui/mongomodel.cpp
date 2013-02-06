@@ -110,11 +110,8 @@ void MongoModel::setQuery(const mongo::Query &query)
         settings.value("collection", "chem").toString().toStdString();
     d->cursor = d->db->query(collection + ".molecules", query);
 
-    while(d->cursor->more()){
-      d->m_rowObjects.push_back(d->cursor->next().copy());
-    }
-
-    qDebug() << "Loaded: " << d->m_rowObjects.size() << "rows";
+    // load first 250 rows
+    loadMoreData(250);
   }
   catch (mongo::SocketException &e) {
     std::cerr << "Failed to query MongoDB: " << e.what() << std::endl;
@@ -274,6 +271,32 @@ bool MongoModel::setImage2D(int row, const QByteArray &image)
   emit layoutChanged();
 
   return true;
+}
+
+bool MongoModel::hasMoreData() const
+{
+  return d->cursor.get() && d->cursor->more();
+}
+
+void MongoModel::loadMoreData(int count)
+{
+  if(!d->cursor.get())
+    return;
+
+  emit layoutAboutToBeChanged();
+
+  size_t initial = d->m_rowObjects.size();
+
+  while(d->cursor->more() && count--)
+    d->m_rowObjects.push_back(d->cursor->next().copy());
+
+  // TODO: show this in the status bar rather than the terminal
+  std::cout << "Loaded "
+            << d->m_rowObjects.size() - initial
+            << (initial ? " more" : "") << " rows"
+            << std::endl;
+
+  emit layoutChanged();
 }
 
 } // End of namespace

@@ -71,6 +71,11 @@ protected slots:
   /** Called when the user double clicks on a molecule. */
   void moleculeDoubleClicked(const QModelIndex &index);
 
+  /**
+   * Called when the vertical scroll bar changes.
+   */
+  void scollBarMoved(int value);
+
 private:
   /** Returns the currently selected model index. */
   QModelIndex currentSourceModelIndex() const;

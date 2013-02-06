@@ -32,6 +32,7 @@
 #include <QtGui/QContextMenuEvent>
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QMessageBox>
+#include <QtGui/QScrollBar>
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QProcess>
@@ -53,6 +54,9 @@ MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
 
   connect(this, SIGNAL(doubleClicked(QModelIndex)),
           this, SLOT(moleculeDoubleClicked(QModelIndex)));
+
+  connect(verticalScrollBar(), SIGNAL(sliderMoved(int)),
+          this, SLOT(scollBarMoved(int)));
 
   m_openInEditorHandler = new OpenInEditorHandler(this);
 }
@@ -279,6 +283,22 @@ void MongoTableView::moleculeDoubleClicked(const QModelIndex &index_)
   MoleculeRef ref = db->findMoleculeFromBSONObj(obj);
 
   emit showMoleculeDetails(ref);
+}
+
+// this slot is called in response to the vertical scroll bar moving. if it
+// reaches the bottom (i.e. value == maximum) we request our model to load
+// more data.
+void MongoTableView::scollBarMoved(int value)
+{
+  QScrollBar *scrollBar = qobject_cast<QScrollBar *>(sender());
+  if(!scrollBar)
+    return;
+
+  if(value == scrollBar->maximum()){
+    MongoModel *mongoModel = qobject_cast<MongoModel *>(model());
+    if(mongoModel && mongoModel->hasMoreData())
+      mongoModel->loadMoreData();
+  }
 }
 
 QModelIndex MongoTableView::currentSourceModelIndex() const
