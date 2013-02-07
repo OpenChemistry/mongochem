@@ -26,6 +26,7 @@ set(SOURCES
   selectionfiltermodel.cpp
   serversettingsdialog.cpp
   substructurefiltermodel.cpp
+  svggenerator.cpp
 )
 
 qt4_wrap_ui(UI_SOURCES
