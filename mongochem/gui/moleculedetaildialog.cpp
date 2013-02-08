@@ -24,6 +24,7 @@
 #include <QMenu>
 #include <QSettings>
 #include <QWebView>
+#include <QtCore/QList>
 
 #include <chemkit/molecule.h>
 
@@ -33,12 +34,24 @@
 #include "exportmoleculehandler.h"
 #include "computationalresultsmodel.h"
 #include "computationalresultstableview.h"
+#include "cjsonexporter.h"
+
+#include <avogadro/io/fileformatmanager.h>
+#include <avogadro/io/fileformat.h>
+#include <avogadro/qtgui/molecule.h>
+#include <avogadro/qtgui/sceneplugin.h>
+#include <avogadro/qtplugins/pluginmanager.h>
+
+#include <QtCore/QDebug>
+
+#include <iostream>
+#include <fstream>
 
 namespace MongoChem {
 
 MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   : QDialog(parent_),
-    ui(new Ui::MoleculeDetailDialog)
+    ui(new Ui::MoleculeDetailDialog), m_scenePlugin(NULL), m_molecule(NULL)
 {
   ui->setupUi(this);
 
@@ -85,11 +98,23 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
           SIGNAL(customContextMenuRequested(const QPoint&)),
           this,
           SLOT(annotationRightClicked(const QPoint&)));
+
+  Avogadro::QtGui::ScenePluginFactory * scenePluginFactory =
+      Avogadro::QtPlugins::PluginManager::instance()->
+        pluginFactory<Avogadro::QtGui::ScenePluginFactory>("BallStick");
+
+  if (scenePluginFactory) {
+    m_scenePlugin = scenePluginFactory->createInstance();
+  }
+  else {
+    qDebug() << "Unable to load \"Ball and Stick\" scene plugin factory.";
+  }
 }
 
 MoleculeDetailDialog::~MoleculeDetailDialog()
 {
   delete ui;
+  delete m_scenePlugin;
 }
 
 void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
@@ -196,10 +221,10 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     widget->setContent(QByteArray(content.c_str()));
 
     // add webview widget
-    ui->diagramLayout->addWidget(widget);
+    ui->diagram2DLayout->addWidget(widget);
 
     // hide label widget
-    ui->diagramLabel->hide();
+    ui->diagram2DLabel->hide();
   }
   else {
     // set png diagram (if no svg)
@@ -211,8 +236,31 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
       QImage in = QImage::fromData(inData, "PNG");
       QPixmap pix = QPixmap::fromImage(in);
 
-      ui->diagramLabel->setText(QString());
-      ui->diagramLabel->setPixmap(pix);
+      ui->diagram2DLabel->setText(QString());
+      ui->diagram2DLabel->setPixmap(pix);
+    }
+  }
+
+  // Load into 2D widget if we have atoms to work with
+  if (obj.hasField("atoms")) {
+    // Convert to CJSON
+    std::string cjson = CjsonExporter::toCjson(obj);
+
+    // Clear the scene
+    ui->glWidget->renderer().scene().clear();
+
+    m_molecule = new Avogadro::QtGui::Molecule(this);
+    bool success = Avogadro::Io::FileFormatManager::instance().readString(
+      *m_molecule, cjson, "cjson");
+
+    if (success) {
+      updateScenePlugins();
+      ui->glWidget->resetCamera();
+    }
+    else {
+      qDebug() << "Error reading CJSON string: "
+        << QString::fromStdString(
+            Avogadro::Io::FileFormatManager::instance().error());
     }
   }
 
@@ -497,6 +545,16 @@ void MoleculeDetailDialog::tagsRightClicked(const QPoint &pos_)
 
   // clear selection
   ui->tagsTextEdit->setTextCursor(QTextCursor());
+}
+
+void MoleculeDetailDialog::updateScenePlugins()
+{
+  Avogadro::Rendering::Scene &scene = ui->glWidget->renderer().scene();
+  scene.clear();
+  if (m_molecule && m_scenePlugin) {
+    m_scenePlugin->process(*m_molecule, scene);
+  }
+  ui->glWidget->update();
 }
 
 } // end MongoChem namespace
