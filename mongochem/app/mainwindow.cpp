@@ -57,6 +57,8 @@
 
 #include <mongochem/plugins/pluginmanager.h>
 
+#include <avogadro/qtplugins/pluginmanager.h>
+
 #ifdef QTTESTING
 #include <pqTestUtility.h>
 #include <pqEventObserver.h>
@@ -354,6 +356,11 @@ MainWindow::MainWindow()
                                       vtkCommand::AnnotationChangedEvent,
                                       this,
                                       SLOT(updateSelectionFilterModel()));
+
+  // Load the Avogadro plugins
+  Avogadro::QtPlugins::PluginManager *plugin =
+    Avogadro::QtPlugins::PluginManager::instance();
+  plugin->load();
 
   setupTable();
   connectToDatabase();

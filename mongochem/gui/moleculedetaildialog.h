@@ -23,6 +23,13 @@
 
 #include "moleculeref.h"
 
+namespace Avogadro {
+namespace QtGui {
+class ScenePlugin;
+class Molecule;
+}
+}
+
 namespace Ui {
 class MoleculeDetailDialog;
 }
@@ -68,6 +75,10 @@ private:
   OpenInEditorHandler *m_openInEditorHandler;
   ComputationalResultsModel *m_computationalResultsModel;
   ComputationalResultsTableView *m_computationalResultsTableView;
+  Avogadro::QtGui::ScenePlugin *m_scenePlugin;
+  Avogadro::QtGui::Molecule *m_molecule;
+
+  void updateScenePlugins();
 };
 
 } // end MongoChem namespace

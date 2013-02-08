@@ -8,6 +8,9 @@ find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
 include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
+find_package(AvogadroLibs)
+include_directories(${AvogadroLibs_INCLUDE_DIRS})
+
 set(SOURCES
   abstractvtkchartwidget.cpp
   abstractclusteringwidget.cpp
@@ -28,6 +31,7 @@ set(SOURCES
   serversettingsdialog.cpp
   substructurefiltermodel.cpp
   svggenerator.cpp
+  cjsonexporter.cpp
 )
 
 qt4_wrap_ui(UI_SOURCES
@@ -59,6 +63,7 @@ target_link_libraries(MongoChemGui
   ${EXTRA_LINK_LIB}
   vtkChartsCore vtkGUISupportQt vtkViewsContext2D vtkViewsInfovis vtkRenderingQt
   vtkRenderingFreeTypeOpenGL
+  AvogadroIO AvogadroQtOpenGL AvogadroQtPlugins AvogadroRendering
 )
 
 if(MongoChem_ENABLE_RPC)
