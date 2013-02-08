@@ -19,15 +19,45 @@
      <property name="title">
       <string>Molecule Name</string>
      </property>
-     <layout class="QVBoxLayout" name="diagramLayout">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
       <item>
-       <widget class="QLabel" name="diagramLabel">
-        <property name="text">
-         <string>DIAGRAM</string>
+       <widget class="QTabWidget" name="diagramTabWidget">
+        <property name="currentIndex">
+         <number>0</number>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
+        <widget class="QWidget" name="molecule2DTab">
+         <attribute name="title">
+          <string>2D</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="diagram2DLayout">
+          <item>
+           <widget class="QLabel" name="diagram2DLabel">
+            <property name="text">
+             <string>DIAGRAM</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="molecule3DTab">
+         <attribute name="title">
+          <string>3D</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="diagram3DLayout">
+         <item>
+         <widget class="Avogadro::QtOpenGL::GLWidget" name="glWidget"/>
+         </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -263,6 +293,14 @@
    </item>
   </layout>
  </widget>
+  <customwidgets>
+  <customwidget>
+   <class>Avogadro::QtOpenGL::GLWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">avogadro/qtopengl/glwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
