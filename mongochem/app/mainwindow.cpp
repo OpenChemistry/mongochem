@@ -57,6 +57,8 @@
 
 #include <mongochem/plugins/pluginmanager.h>
 
+#include <avogadro/qtplugins/pluginmanager.h>
+
 namespace {
 
 class MolecularFormulaDelegate : public QStyledItemDelegate
@@ -233,6 +235,11 @@ MainWindow::MainWindow()
                                       vtkCommand::AnnotationChangedEvent,
                                       this,
                                       SLOT(updateSelectionFilterModel()));
+
+  // Load the Avogadro plugins
+  Avogadro::QtPlugins::PluginManager *plugin =
+    Avogadro::QtPlugins::PluginManager::instance();
+  plugin->load();
 
   setupTable();
   connectToDatabase();
