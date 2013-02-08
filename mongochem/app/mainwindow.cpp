@@ -252,14 +252,15 @@ MainWindow::~MainWindow()
 
 void MainWindow::connectToDatabase()
 {
-  // disconnect the current mongodatabase instance
-  if (m_db)
-    MongoDatabase::instance()->disconnect();
-
   // remove current model
   delete m_model;
   m_model = 0;
   m_ui->tableView->setModel(m_model);
+
+  // disconnect the current mongodatabase instance ( after the cursors have
+  // been cleaned up ).
+  if (m_db)
+    MongoDatabase::instance()->disconnect();
 
   // connect to database
   m_db = MongoDatabase::instance()->connection();
