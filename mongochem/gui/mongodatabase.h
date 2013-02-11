@@ -69,6 +69,22 @@ public:
   /** Returns the connection to the mongo database. */
   mongo::DBClientConnection* connection() const;
 
+  /**
+   * Performs a query on @p collection and returns the cursor.
+   */
+  std::auto_ptr<mongo::DBClientCursor> query(const std::string &collection,
+                                             const mongo::Query &query_,
+                                             int limit = 0,
+                                             int skip = 0);
+
+  /**
+   * Performs a query on the molecules collection and returns the cursor.
+   */
+  std::auto_ptr<mongo::DBClientCursor>
+  queryMolecules(const mongo::Query &query_,
+                 int limit = 0,
+                 int skip = 0);
+
   /** Returns the current user name. */
   std::string userName() const;
 

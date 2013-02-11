@@ -17,9 +17,7 @@
 #include "scatterplotdialog.h"
 #include "ui_scatterplotdialog.h"
 
-#include <mongo/client/dbclient.h>
-
-#include <QtCore/QSettings>
+#include <mongochem/gui/mongodatabase.h>
 
 #include <QVTKInteractor.h>
 #include <vtkContextView.h>
@@ -123,16 +121,7 @@ void ScatterPlotDialog::showClicked()
   QString xName = ui->xComboBox->currentText().toLower();
   QString yName = ui->yComboBox->currentText().toLower();
 
-  QSettings settings;
-  std::string host = settings.value("hostname").toString().toStdString();
-  DBClientConnection db;
-  try {
-    db.connect(host);
-  }
-  catch (DBException &e) {
-    std::cerr << "Failed to connect to MongoDB: " << e.what() << std::endl;
-    return;
-  }
+  MongoChem::MongoDatabase *db = MongoChem::MongoDatabase::instance();
 
   vtkFloatArray *xArray = vtkFloatArray::SafeDownCast(m_table->GetColumnByName("X"));
   vtkFloatArray *yArray = vtkFloatArray::SafeDownCast(m_table->GetColumnByName("Y"));
@@ -143,11 +132,8 @@ void ScatterPlotDialog::showClicked()
   yArray->SetNumberOfValues(0);
   nameArray->SetNumberOfValues(0);
 
-  std::string collection = settings.value("collection").toString().toStdString();
-  std::string moleculesCollection = collection + ".molecules";
-
   // query for x data
-  auto_ptr<DBClientCursor> cursor_ = db.query(moleculesCollection);
+  std::auto_ptr<DBClientCursor> cursor_ = db->queryMolecules(mongo::Query());
 
   while (cursor_->more()) {
     BSONObj obj = cursor_->next();
