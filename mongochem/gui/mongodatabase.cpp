@@ -84,6 +84,24 @@ mongo::DBClientConnection* MongoDatabase::connection() const
   return m_db;
 }
 
+std::auto_ptr<mongo::DBClientCursor>
+MongoDatabase::query(const std::string &collection,
+                     const mongo::Query &query_,
+                     int limit,
+                     int skip)
+{
+  if(!m_db)
+    return std::auto_ptr<mongo::DBClientCursor>();
+
+  return m_db->query(collection, query_, limit, skip);
+}
+
+std::auto_ptr<mongo::DBClientCursor>
+MongoDatabase::queryMolecules(const mongo::Query &query_, int limit, int skip)
+{
+  return query(moleculesCollectionName(), query_, limit, skip);
+}
+
 std::string MongoDatabase::userName() const
 {
   QSettings settings;

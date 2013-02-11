@@ -17,9 +17,7 @@
 #include "parallelcoordinatesdialog.h"
 #include "ui_parallelcoordinatesdialog.h"
 
-#include <mongo/client/dbclient.h>
-
-#include <QtCore/QSettings>
+#include <mongochem/gui/mongodatabase.h>
 
 #include <QVTKInteractor.h>
 #include <vtkContextView.h>
@@ -84,16 +82,7 @@ void ParallelCoordinatesDialog::setSelectionLink(vtkAnnotationLink *link)
 
 void ParallelCoordinatesDialog::setupTable()
 {
-  QSettings settings;
-  std::string host = settings.value("hostname").toString().toStdString();
-  DBClientConnection db;
-  try {
-    db.connect(host);
-  }
-  catch (DBException &e) {
-    std::cerr << "Failed to connect to MongoDB: " << e.what() << std::endl;
-    return;
-  }
+  MongoChem::MongoDatabase *db = MongoChem::MongoDatabase::instance();
 
   // hard coded (for now) descriptor names
   const char *descriptors[] = {"tpsa",
@@ -112,9 +101,7 @@ void ParallelCoordinatesDialog::setupTable()
   }
 
   // query molecules collection
-  std::string collection = settings.value("collection").toString().toStdString();
-  std::string moleculesCollection = collection + ".molecules";
-  auto_ptr<DBClientCursor> cursor_ = db.query(moleculesCollection);
+  std::auto_ptr<DBClientCursor> cursor_ = db->queryMolecules(mongo::Query());
 
   while (cursor_->more()) {
     BSONObj obj = cursor_->next();
