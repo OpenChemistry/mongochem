@@ -19,6 +19,8 @@
 
 #include <mongochem/gui/mongodatabase.h>
 
+#include <QtGui/QProgressDialog>
+
 #include <QVTKInteractor.h>
 #include <vtkContextView.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -36,6 +38,7 @@
 #include <vtkEventQtSlotConnect.h>
 
 #include <mongochem/gui/diagramtooltipitem.h>
+#include <mongochem/gui/queryprogressdialog.h>
 
 using namespace mongo;
 using MongoChem::AbstractVtkChartWidget;
@@ -118,6 +121,9 @@ void ScatterPlotDialog::setSelectionLink(vtkAnnotationLink *link)
 
 void ScatterPlotDialog::showClicked()
 {
+  // display progress dialog
+  MongoChem::QueryProgressDialog progressDialog(this);
+
   QString xName = ui->xComboBox->currentText().toLower();
   QString yName = ui->yComboBox->currentText().toLower();
 
@@ -132,24 +138,48 @@ void ScatterPlotDialog::showClicked()
   yArray->SetNumberOfValues(0);
   nameArray->SetNumberOfValues(0);
 
-  // query for x data
-  std::auto_ptr<DBClientCursor> cursor_ = db->queryMolecules(mongo::Query());
+  // query for x data (100 values at a time)
+  int skip = 0;
+  int stride = 100;
 
-  while (cursor_->more()) {
-    BSONObj obj = cursor_->next();
+  for (;;) {
+    // update ui
+    qApp->processEvents();
 
-    // get values
-    double xValue = obj.getFieldDotted("descriptors." + xName.toStdString()).numberDouble();
-    double yValue = obj.getFieldDotted("descriptors." + yName.toStdString()).numberDouble();
+    // stop loading data if the user clicked cancel
+    if (progressDialog.wasCanceled())
+      break;
 
-    // insert into table
-    xArray->InsertNextValue(static_cast<float>(xValue));
-    yArray->InsertNextValue(static_cast<float>(yValue));
+    std::auto_ptr<DBClientCursor> cursor_ = db->queryMolecules(mongo::Query(), stride, skip);
+    if (!cursor_->more())
+      break;
 
-    // add name to tooltip array
-    std::string name = obj.getField("name").str();
-    nameArray->InsertNextValue(name);
+    while (cursor_->more()) {
+      BSONObj obj = cursor_->next();
+      progressDialog.setValue(0);
+
+      // get values
+      double xValue = obj.getFieldDotted("descriptors." + xName.toStdString()).numberDouble();
+      double yValue = obj.getFieldDotted("descriptors." + yName.toStdString()).numberDouble();
+
+      // insert into table
+      xArray->InsertNextValue(static_cast<float>(xValue));
+      yArray->InsertNextValue(static_cast<float>(yValue));
+
+      // add name to tooltip array
+      std::string name = obj.getField("name").str();
+      nameArray->InsertNextValue(name);
+    }
+
+    // move to next block of data
+    skip += stride;
+
+    // update progress dialog
+    progressDialog.setValue(xArray->GetNumberOfTuples());
   }
+
+  // close progress dialog
+  progressDialog.close();
 
   // refesh view
   m_table->Modified();

@@ -22,6 +22,7 @@ set(SOURCES
   mongomodel.cpp
   mongotableview.cpp
   openineditorhandler.cpp
+  queryprogressdialog.cpp
   quickquerywidget.cpp
   selectionfiltermodel.cpp
   serversettingsdialog.cpp
@@ -32,6 +33,7 @@ set(SOURCES
 qt4_wrap_ui(UI_SOURCES
   addtagdialog.ui
   moleculedetaildialog.ui
+  queryprogressdialog.ui
   quickquerywidget.ui
   serversettingsdialog.ui
 )
