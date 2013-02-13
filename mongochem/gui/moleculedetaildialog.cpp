@@ -23,6 +23,7 @@
 
 #include <QMenu>
 #include <QSettings>
+#include <QWebView>
 
 #include <chemkit/molecule.h>
 
@@ -163,17 +164,56 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   // set tags
   reloadTags();
 
-  // set diagram
-  mongo::BSONElement diagramElement = obj.getField("diagram");
-  if (!diagramElement.eoo()) {
-    int length;
-    const char *data_ = diagramElement.binData(length);
-    QByteArray inData(data_, length);
-    QImage in = QImage::fromData(inData, "PNG");
-    QPixmap pix = QPixmap::fromImage(in);
+  // set svg diagram
+  mongo::BSONElement svgElement = obj.getField("svg");
+  if (!svgElement.eoo()) {
+    // get svg
+    std::string svg = svgElement.str();
 
-    ui->diagramLabel->setText(QString());
-    ui->diagramLabel->setPixmap(pix);
+    // create web view
+    QWebView *widget = new QWebView;
+
+    // set transparent background
+    QPalette palette_ = widget->palette();
+    palette_.setBrush(QPalette::Base, Qt::transparent);
+    widget->page()->setPalette(palette_);
+    widget->setAttribute(Qt::WA_OpaquePaintEvent, false);
+
+    // set content
+    std::stringstream html;
+    html << "<html>"
+         << "<head>"
+         << "<style type=\"text/css\">"
+         << "html, body { margin:0; padding:0; overflow:hidden }"
+         << "svg { top:0; left:0; height:100%; width:100% }"
+         << "</style>"
+         << "</head>"
+         << "<body>"
+         << svg
+         << "</body>"
+         << "</html>";
+    std::string content = html.str();
+    widget->setContent(QByteArray(content.c_str()));
+
+    // add webview widget
+    ui->diagramLayout->addWidget(widget);
+
+    // hide label widget
+    ui->diagramLabel->hide();
+  }
+  else {
+    // set png diagram (if no svg)
+    mongo::BSONElement diagramElement = obj.getField("diagram");
+    if (!diagramElement.eoo()) {
+      int length;
+      const char *data_ = diagramElement.binData(length);
+      QByteArray inData(data_, length);
+      QImage in = QImage::fromData(inData, "PNG");
+      QPixmap pix = QPixmap::fromImage(in);
+
+      ui->diagramLabel->setText(QString());
+      ui->diagramLabel->setPixmap(pix);
+    }
   }
 
   // set descriptors

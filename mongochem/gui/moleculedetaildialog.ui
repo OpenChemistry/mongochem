@@ -19,7 +19,7 @@
      <property name="title">
       <string>Molecule Name</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
+     <layout class="QVBoxLayout" name="diagramLayout">
       <item>
        <widget class="QLabel" name="diagramLabel">
         <property name="text">

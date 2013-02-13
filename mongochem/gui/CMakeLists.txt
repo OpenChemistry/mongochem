@@ -1,5 +1,5 @@
 # find Qt
-find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork REQUIRED)
+find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork QtWebKit REQUIRED)
 include(${QT_USE_FILE})
 
 # VTK is used for the charting and infovis components.
@@ -26,6 +26,7 @@ set(SOURCES
   selectionfiltermodel.cpp
   serversettingsdialog.cpp
   substructurefiltermodel.cpp
+  svggenerator.cpp
 )
 
 qt4_wrap_ui(UI_SOURCES
@@ -51,7 +52,7 @@ set_target_properties(MongoChemGui PROPERTIES AUTOMOC TRUE)
 target_link_libraries(MongoChemGui
   ${MongoDB_LIBRARIES}
   ${Boost_LIBRARIES}
-  ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
+  ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTWEBKIT_LIBRARY}
   ${CHEMKIT_LIBRARIES}
   ${EXTRA_LINK_LIB}
   vtkChartsCore vtkGUISupportQt vtkViewsContext2D vtkViewsInfovis vtkRenderingQt
