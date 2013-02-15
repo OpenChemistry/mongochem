@@ -19,8 +19,6 @@
 
 #include <mongochem/gui/mongodatabase.h>
 
-#include <QtGui/QProgressDialog>
-
 #include <QVTKInteractor.h>
 #include <vtkContextView.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -129,8 +127,10 @@ void ScatterPlotDialog::showClicked()
 
   MongoChem::MongoDatabase *db = MongoChem::MongoDatabase::instance();
 
-  vtkFloatArray *xArray = vtkFloatArray::SafeDownCast(m_table->GetColumnByName("X"));
-  vtkFloatArray *yArray = vtkFloatArray::SafeDownCast(m_table->GetColumnByName("Y"));
+  vtkFloatArray *xArray =
+    vtkFloatArray::SafeDownCast(m_table->GetColumnByName("X"));
+  vtkFloatArray *yArray =
+    vtkFloatArray::SafeDownCast(m_table->GetColumnByName("Y"));
   vtkStringArray *nameArray = m_chart->GetPlot(0)->GetIndexedLabels();
 
   // clear current data
@@ -150,7 +150,8 @@ void ScatterPlotDialog::showClicked()
     if (progressDialog.wasCanceled())
       break;
 
-    std::auto_ptr<DBClientCursor> cursor_ = db->queryMolecules(mongo::Query(), stride, skip);
+    std::auto_ptr<DBClientCursor> cursor_ =
+      db->queryMolecules(mongo::Query(), stride, skip);
     if (!cursor_->more())
       break;
 
@@ -159,8 +160,12 @@ void ScatterPlotDialog::showClicked()
       progressDialog.setValue(0);
 
       // get values
-      double xValue = obj.getFieldDotted("descriptors." + xName.toStdString()).numberDouble();
-      double yValue = obj.getFieldDotted("descriptors." + yName.toStdString()).numberDouble();
+      double xValue =
+        obj.getFieldDotted(
+          "descriptors." + xName.toStdString()).numberDouble();
+      double yValue =
+        obj.getFieldDotted(
+          "descriptors." + yName.toStdString()).numberDouble();
 
       // insert into table
       xArray->InsertNextValue(static_cast<float>(xValue));

@@ -60,6 +60,7 @@ void SvgGenerator::start()
   QStringList options;
   options << "-i" << m_inputFormat;
   options << "-osvg";
+  options << "-xC"; // no terminal carbons lines
 
   // start the process and send the input data
   m_process.start("obabel", options);
@@ -73,8 +74,19 @@ void SvgGenerator::start()
 
 void SvgGenerator::obabelFinished(int errorCode, QProcess::ExitStatus)
 {
+  // clear any previous data
+  m_svg.clear();
+
+  // get obabel output
+  QByteArray output = m_process.readAllStandardOutput();
+
   // read and store svg data
-  m_svg = m_process.readAllStandardOutput();
+  foreach (const QByteArray &line, output.split('\n')){
+    if (line.startsWith("<rect"))
+      continue;
+
+    m_svg += line + '\n';
+  }
 
   emit finished(errorCode);
 }

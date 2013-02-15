@@ -26,7 +26,8 @@
 #include <QMessageBox>
 #include <QInputDialog>
 
-#include "mongodatabase.h"
+#include <mongochem/gui/mongodatabase.h>
+#include <mongochem/gui/svggenerator.h>
 
 ImportCsvFileDialog::ImportCsvFileDialog(QWidget *parent_)
   : AbstractImportDialog(parent_),
@@ -290,6 +291,25 @@ void ImportCsvFileDialog::import()
       molecule =
         db->importMoleculeFromIdentifier(key.toStdString(),
                                          identifierName.toStdString());
+
+      // automatically generate diagram (if possible)
+      if (molecule) {
+        // create and setup svg generator
+        MongoChem::SvgGenerator *svgGenerator =
+          new MongoChem::SvgGenerator(this);
+        svgGenerator->setInputData(key.toAscii());
+        svgGenerator->setInputFormat(identifierName.toAscii());
+
+        // listen to finished signal
+        connect(svgGenerator, SIGNAL(finished(int)),
+                this, SLOT(moleculeDiagramReady(int)));
+
+        // store generator so we can clean it up later
+        m_svgGenerators.insert(svgGenerator);
+
+        // start the generation process in the background
+        svgGenerator->start();
+      }
     }
 
     // if we failed to import, print an error.
@@ -318,6 +338,11 @@ void ImportCsvFileDialog::import()
 
   // clear the preview
   closeCurrentFile();
+
+  // wait until all diagrams are generated
+  while (!m_svgGenerators.isEmpty()) {
+    qApp->processEvents();
+  }
 
   // present information dialog
   QMessageBox::information(this,
@@ -457,4 +482,43 @@ void ImportCsvFileDialog::closeCurrentFile()
   ui->mappingTableWidget->clear();
   ui->mappingTableWidget->setRowCount(0);
   ui->mappingTableWidget->setColumnCount(0);
+}
+
+void ImportCsvFileDialog::moleculeDiagramReady(int errorCode)
+{
+  MongoChem::SvgGenerator *svgGenerator =
+    qobject_cast<MongoChem::SvgGenerator *>(sender());
+  if (!svgGenerator) {
+    return;
+  }
+
+  QByteArray svg = svgGenerator->svg();
+
+  if (errorCode != 0 || svg.isEmpty()) {
+    qDebug() << "error generating svg";
+    return;
+  }
+
+  // get molecule data
+  QByteArray identifier = svgGenerator->inputData();
+  QByteArray identifierFormat = svgGenerator->inputFormat();
+
+  // get molecule ref
+  MongoChem::MongoDatabase *db = MongoChem::MongoDatabase::instance();
+  MongoChem::MoleculeRef molecule =
+    db->findMoleculeFromIdentifier(identifier.constData(),
+                                   identifierFormat.constData());
+
+  // set molecule diagram
+  if (molecule) {
+    db->connection()->update(db->moleculesCollectionName(),
+                             QUERY("_id" << molecule.id()),
+                             BSON("$set" << BSON("svg" << svg.constData())),
+                             true,
+                             true);
+  }
+
+  // remove and delete generator
+  m_svgGenerators.remove(svgGenerator);
+  svgGenerator->deleteLater();
 }

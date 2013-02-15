@@ -184,6 +184,9 @@ public:
                                                const std::string &prefix,
                                                size_t limit = 0);
 
+  /** Returns the name of the molecules collection. */
+  std::string moleculesCollectionName() const;
+
 private:
   /**
    * Creates a new mongo database object. This constructor should not
@@ -193,9 +196,6 @@ private:
   MongoDatabase();
 
   ~MongoDatabase();
-
-  /** Returns the name of the molecules collection. */
-  std::string moleculesCollectionName() const;
 
   /** Creates a molecule ref using the object ID of \p obj. */
   MoleculeRef createMoleculeRefForBSONObj(const mongo::BSONObj &obj) const;
