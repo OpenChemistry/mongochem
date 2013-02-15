@@ -689,6 +689,9 @@ void MainWindow::showImportDialog()
 
       // show new dialog
       dialog->exec();
+
+      // update table
+      runQuery();
     }
   }
 }

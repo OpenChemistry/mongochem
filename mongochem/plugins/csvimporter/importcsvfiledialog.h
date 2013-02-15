@@ -17,10 +17,16 @@
 #ifndef IMPORTCSVFILEDIALOG_H
 #define IMPORTCSVFILEDIALOG_H
 
+#include <QSet>
+
 #include <mongochem/gui/abstractimportdialog.h>
 
 namespace Ui {
 class ImportCsvFileDialog;
+}
+
+namespace MongoChem {
+class SvgGenerator;
 }
 
 /**
@@ -49,10 +55,12 @@ private slots:
   void delimiterLineEditChanged(const QString &text);
   QChar delimiterCharacter() const;
   void closeCurrentFile();
+  void moleculeDiagramReady(int errorCode);
 
 private:
   Ui::ImportCsvFileDialog *ui;
   QString m_fileName;
+  QSet<MongoChem::SvgGenerator *> m_svgGenerators;
 };
 
 #endif // IMPORTCSVFILEDIALOG_H
