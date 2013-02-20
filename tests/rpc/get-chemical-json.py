@@ -21,14 +21,14 @@ class GetChemicalJsonTest(unittest.TestCase):
         'id' : 0,
         'method' : 'getChemicalJson',
         'params' : {
-          'inchi' : "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3"
+          'inchi' : "InChI=1S/CH4O/c1-2/h2H,1H3"
         }
       }
     )
 
     reply = self.conn.recv_json()
 
-    self.assertEqual(reply["result"], "ethanol")
+    self.assertEqual(reply["result"], "methanol")
 
 if __name__ == '__main__':
   # start mongochem
