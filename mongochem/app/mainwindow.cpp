@@ -57,6 +57,13 @@
 
 #include <mongochem/plugins/pluginmanager.h>
 
+#ifdef QTTESTING
+#include <pqTestUtility.h>
+#include <pqEventObserver.h>
+#include <pqEventSource.h>
+#include <QXmlStreamReader>
+#endif
+
 namespace {
 
 class MolecularFormulaDelegate : public QStyledItemDelegate
@@ -138,6 +145,103 @@ public:
   }
 };
 
+#ifdef QTTESTING
+class XMLEventObserver : public pqEventObserver
+{
+  QXmlStreamWriter* XMLStream;
+  QString XMLString;
+
+public:
+  XMLEventObserver(QObject* p) : pqEventObserver(p)
+  {
+    this->XMLStream = NULL;
+  }
+  ~XMLEventObserver()
+  {
+    delete this->XMLStream;
+  }
+
+protected:
+  virtual void setStream(QTextStream* stream)
+  {
+    if (this->XMLStream) {
+      this->XMLStream->writeEndElement();
+      this->XMLStream->writeEndDocument();
+      delete this->XMLStream;
+      this->XMLStream = NULL;
+    }
+    if (this->Stream)
+      *this->Stream << this->XMLString;
+
+    this->XMLString = QString();
+    pqEventObserver::setStream(stream);
+    if (this->Stream) {
+      this->XMLStream = new QXmlStreamWriter(&this->XMLString);
+      this->XMLStream->setAutoFormatting(true);
+      this->XMLStream->writeStartDocument();
+      this->XMLStream->writeStartElement("events");
+    }
+  }
+
+  virtual void onRecordEvent(const QString& widget, const QString& command,
+                             const QString& arguments)
+  {
+    if(this->XMLStream) {
+      this->XMLStream->writeStartElement("event");
+      this->XMLStream->writeAttribute("widget", widget);
+      this->XMLStream->writeAttribute("command", command);
+      this->XMLStream->writeAttribute("arguments", arguments);
+      this->XMLStream->writeEndElement();
+    }
+  }
+};
+
+class XMLEventSource : public pqEventSource
+{
+  typedef pqEventSource Superclass;
+  QXmlStreamReader *XMLStream;
+
+public:
+  XMLEventSource(QObject* p): Superclass(p) { this->XMLStream = NULL;}
+  ~XMLEventSource() { delete this->XMLStream; }
+
+protected:
+  virtual void setContent(const QString& xmlfilename)
+  {
+    delete this->XMLStream;
+    this->XMLStream = NULL;
+
+    QFile xml(xmlfilename);
+    if (!xml.open(QIODevice::ReadOnly)) {
+      qDebug() << "Failed to load " << xmlfilename;
+      return;
+    }
+    QByteArray data = xml.readAll();
+    this->XMLStream = new QXmlStreamReader(data);
+  }
+
+  int getNextEvent(QString& widget, QString& command, QString& arguments)
+  {
+    if (this->XMLStream->atEnd())
+      return DONE;
+    while (!this->XMLStream->atEnd()) {
+      QXmlStreamReader::TokenType token = this->XMLStream->readNext();
+      if (token == QXmlStreamReader::StartElement) {
+        if (this->XMLStream->name() == "event")
+          break;
+      }
+    }
+    if (this->XMLStream->atEnd())
+      return DONE;
+
+    widget = this->XMLStream->attributes().value("widget").toString();
+    command = this->XMLStream->attributes().value("command").toString();
+    arguments = this->XMLStream->attributes().value("arguments").toString();
+    return SUCCESS;
+  }
+};
+#endif // QTTESTING
+
 } // end anonymous namespace
 
 namespace MongoChem {
@@ -195,6 +299,23 @@ MainWindow::MainWindow()
   queryDockWidget->setWidget(m_queryWidget);
   addDockWidget(Qt::TopDockWidgetArea, queryDockWidget);
   queryDockWidget->hide();
+
+#ifdef QTTESTING
+  QMenu *menu = menuBar()->addMenu(tr("&Testing"));
+  QAction *actionRecord = new QAction(this);
+  actionRecord->setText(tr("Record test..."));
+  menu->addAction(actionRecord);
+  QAction *actionPlay = new QAction(this);
+  actionPlay->setText(tr("Play test..."));
+  menu->addAction(actionPlay);
+
+  connect(actionRecord, SIGNAL(triggered()), SLOT(recordTest()));
+  connect(actionPlay, SIGNAL(triggered()), SLOT(playTest()));
+
+  m_testUtility = new pqTestUtility(this);
+  m_testUtility->addEventObserver("xml", new XMLEventObserver(this));
+  m_testUtility->addEventSource("xml", new XMLEventSource(this));
+#endif
 
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
   connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
@@ -695,5 +816,50 @@ void MainWindow::showImportDialog()
     }
   }
 }
+
+#ifdef QTTESTING
+void MainWindow::recordTest()
+{
+  QString fileName =
+    QFileDialog::getSaveFileName(this,
+                                 tr("Test file name"),
+                                 QString(),
+                                 tr("XML Files (*.xml)"));
+
+  if (!fileName.isEmpty())
+    m_testUtility->recordTests(fileName);
+}
+
+void MainWindow::playTest()
+{
+  QString fileName =
+    QFileDialog::getOpenFileName(this,
+                                 tr("Test file name"),
+                                 QString(),
+                                 tr("XML Files (*.xml)"));
+
+  if (!fileName.isEmpty())
+    playTest(fileName);
+}
+
+void MainWindow::playTest(const QString &fileName)
+{
+  qDebug() << "Playing test: " << fileName;
+
+  m_testUtility->playTests(fileName);
+
+  // for now we always close the application after completing a test. this
+  // can be changed later if we want to support running multiple tests.
+  qApp->exit();
+}
+
+void MainWindow::playTestLater(const QString &fileName)
+{
+  QMetaObject::invokeMethod(this,
+                            "playTest",
+                            Qt::QueuedConnection,
+                            Q_ARG(QString, fileName));
+}
+#endif
 
 } // end MongoChem namespace
