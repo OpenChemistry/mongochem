@@ -20,6 +20,14 @@ if(MongoChem_ENABLE_RPC)
   add_definitions(-DMongoChem_ENABLE_RPC)
 endif()
 
+# find QtTesting
+if(ENABLE_TESTING)
+  find_package(QtTesting REQUIRED)
+  include_directories(${QtTesting_INCLUDE_DIRS})
+  link_directories(${QtTesting_LIBRARY_DIR})
+  add_definitions(-DQTTESTING)
+endif()
+
 set(SOURCES
   main.cpp
   mainwindow.cpp
@@ -34,6 +42,9 @@ target_link_libraries(mongochem
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   MongoChemGui MongoChemPlugins
 )
+if(ENABLE_TESTING)
+  target_link_libraries(mongochem QtTesting)
+endif()
 install(TARGETS mongochem DESTINATION "${INSTALL_RUNTIME_DIR}")
 
 if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
