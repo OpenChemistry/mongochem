@@ -12,7 +12,14 @@ class Connection:
                               socket.SOCK_STREAM)
 
     # connect
-    self.sock.connect("/tmp/" + name)
+    local_socket_file = None
+    try:
+      sys.getwindowsversion()
+      local_socket_file = "\\\\.\\pipe\\" + name
+    except:
+      local_socket_file = "/tmp/" + name
+
+    self.sock.connect(local_socket_file)
 
   def send_json(self, obj):
     self.send_message(json.dumps(obj))
@@ -46,7 +53,11 @@ class Connection:
 
 def start_mongochem(executable_filename):
   # run mongochem in a child process
-  subprocess.Popen([executable_filename, "--testing"])
+  subprocess.Popen([executable_filename,
+                    "--testing",
+                    "--server", "mongochem.kitwarein.com",
+                    "--port", "27071",
+                    "--collection", "chem"])
 
   # wait for mongochem to start
   time.sleep(3)
