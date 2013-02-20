@@ -1,8 +1,8 @@
 find_package(PythonInterp 2.6 REQUIRED)
 
 set(tests
-  get_chemical_json
-  resolve_name_to_inchi
+  get-chemical-json
+  resolve-name-to-inchi
 )
 
 foreach(test ${tests})
