@@ -17,6 +17,7 @@
 #include "rpclistener.h"
 
 #include <QCoreApplication>
+#include <QLocalServer>
 
 #include <mongochem/gui/mongodatabase.h>
 
@@ -32,6 +33,11 @@ RpcListener::RpcListener(QObject *parent_)
   : QObject(parent_)
 {
   m_rpc = new MoleQueue::JsonRpc(this);
+
+  // when testing we forcibly remove any other mongochem rpc listeners
+  // which may have be left over from other failed test runs
+  if (qApp->arguments().contains("--testing"))
+    QLocalServer::removeServer("mongochem");
 
   m_connectionListener =
     new MoleQueue::LocalSocketConnectionListener(this, "mongochem");
@@ -66,6 +72,8 @@ void RpcListener::messageReceived(const MoleQueue::Message &message)
 
   QString method = message.method();
   QJsonObject params = message.params().toObject();
+
+  qDebug() << "got method: " << method;
 
   if (method == "getChemicalJson") {
     std::string inchi = params["inchi"].toString().toStdString();
