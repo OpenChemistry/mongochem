@@ -31,6 +31,32 @@ int main(int argc, char *argv[])
   QCoreApplication::setApplicationVersion("0.1.0");
   QApplication app(argc, argv);
 
+  // process command line options
+  QString testFile;
+  bool testExit = true;
+
+  const QStringList &arguments = app.arguments();
+  for (int i = 1; i < arguments.size(); i++) {
+    const QString &argument = arguments[i];
+
+    if (argument == "--test-file") {
+      if (i + 1 < arguments.size()) {
+        testFile = arguments[++i];
+      }
+      else {
+        qWarning("--test-file option requires argument");
+        return -1;
+      }
+    }
+    else if (argument == "--test-no-exit") {
+      testExit = false;
+    }
+    else {
+      qWarning("Unknown command line option: '%s'", qPrintable(argument));
+      return -1;
+    }
+  }
+
   QSettings settings;
   if (!settings.contains("hostname"))
     settings.setValue("hostname", "localhost");
@@ -44,6 +70,15 @@ int main(int argc, char *argv[])
   // create main gui window
   MongoChem::MainWindow window;
   window.show();
+
+  if (!testFile.isEmpty()) {
+#ifdef QTTESTING
+    window.playTestLater(testFile, testExit);
+#else
+    qWarning("MongoChem called with --test-file but testing is disabled.");
+    return -1;
+#endif
+  }
 
 #ifdef MongoChem_ENABLE_RPC
   // create rpc listener
