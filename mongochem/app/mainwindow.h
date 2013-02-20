@@ -43,6 +43,10 @@ class AbstractClusteringWidgetFactory;
 class AbstractImportDialogFactory;
 }
 
+#ifdef QTTESTING
+class pqTestUtility;
+#endif
+
 namespace MongoChem {
 
 class MongoModel;
@@ -72,6 +76,30 @@ public slots:
     * Returns \c false if the fingerprint specified by name is not valid.
     */
   bool calculateAndStoreFingerprints(const std::string &name = "fp2");
+
+#ifdef QTTESTING
+  /**
+   * Starts recording a GUI test.
+   */
+  void recordTest();
+
+  /**
+   * Starts playing a GUI test file. The user will be prompted to select
+   * the test XML file.
+   */
+  void playTest();
+
+  /**
+   * Starts playing a GUI test file from @p fileName. If @p exitAfterTest
+   * is @c true the application will exit when the test is finished.
+   */
+  void playTest(const QString &fileName, bool exitAfterTest = true);
+
+  /**
+   * Queues a test file to be played on the next iteration of the event loop.
+   */
+  void playTestLater(const QString &fileName, bool exitAfterTest = true);
+#endif
 
 private:
   void setupTable();
@@ -107,6 +135,13 @@ private:
    * of previously created dialogs. They are deleted when MongoChem exits.
    */
   QMap<QString, AbstractImportDialog *> m_importerInstances;
+
+#ifdef QTTESTING
+  /**
+   * Used for the GUI tests when testing is enabled.
+   */
+  pqTestUtility *m_testUtility;
+#endif
 
 private slots:
   /** Show the molecule details dialog for the molecule referred to

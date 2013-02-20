@@ -67,6 +67,8 @@ void RpcListener::messageReceived(const MoleQueue::Message &message)
   QString method = message.method();
   QJsonObject params = message.params().toObject();
 
+  qDebug() << "got method: " << method;
+
   if (method == "getChemicalJson") {
     std::string inchi = params["inchi"].toString().toStdString();
 

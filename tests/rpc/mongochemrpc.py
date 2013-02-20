@@ -46,7 +46,11 @@ class Connection:
 
 def start_mongochem(executable_filename):
   # run mongochem in a child process
-  subprocess.Popen([executable_filename, "--testing"])
+  subprocess.Popen([executable_filename,
+                    "--testing",
+                    "--server", "mongochem.kitwarein.com",
+                    "--port", "27071",
+                    "--collection", "chem"])
 
   # wait for mongochem to start
   time.sleep(3)
