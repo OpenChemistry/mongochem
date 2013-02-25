@@ -241,7 +241,7 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     }
   }
 
-  // Load into 2D widget if we have atoms to work with
+  // Load into 3D widget if we have atoms to work with
   if (obj.hasField("atoms")) {
     // Convert to CJSON
     std::string cjson = CjsonExporter::toCjson(obj);
@@ -262,6 +262,11 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
         << QString::fromStdString(
             Avogadro::Io::FileFormatManager::instance().error());
     }
+  }
+  // Remove 3D tab as we have not atoms
+  else {
+    int index = ui->diagramTabWidget->indexOf(ui->molecule3DTab);
+    ui->diagramTabWidget->removeTab(index);
   }
 
   // set descriptors
