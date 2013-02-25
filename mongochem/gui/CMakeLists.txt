@@ -4,11 +4,11 @@ include(${QT_USE_FILE})
 
 # VTK is used for the charting and infovis components.
 find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
-  vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL NO_MODULE)
+  vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL REQUIRED NO_MODULE)
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
 include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
-find_package(AvogadroLibs)
+find_package(AvogadroLibs REQUIRED NO_MODULE)
 include_directories(${AvogadroLibs_INCLUDE_DIRS})
 
 set(SOURCES
