@@ -16,17 +16,11 @@
 
 #include "openineditorhandler.h"
 
-#include <boost/make_shared.hpp>
+#include <QMessageBox>
 
-#include <QDir>
-#include <QProcess>
-#include <QTemporaryFile>
+#include <molequeue/client/jsonrpcclient.h>
 
-#include <chemkit/molecule.h>
-#include <chemkit/moleculefile.h>
-#include <chemkit/coordinatepredictor.h>
-#include <chemkit/moleculegeometryoptimizer.h>
-
+#include "cjsonexporter.h"
 #include "mongodatabase.h"
 
 namespace MongoChem {
@@ -67,60 +61,31 @@ void OpenInEditorHandler::openInEditor()
   if (!m_moleculeRef.isValid())
     return;
 
+  // connect to avogadro
+  MoleQueue::JsonRpcClient rpcClient;
+  rpcClient.connectToServer("avogadro");
+  if (!rpcClient.isConnected()) {
+    QMessageBox::critical(qobject_cast<QWidget *>(parent()),
+                          tr("Connection Error"),
+                          tr("Failed to connect to Avogadro"));
+    return;
+  }
+
+  // load chemical json for the molecule
   MongoDatabase *db = MongoDatabase::instance();
   mongo::BSONObj moleculeObj = db->fetchMolecule(m_moleculeRef);
-  mongo::BSONElement inchiElement = moleculeObj.getField("inchi");
-  if (inchiElement.eoo())
-    return;
+  std::string cjson = CjsonExporter::toCjson(moleculeObj);
 
-  boost::shared_ptr<chemkit::Molecule> molecule_ =
-    boost::make_shared<chemkit::Molecule>(inchiElement.str(), "inchi");
+  // create json rpc method
+  QJsonObject request(rpcClient.emptyRequest());
+  request["method"] = QLatin1String("loadFromChemicalJson");
+  QJsonObject params;
+  params["chemicalJson"] = QLatin1String(cjson.c_str());
+  request["params"] = params;
 
-  // setup temporary file
-  QTemporaryFile tempFile("XXXXXX.cml");
-  tempFile.setAutoRemove(false);
-  if (tempFile.open()) {
-    QString tempFilePath = tempFile.fileName();
-
-    // predict 3d coordinates
-    chemkit::CoordinatePredictor::predictCoordinates(molecule_.get());
-
-    // optimize 3d coordinates
-    chemkit::MoleculeGeometryOptimizer optimizer(molecule_.get());
-
-    // try with mmff
-    optimizer.setForceField("mmff");
-    bool ok = optimizer.setup();
-
-    if (!ok) {
-      // try with uff
-      optimizer.setForceField("uff");
-      ok = optimizer.setup();
-    }
-
-    if (ok) {
-      // run optimization
-      for (size_t i = 0; i < 250; i++) {
-        optimizer.step();
-
-        // only check for convergance every 3 steps
-        if (i % 3 == 0 && optimizer.converged() )
-          break;
-      }
-
-      // write optimized coordinates to molecule
-      optimizer.writeCoordinates();
-    }
-
-    // write molecule to temp file
-    chemkit::MoleculeFile file(tempFilePath.toStdString());
-    file.setFormat("cml");
-    file.addMolecule(molecule_);
-    file.write();
-
-    // start editor
-    QProcess::startDetached(m_editorName + " " + tempFilePath);
-  }
+  // send request
+  rpcClient.sendRequest(request);
+  rpcClient.flush();
 }
 
 } // end MongoChem namespace

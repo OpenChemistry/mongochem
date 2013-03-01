@@ -64,6 +64,7 @@ target_link_libraries(MongoChemGui
   vtkChartsCore vtkGUISupportQt vtkViewsContext2D vtkViewsInfovis vtkRenderingQt
   vtkRenderingFreeTypeOpenGL
   AvogadroIO AvogadroQtOpenGL AvogadroQtPlugins AvogadroRendering
+  MoleQueueClient
 )
 
 if(MongoChem_ENABLE_RPC)
