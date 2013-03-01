@@ -18,10 +18,15 @@
 #define OPENINEDITORHANDLER_H
 
 #include <QObject>
+#include <qjsonobject.h>
 
 #include <chemkit/molecule.h>
 
 #include "moleculeref.h"
+
+namespace MoleQueue {
+class JsonRpcClient;
+}
 
 namespace MongoChem {
 
@@ -53,9 +58,14 @@ public slots:
       editor. */
   void openInEditor();
 
+private slots:
+  void rpcResultReceived(QJsonObject object);
+  void rpcErrorReceived(QJsonObject object);
+
 private:
   QString m_editorName;
   MoleculeRef m_moleculeRef;
+  MoleQueue::JsonRpcClient *m_rpcClient;
 };
 
 } // end MongoChem namespace
