@@ -18,6 +18,7 @@
 #define OPENINEDITORHANDLER_H
 
 #include <QObject>
+#include <qjsonobject.h>
 
 #include <chemkit/molecule.h>
 
@@ -52,6 +53,10 @@ public slots:
   /** This slot is called when the molecule should be opened in a molecular
       editor. */
   void openInEditor();
+
+private slots:
+  void rpcResultReceived(QJsonObject object);
+  void rpcErrorReceived(QJsonObject object);
 
 private:
   QString m_editorName;
