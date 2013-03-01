@@ -25,8 +25,8 @@
 
 int main(int argc, char *argv[])
 {
-  QCoreApplication::setOrganizationName("Kitware");
-  QCoreApplication::setOrganizationDomain("kitware.com");
+  QCoreApplication::setOrganizationName("OpenChemistry");
+  QCoreApplication::setOrganizationDomain("openchemistry.org");
   QCoreApplication::setApplicationName("MongoChem");
   QCoreApplication::setApplicationVersion("0.1.0");
   QApplication app(argc, argv);
