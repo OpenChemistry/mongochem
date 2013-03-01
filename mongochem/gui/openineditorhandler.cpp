@@ -16,17 +16,11 @@
 
 #include "openineditorhandler.h"
 
-#include <boost/make_shared.hpp>
+#include <QMessageBox>
 
-#include <QDir>
-#include <QProcess>
-#include <QTemporaryFile>
+#include <molequeue/client/jsonrpcclient.h>
 
-#include <chemkit/molecule.h>
-#include <chemkit/moleculefile.h>
-#include <chemkit/coordinatepredictor.h>
-#include <chemkit/moleculegeometryoptimizer.h>
-
+#include "cjsonexporter.h"
 #include "mongodatabase.h"
 
 namespace MongoChem {
@@ -36,10 +30,13 @@ OpenInEditorHandler::OpenInEditorHandler(QObject *parent_) :
 {
   // by default use the avogadro editor
   m_editorName = "avogadro";
+
+  m_rpcClient = new MoleQueue::JsonRpcClient(this);
 }
 
 OpenInEditorHandler::~OpenInEditorHandler()
 {
+  delete m_rpcClient;
 }
 
 void OpenInEditorHandler::setEditor(const QString &name)
@@ -67,60 +64,62 @@ void OpenInEditorHandler::openInEditor()
   if (!m_moleculeRef.isValid())
     return;
 
+  // load chemical json for the molecule
   MongoDatabase *db = MongoDatabase::instance();
   mongo::BSONObj moleculeObj = db->fetchMolecule(m_moleculeRef);
-  mongo::BSONElement inchiElement = moleculeObj.getField("inchi");
-  if (inchiElement.eoo())
+
+  // check for atoms in the molecule
+  if (!moleculeObj.hasField("atoms")) {
+    QMessageBox::critical(qobject_cast<QWidget *>(parent()),
+                          tr("Incomplete Molecule"),
+                          tr("Error: Molecule does not have 3D coordinates"));
     return;
-
-  boost::shared_ptr<chemkit::Molecule> molecule_ =
-    boost::make_shared<chemkit::Molecule>(inchiElement.str(), "inchi");
-
-  // setup temporary file
-  QTemporaryFile tempFile("XXXXXX.cml");
-  tempFile.setAutoRemove(false);
-  if (tempFile.open()) {
-    QString tempFilePath = tempFile.fileName();
-
-    // predict 3d coordinates
-    chemkit::CoordinatePredictor::predictCoordinates(molecule_.get());
-
-    // optimize 3d coordinates
-    chemkit::MoleculeGeometryOptimizer optimizer(molecule_.get());
-
-    // try with mmff
-    optimizer.setForceField("mmff");
-    bool ok = optimizer.setup();
-
-    if (!ok) {
-      // try with uff
-      optimizer.setForceField("uff");
-      ok = optimizer.setup();
-    }
-
-    if (ok) {
-      // run optimization
-      for (size_t i = 0; i < 250; i++) {
-        optimizer.step();
-
-        // only check for convergance every 3 steps
-        if (i % 3 == 0 && optimizer.converged() )
-          break;
-      }
-
-      // write optimized coordinates to molecule
-      optimizer.writeCoordinates();
-    }
-
-    // write molecule to temp file
-    chemkit::MoleculeFile file(tempFilePath.toStdString());
-    file.setFormat("cml");
-    file.addMolecule(molecule_);
-    file.write();
-
-    // start editor
-    QProcess::startDetached(m_editorName + " " + tempFilePath);
   }
+
+  // generate chemical json
+  std::string cjson = CjsonExporter::toCjson(moleculeObj);
+
+  // connect to avogadro
+  if (!m_rpcClient->isConnected()) {
+    m_rpcClient->connectToServer("avogadro");
+    if (!m_rpcClient->isConnected()) {
+      QMessageBox::critical(qobject_cast<QWidget *>(parent()),
+                            tr("Connection Error"),
+                            tr("Failed to connect to Avogadro"));
+      return;
+    }
+  }
+
+  // create json rpc method
+  QJsonObject request(m_rpcClient->emptyRequest());
+  request["method"] = QLatin1String("loadMolecule");
+  QJsonObject params;
+  params["content"] = QLatin1String(cjson.c_str());
+  params["format"] = QLatin1String("cjson");
+  request["params"] = params;
+
+  // connect to signals
+  connect(m_rpcClient, SIGNAL(resultReceived(QJsonObject)),
+          this, SLOT(rpcResultReceived(QJsonObject)));
+  connect(m_rpcClient, SIGNAL(errorReceived(QJsonObject)),
+          this, SLOT(rpcErrorReceived(QJsonObject)));
+
+  // send request
+  m_rpcClient->sendRequest(request);
+}
+
+void OpenInEditorHandler::rpcResultReceived(QJsonObject object)
+{
+  Q_UNUSED(object);
+}
+
+void OpenInEditorHandler::rpcErrorReceived(QJsonObject object)
+{
+  // show dialog with error message
+  QString error = object["message"].toString();
+  QMessageBox::critical(qobject_cast<QWidget *>(parent()),
+                        tr("RPC Error"),
+                        tr("Failed to open molecule: %1").arg(error));
 }
 
 } // end MongoChem namespace
