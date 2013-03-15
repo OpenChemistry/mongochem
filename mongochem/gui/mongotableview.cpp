@@ -33,6 +33,7 @@
 #include <QtGui/QSortFilterProxyModel>
 #include <QtGui/QMessageBox>
 #include <QtGui/QScrollBar>
+#include <QHeaderView>
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QProcess>
@@ -54,7 +55,10 @@ MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
 
   connect(this, SIGNAL(doubleClicked(QModelIndex)),
           this, SLOT(moleculeDoubleClicked(QModelIndex)));
-
+  horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(horizontalHeader(),
+          SIGNAL(customContextMenuRequested(const QPoint&)),
+          this, SLOT(columnHeaderCustomContextMenuRequested(const QPoint&)));
   connect(verticalScrollBar(), SIGNAL(sliderMoved(int)),
           this, SLOT(scollBarMoved(int)));
 
@@ -313,6 +317,31 @@ QModelIndex MongoTableView::currentSourceModelIndex() const
   }
 
   return index;
+}
+
+void MongoTableView::columnHeaderCustomContextMenuRequested(const QPoint &pos_)
+{
+  QMenu menu;
+  for (int i = 0; i < horizontalHeader()->count(); i++) {
+    QAction *action =
+      menu.addAction(model()->headerData(i, Qt::Horizontal).toString());
+    action->setCheckable(true);
+    action->setData(i);
+    action->setChecked(!horizontalHeader()->isSectionHidden(i));
+    connect(action, SIGNAL(triggered()),
+            this, SLOT(headerItemVisibilityToggled()));
+  }
+  menu.exec(horizontalHeader()->mapToGlobal(pos_));
+}
+
+void MongoTableView::headerItemVisibilityToggled()
+{
+  QAction *action = qobject_cast<QAction*>(sender());
+  if (!action)
+    return;
+  int i = action->data().toInt();
+  horizontalHeader()->setSectionHidden(
+    i, !horizontalHeader()->isSectionHidden(i));
 }
 
 } // end MongoChem namespace

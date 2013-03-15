@@ -76,6 +76,16 @@ protected slots:
    */
   void scollBarMoved(int value);
 
+  /**
+   * Called when the user right-clicks on a column header.
+   */
+  void columnHeaderCustomContextMenuRequested(const QPoint &pos);
+
+  /**
+   * Called when the user toggles the visibility of a column header.
+   */
+  void headerItemVisibilityToggled();
+
 private:
   /** Returns the currently selected model index. */
   QModelIndex currentSourceModelIndex() const;
