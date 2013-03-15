@@ -27,6 +27,8 @@ namespace Avogadro {
 namespace QtGui {
 class ScenePlugin;
 class Molecule;
+class ToolPluginFactory;
+class ToolPlugin;
 }
 }
 
@@ -76,9 +78,11 @@ private:
   ComputationalResultsModel *m_computationalResultsModel;
   ComputationalResultsTableView *m_computationalResultsTableView;
   Avogadro::QtGui::ScenePlugin *m_scenePlugin;
+  Avogadro::QtGui::ToolPlugin *m_toolPlugin;
   Avogadro::QtGui::Molecule *m_molecule;
 
   void updateScenePlugins();
+  void updateToolPlugins();
 };
 
 } // end MongoChem namespace
