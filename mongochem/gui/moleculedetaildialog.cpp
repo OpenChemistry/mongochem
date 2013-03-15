@@ -40,6 +40,7 @@
 #include <avogadro/io/fileformat.h>
 #include <avogadro/qtgui/molecule.h>
 #include <avogadro/qtgui/sceneplugin.h>
+#include <avogadro/qtgui/toolplugin.h>
 #include <avogadro/qtplugins/pluginmanager.h>
 
 #include <QtCore/QDebug>
@@ -51,7 +52,8 @@ namespace MongoChem {
 
 MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   : QDialog(parent_),
-    ui(new Ui::MoleculeDetailDialog), m_scenePlugin(NULL), m_molecule(NULL)
+    ui(new Ui::MoleculeDetailDialog), m_scenePlugin(NULL), m_molecule(NULL),
+    m_toolPlugin(NULL)
 {
   ui->setupUi(this);
 
@@ -109,6 +111,18 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   else {
     qDebug() << "Unable to load \"Ball and Stick\" scene plugin factory.";
   }
+
+  Avogadro::QtGui::ToolPluginFactory *toolPluginFactory =
+    Avogadro::QtPlugins::PluginManager::instance()->
+       pluginFactory<Avogadro::QtGui::ToolPluginFactory>("Navigator");
+  if (toolPluginFactory) {
+    m_toolPlugin = toolPluginFactory->createInstance();
+    m_toolPlugin->setParent(this);
+  }
+  else {
+    qDebug() << "Unable to load \"Navigator\" tool plugin factory.";
+  }
+
 }
 
 MoleculeDetailDialog::~MoleculeDetailDialog()
@@ -255,6 +269,7 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
 
     if (success) {
       updateScenePlugins();
+      updateToolPlugins();
       ui->glWidget->resetCamera();
     }
     else {
@@ -560,6 +575,19 @@ void MoleculeDetailDialog::updateScenePlugins()
     m_scenePlugin->process(*m_molecule, scene);
   }
   ui->glWidget->update();
+}
+
+void MoleculeDetailDialog::updateToolPlugins()
+{
+  if (m_molecule && m_toolPlugin) {
+    QList<Avogadro::QtGui::ToolPlugin *> toolPluginsToLoad;
+    toolPluginsToLoad.push_back(m_toolPlugin);
+    ui->glWidget->setTools(toolPluginsToLoad);
+    m_toolPlugin->setGLWidget(ui->glWidget);
+    m_toolPlugin->setMolecule(m_molecule);
+    ui->glWidget->setDefaultTool(m_toolPlugin);
+    ui->glWidget->update();
+  }
 }
 
 } // end MongoChem namespace
