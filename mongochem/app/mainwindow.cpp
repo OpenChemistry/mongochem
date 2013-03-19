@@ -43,7 +43,6 @@
 
 #include <chemkit/molecule.h>
 #include <chemkit/fingerprint.h>
-#include <chemkit/moleculefile.h>
 #include <chemkit/pluginmanager.h>
 
 #include "abstractvtkchartwidget.h"
@@ -447,119 +446,6 @@ void MainWindow::showServerSettings()
     // reload collection
     connectToDatabase();
   }
-}
-
-void MainWindow::addMoleculesFromFile(const QString &fileName)
-{
-  chemkit::MoleculeFile file(fileName.toStdString());
-
-  bool ok = file.read();
-  if (!ok) {
-    QMessageBox::warning(this,
-                         "Error",
-                         QString("Error reading file: %1").arg(file.errorString().c_str()));
-  }
-
-  QSettings settings;
-  std::string collection =
-      settings.value("collection").toString().toStdString();
-
-  // index on inchikey
-  m_db->ensureIndex(collection + ".molecules", BSON("inchikey" << 1),
-                    /* unique = */ true);
-
-  // index on heavy atom count
-  m_db->ensureIndex(collection + ".molecules", BSON("heavyAtomCount" << 1),
-                    /* unique = */ false);
-
-  // index on value for the descriptors
-  m_db->ensureIndex(collection + ".descriptors.vabc", BSON("value" << 1),
-                    /* unique = */ false);
-  m_db->ensureIndex(collection + ".descriptors.xlogp3", BSON("value" << 1),
-                    /* unique = */ false);
-  m_db->ensureIndex(collection + ".descriptors.mass", BSON("value" << 1),
-                    /* unique = */ false);
-  m_db->ensureIndex(collection + ".descriptors.tpsa", BSON("value" << 1),
-                    /* unique = */ false);
-
-  foreach (const boost::shared_ptr<chemkit::Molecule> &molecule,
-           file.molecules()) {
-    std::string name = molecule->data("PUBCHEM_IUPAC_TRADITIONAL_NAME").toString();
-    if (name.empty())
-      name = molecule->name();
-
-    std::string formula = molecule->formula();
-
-    std::string inchi = molecule->data("PUBCHEM_IUPAC_INCHI").toString();
-    if (inchi.empty())
-      inchi = molecule->formula("inchi");
-
-    std::string inchikey = molecule->data("PUBCHEM_IUPAC_INCHIKEY").toString();
-    if (inchikey.empty())
-      inchikey = molecule->formula("inchikey");
-
-    double mass = molecule->data("PUBCHEM_MOLECULAR_WEIGHT").toDouble();
-    if (mass == 0.0)
-      mass = molecule->mass();
-
-    int atomCount = static_cast<int>(molecule->atomCount());
-    int heavyAtomCount =
-      static_cast<int>(molecule->atomCount() - molecule->atomCount("H"));
-
-    mongo::OID id = mongo::OID::gen();
-
-    mongo::BSONObjBuilder b;
-    b << "_id" << id;
-    b << "name" << name;
-    b << "formula" << formula;
-    b << "inchi" << inchi;
-    b << "inchikey" << inchikey;
-    b << "mass" << mass;
-    b << "atomCount" << atomCount;
-    b << "heavyAtomCount" << heavyAtomCount;
-
-    // add molecule
-    m_db->insert(collection + ".molecules", b.obj());
-
-    // add descriptors
-    m_db->update(collection + ".descriptors.mass",
-                QUERY("id" << id),
-                BSON("$set" << BSON("value" << mass)),
-                true);
-
-    double tpsa = molecule->data("PUBCHEM_CACTVS_TPSA").toDouble();
-    m_db->update(collection + ".descriptors.tpsa",
-                QUERY("id" << id),
-                BSON("$set" << BSON("value" << tpsa)),
-                true);
-
-    double xlogp3 = molecule->data("PUBCHEM_XLOGP3_AA").toDouble();
-    m_db->update(collection + ".descriptors.xlogp3",
-                QUERY("id" << id),
-                BSON("$set" << BSON("value" << xlogp3)),
-                true);
-
-    double vabc = molecule->descriptor("vabc").toDouble();
-    m_db->update(collection + ".descriptors.vabc",
-                QUERY("id" << id),
-                BSON("$set" << BSON("value" << vabc)),
-                true);
-  }
-
-  // refresh model
-  m_ui->tableView->setModel(0);
-  delete m_model;
-  m_model = new MongoModel(m_db);
-  m_ui->tableView->setModel(m_model);
-  m_ui->tableView->resizeColumnsToContents();
-  m_ui->tableView->setColumnWidth(0, 250);
-}
-
-void MainWindow::addNewRecord()
-{
-  QString fileName = QFileDialog::getOpenFileName(this, "Output file to store");
-  if (!fileName.isEmpty())
-    addMoleculesFromFile(fileName);
 }
 
 void MainWindow::clearDatabase()
