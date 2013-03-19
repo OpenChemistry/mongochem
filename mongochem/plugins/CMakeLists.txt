@@ -79,6 +79,7 @@ add_subdirectory(histogram)
 add_subdirectory(parallelcoordinates)
 add_subdirectory(plotmatrix)
 add_subdirectory(scatterplot)
+add_subdirectory(sdfimporter)
 add_subdirectory(similaritygraph)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${original_library_output_dir}")

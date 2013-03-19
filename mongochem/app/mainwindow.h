@@ -104,7 +104,6 @@ public slots:
 private:
   void setupTable();
   void setupCharts();
-  void addMoleculesFromFile(const QString &fileName);
 
   /** Connects to MongoDB */
   void connectToDatabase();
@@ -150,9 +149,6 @@ private slots:
 
   /** Show the server settings dialog. */
   void showServerSettings();
-
-  /** Show the manual record addition dialog. */
-  void addNewRecord();
 
   /** Clears the database of all molecules */
   void clearDatabase();
