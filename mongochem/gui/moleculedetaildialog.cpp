@@ -571,9 +571,8 @@ void MoleculeDetailDialog::updateScenePlugins()
 {
   Avogadro::Rendering::Scene &scene = ui->glWidget->renderer().scene();
   scene.clear();
-  if (m_molecule && m_scenePlugin) {
-    m_scenePlugin->process(*m_molecule, scene);
-  }
+  if (m_molecule && m_scenePlugin)
+    m_scenePlugin->process(*m_molecule, scene.rootNode());
   ui->glWidget->update();
 }
 
