@@ -63,6 +63,8 @@ MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
   connect(verticalScrollBar(), SIGNAL(sliderMoved(int)),
           this, SLOT(scollBarMoved(int)));
 
+  horizontalHeader()->setMovable(true);
+
   m_openInEditorHandler = new OpenInEditorHandler(this);
 }
 
