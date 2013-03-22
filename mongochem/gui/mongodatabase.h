@@ -32,23 +32,22 @@
 namespace MongoChem {
 
 /**
- * \class MongoDatabase
- * \brief The MongoDatabase class represents a connection to a
- *        Mongo database.
+ * @class MongoDatabase
+ * @brief The MongoDatabase class represents a connection to a Mongo database.
  *
- * The MongoDatabase class is implemented as a singleton. The static
- * instance() method is used to retrieve a handle to the database.
+ * The MongoDatabase class is implemented as a singleton. The static instance()
+ * method is used to retrieve a handle to the database.
  *
- * The find*() methods in this class allow users to query for molecules
- * using various identifiers and return MoleculeRef objects representing
- * the molecules found.
+ * The find*() methods in this class allow users to query for molecules using
+ * various identifiers and return MoleculeRef objects representing the molecules
+ * found.
  *
- * The fetch*() methods take MoleculeRef's and return BSONObj's containing
- * the corresponding molecular data.
+ * The fetch*() methods take MoleculeRef's and return BSONObj's containing the
+ * corresponding molecular data.
  *
- * \warning The first invocation of \p instance() forms a persistant
- *          connection to the mongo database. This method is not reentrant
- *          and should be called only from a single thread.
+ * @warning The first invocation of @p instance() forms a persistant connection
+ * to the mongo database. This method is not reentrant and should be called only
+ * from a single thread.
  */
 
 class MONGOCHEMGUI_EXPORT MongoDatabase
@@ -61,7 +60,7 @@ public:
   void disconnect();
 
   /**
-   * Returns \c true if the database object is connected to the mongo database
+   * Returns @c true if the database object is connected to the mongo database
    * server.
    */
   bool isConnected() const;
@@ -89,20 +88,20 @@ public:
   std::string userName() const;
 
   /**
-   * Queries the database for a molecule molecule with \p identifier in \p
+   * Queries the database for a molecule molecule with @p identifier in @p
    * format.
    */
   MoleculeRef findMoleculeFromIdentifier(const std::string &identifier,
                                          const std::string &format);
 
-  /** Returns a molecule ref corresponding to the molecule with \p inchi. */
+  /** Returns a molecule ref corresponding to the molecule with @p inchi. */
   MoleculeRef findMoleculeFromInChI(const std::string &inchi);
 
-  /** Returns a molecule ref corresponding to the molecule with \p inchikey. **/
+  /** Returns a molecule ref corresponding to the molecule with @p inchikey. **/
   MoleculeRef findMoleculeFromInChIKey(const std::string &inchikey);
 
   /**
-   * Returns a molecule ref corresponding to the molecule represented by \p obj.
+   * Returns a molecule ref corresponding to the molecule represented by @p obj.
    */
   MoleculeRef findMoleculeFromBSONObj(const mongo::BSONObj *obj);
 
@@ -123,25 +122,25 @@ public:
                                            const std::string &format);
 
   /**
-   * Returns a BSONObj containing the data for the molecule referenced by \p
+   * Returns a BSONObj containing the data for the molecule referenced by @p
    * molecule.
    */
   mongo::BSONObj fetchMolecule(const MoleculeRef &molecule);
 
   /**
    * Returns a vector of BSONObj's containing the data for the molecules
-   * referenced by \p molecules.
+   * referenced by @p molecules.
    */
   std::vector<mongo::BSONObj> fetchMolecules(const std::vector<MoleculeRef> &molecules);
 
   /**
-   * Creates a new molecule object for \p ref. The ownership of the returned
+   * Creates a new molecule object for @p ref. The ownership of the returned
    * molecule object is passed to the caller.
    */
   boost::shared_ptr<chemkit::Molecule> createMolecule(const MoleculeRef &ref);
 
   /**
-   * Set the \p property for the molecule contained in \p ref to \p value. This
+   * Set the @p property for the molecule contained in @p ref to @p value. This
    * sets the property immediately in the database.
    */
   template<class T>
@@ -156,30 +155,30 @@ public:
                  true);
   }
 
-  /** Inserts a new annotation for the molecule refered to by \p ref. */
+  /** Inserts a new annotation for the molecule refered to by @p ref. */
   void addAnnotation(const MoleculeRef &ref, const std::string &comment);
 
-  /** Deletes the annotation at \p index in the molecule refered to by \p ref. */
+  /** Deletes the annotation at @p index in the molecule refered to by @p ref. */
   void deleteAnnotation(const MoleculeRef &ref, size_t index);
 
   /**
-   * Updates the comment for the annotation at \p index in the molecule refered
-   * to by \p ref.
+   * Updates the comment for the annotation at @p index in the molecule refered
+   * to by @p ref.
    */
   void updateAnnotation(const MoleculeRef &ref,
                         size_t index,
                         const std::string &comment);
 
-  /** Adds a new tag to the molecule refered to by \p ref. */
+  /** Adds a new tag to the molecule refered to by @p ref. */
   void addTag(const MoleculeRef &ref, const std::string &tag);
 
-  /** Removes the given tag from the molecule refered to by \p ref. */
+  /** Removes the given tag from the molecule refered to by @p ref. */
   void removeTag(const MoleculeRef &ref, const std::string &tag);
 
-  /** Returns a vector of tags for the molecule refered to by \p ref. */
+  /** Returns a vector of tags for the molecule refered to by @p ref. */
   std::vector<std::string> fetchTags(const MoleculeRef &ref);
 
-  /** Returns a vector of all tags for \p collection that start with \p prefix. */
+  /** Returns a vector of all tags for @p collection that start with @p prefix. */
   std::vector<std::string> fetchTagsWithPrefix(const std::string &collection,
                                                const std::string &prefix,
                                                size_t limit = 0);
@@ -197,7 +196,7 @@ private:
 
   ~MongoDatabase();
 
-  /** Creates a molecule ref using the object ID of \p obj. */
+  /** Creates a molecule ref using the object ID of @p obj. */
   MoleculeRef createMoleculeRefForBSONObj(const mongo::BSONObj &obj) const;
 
 private:

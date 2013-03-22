@@ -30,36 +30,38 @@ class SimilarityGraphWidget : public QWidget
   Q_OBJECT
 
 public:
-  /// Creates a new similarity graph widget with \p parent.
+  /** Creates a new similarity graph widget with @p parent. */
   SimilarityGraphWidget(QWidget *parent = 0);
 
-  /// Destroys the similarity graph widget.
+  /** Destroys the similarity graph widget. */
   ~SimilarityGraphWidget();
 
-  /// Sets the similarity matrix.
+  /** Sets the similarity matrix. */
   void setSimilarityMatrix(const Eigen::MatrixXf &matrix);
 
-  /// Returns the similarity matrix.
+  /** Returns the similarity matrix. */
   const Eigen::MatrixXf& similarityMatrix() const;
 
-  /// Returns the similarity threshold.
+  /** Returns the similarity threshold. */
   float similarityThreshold() const;
 
-  /// Pauses/unpaused the graph layout algorithm.
+  /** Pauses/unpaused the graph layout algorithm. */
   void setLayoutPaused(bool paused = true);
 
-  /// Returns \c true if the graph layout algorithm is paused.
+  /** Returns @c true if the graph layout algorithm is paused. */
   bool isLayoutPaused() const;
 
 public slots:
-  /// Sets the similarity threshold to \p value. The value should
-  /// be between 0.0 and 1.0.
+  /**
+   * Sets the similarity threshold to @p value. The value should be between 0.0
+   * and 1.0.
+   */
   void setSimilarityThreshold(float value);
 
 signals:
   void readyToRender();
 
-  /// This signal is emitted when a graph vertex is double clicked.
+  /** This signal is emitted when a graph vertex is double clicked. */
   void vertexDoubleClicked(vtkIdType id);
 
 private slots:

@@ -23,10 +23,12 @@ namespace MongoChem {
 
 class OpenInEditorHandler;
 
-/// \class ComputationalResultsTableView
-///
-/// The ComputationalResultsTableView class shows a list of
-/// computational job results and associated data in a table.
+/**
+ * @class ComputationalResultsTableView
+ *
+ * The ComputationalResultsTableView class shows a list of computational job
+ * results and associated data in a table.
+ */
 class ComputationalResultsTableView : public QTableView
 {
   Q_OBJECT

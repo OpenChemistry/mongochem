@@ -24,13 +24,18 @@
 
 namespace MongoChem {
 
+/**
+ * A VTK class to override the default tooltip item with a custom one diplaying
+ * the chemical name and 2D structure depiction.
+ */
+
 class MONGOCHEMGUI_EXPORT DiagramTooltipItem : public vtkTooltipItem
 {
 public:
-  vtkTypeMacro(DiagramTooltipItem, vtkTooltipItem);
+  vtkTypeMacro(DiagramTooltipItem, vtkTooltipItem)
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  // Creates a 2D Chart object.
+  /** Creates a 2D Chart object. */
   static DiagramTooltipItem *New();
 
   bool Paint(vtkContext2D *painter);

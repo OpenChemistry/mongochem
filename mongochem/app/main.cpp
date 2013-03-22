@@ -34,7 +34,9 @@ int main(int argc, char *argv[])
   // process command line options
   QSettings settings;
   QString testFile;
+#if QTTESTING
   bool testExit = true;
+#endif
 
   const QStringList &arguments = app.arguments();
   for (int i = 1; i < arguments.size(); i++) {

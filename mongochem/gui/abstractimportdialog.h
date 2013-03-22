@@ -24,7 +24,7 @@
 namespace MongoChem {
 
 /**
- * \class AbstractImportDialog
+ * @class AbstractImportDialog
  *
  * The AbstractImportDialog class is an abstract base-class for
  * data import dialogs.
@@ -43,9 +43,9 @@ protected:
 };
 
 /**
- * \class AbstractImportDialogFactory
- * \brief The base class for import dialog factories in MongoChem.
- * \author Marcus D. Hanwell
+ * @class AbstractImportDialogFactory
+ * @brief The base class for import dialog factories in MongoChem.
+ * @author Marcus D. Hanwell
  */
 class MONGOCHEMGUI_EXPORT AbstractImportDialogFactory
 {

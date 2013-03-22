@@ -25,11 +25,12 @@
 
 namespace MongoChem {
 
-/// \class ComputationalResultsModel
-///
-/// The ComputationalResultsModel class implements a Qt abstract
-/// item model for accessing the computational job results in
-/// the database.
+/**
+ * @class ComputationalResultsModel
+ *
+ * The ComputationalResultsModel class implements a Qt abstract item model for
+ * accessing the computational job results in the database.
+ */
 class ComputationalResultsModel : public QAbstractItemModel
 {
   Q_OBJECT
@@ -38,7 +39,7 @@ public:
   explicit ComputationalResultsModel(QObject *parent_ = 0);
   ~ComputationalResultsModel();
 
-  /// Sets the Mongo query for the model to pull data from.
+  /** Sets the Mongo query for the model to pull data from. */
   void setQuery(const mongo::Query &query);
 
   QModelIndex index(int row, int column, const QModelIndex &parent) const;

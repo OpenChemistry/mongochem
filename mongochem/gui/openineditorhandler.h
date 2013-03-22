@@ -47,15 +47,17 @@ public:
   /** Returns the named of the editor application. */
   QString editor() const;
 
-  /** Sets the molecule to \p molecule. */
+  /** Sets the molecule to @p molecule. */
   void setMolecule(const MoleculeRef &molecule);
 
   /** Returns the molecule. */
   MoleculeRef molecule() const;
 
 public slots:
-  /** This slot is called when the molecule should be opened in a molecular
-      editor. */
+  /**
+   * This slot is called when the molecule should be opened in a molecular
+   * editor.
+   */
   void openInEditor();
 
 private slots:

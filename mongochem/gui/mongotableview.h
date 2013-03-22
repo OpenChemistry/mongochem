@@ -39,10 +39,10 @@ public:
   void contextMenuEvent(QContextMenuEvent *e);
 
 signals:
-  /** Emitted when the user queries for molecules similar to \p ref. */
+  /** Emitted when the user queries for molecules similar to @p ref. */
   void showSimilarMolecules(MongoChem::MoleculeRef ref);
 
-  /** Emitted when the user requests the molecule details for \p ref either
+  /** Emitted when the user requests the molecule details for @p ref either
    *  by clicking "Show Detail" or double-clicking on the molecule. */
   void showMoleculeDetails(MongoChem::MoleculeRef ref);
 

@@ -38,7 +38,7 @@ public:
   /**
    * Converts a MongoChem database object into CJSON.
    *
-   * @para mongoChemJson The database object.
+   * @param mongoChemJson The database object.
    * @return A CJSON string for the molecule.
    */
   static std::string toCjson(const mongo::BSONObj &mongoChemObj);

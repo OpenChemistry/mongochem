@@ -26,7 +26,7 @@
 namespace MongoChem {
 
 /**
- * \class AbstractVtkChartWidget
+ * @class AbstractVtkChartWidget
  *
  * The AbstractClusteringWidget class is an abstract base-class for
  * clustering visualization widgets.
@@ -48,9 +48,9 @@ protected:
 };
 
 /**
- * \class AbstractClusteringWidgetFactory
- * \brief The base class for clustering widget factories in MongoChem.
- * \author Marcus D. Hanwell
+ * @class AbstractClusteringWidgetFactory
+ * @brief The base class for clustering widget factories in MongoChem.
+ * @author Marcus D. Hanwell
  */
 class MONGOCHEMGUI_EXPORT AbstractClusteringWidgetFactory
 {

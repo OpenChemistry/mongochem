@@ -26,7 +26,7 @@ class vtkAnnotationLink;
 namespace MongoChem {
 
 /**
- * \class AbstractVtkChartWidget
+ * @class AbstractVtkChartWidget
  *
  * The AbstractVtkChartWidget class is an abstract base-class for
  * VTK-based chart widgets.
@@ -52,9 +52,9 @@ private:
 };
 
 /**
- * \class AbstractVtkChartWidgetFactory
- * \brief The base class for chart widget factories in MongoChem.
- * \author Marcus D. Hanwell
+ * @class AbstractVtkChartWidgetFactory
+ * @brief The base class for chart widget factories in MongoChem.
+ * @author Marcus D. Hanwell
  */
 class MONGOCHEMGUI_EXPORT AbstractVtkChartWidgetFactory
 {

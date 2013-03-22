@@ -30,20 +30,20 @@ class FingerprintSimilarityDialog : public MongoChem::AbstractClusteringWidget
   Q_OBJECT
 
 public:
-  /// Creates a new structure similarity dialog with \p parent.
+  /** Creates a new structure similarity dialog with @p parent. */
   explicit FingerprintSimilarityDialog(QWidget *parent = 0);
 
-  /// Destroys the structure similarity dialog.
+  /** Destroys the structure similarity dialog. */
   ~FingerprintSimilarityDialog();
 
-  /// Sets the molecules to display in the graph.
+  /** Sets the molecules to display in the graph. */
   void setMolecules(const std::vector<MongoChem::MoleculeRef> &molecules);
 
 public slots:
-  /// Sets the fingerprint to use for calculating similarity to \p name.
+  /** Sets the fingerprint to use for calculating similarity to @p name. */
   void setFingerprint(const QString &name);
 
-  /// Returns the name of the fingerprint being used to calculate similarity.
+  /** Returns the name of the fingerprint being used to calculate similarity. */
   QString fingerprint() const;
 
 private slots:

@@ -28,8 +28,10 @@ class AddTagDialog;
 
 namespace MongoChem {
 
-/// Simple dialog allowing the user to specify a new tag. Will auto-complete
-/// with existing tags as the user types.
+/**
+ * Simple dialog allowing the user to specify a new tag. Will auto-complete
+ * with existing tags as the user types.
+ */
 class AddTagDialog : public QDialog
 {
   Q_OBJECT
@@ -38,12 +40,14 @@ public:
   explicit AddTagDialog(QWidget *parent = 0);
   ~AddTagDialog();
 
-  /// Sets the collection to use for auto-completion.
+  /** Sets the collection to use for auto-completion. */
   void setCollection(const std::string &collection);
 
-  /// Prompts the user for a new tag. Uses the current tags from \p collection
-  /// to auto-complete as the user types. Returns the tag if the user accepts
-  /// or an empty string if the user cancels.
+  /**
+   * Prompts the user for a new tag. Uses the current tags from @p collection
+   * to auto-complete as the user types. Returns the tag if the user accepts
+   * or an empty string if the user cancels.
+   */
   static std::string getTag(const std::string &collection,
                             QWidget *parent_ = 0);
 

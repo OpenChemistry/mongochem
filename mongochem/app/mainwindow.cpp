@@ -25,13 +25,9 @@
 
 #include <mongo/client/dbclient.h>
 
-#include <QDebug>
-#include <QDir>
-#include <QString>
-#include <QRegExp>
-#include <QLibrary>
-#include <QtGui/QFileDialog>
+#include <QtCore/QDebug>
 #include <QtCore/QSettings>
+#include <QtGui/QFileDialog>
 #include <QtGui/QPainter>
 #include <QtGui/QStyledItemDelegate>
 #include <QtGui/QTextDocument>
@@ -40,10 +36,10 @@
 #include <QtGui/QMessageBox>
 
 #include <vtkAnnotationLink.h>
+#include <vtkEventQtSlotConnect.h>
 
 #include <chemkit/molecule.h>
 #include <chemkit/fingerprint.h>
-#include <chemkit/pluginmanager.h>
 
 #include "abstractvtkchartwidget.h"
 #include "abstractclusteringwidget.h"

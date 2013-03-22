@@ -33,18 +33,22 @@ public:
   explicit SubstructureFilterModel(QObject *parent = 0);
   ~SubstructureFilterModel();
 
-  /// Set the SMILES formula for the query molecule.
+  /** Set the SMILES formula for the query molecule. */
   void setSmiles(const QString &smiles);
 
-  /// Returns the SMILES formula for the query molecule.
+  /** Returns the SMILES formula for the query molecule. */
   QString smiles() const;
 
 protected:
-  virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
+  virtual bool filterAcceptsColumn(int source_column,
+                                   const QModelIndex &source_parent) const;
 
-  /// Returns \c true if the molecule in \p sourceRow matches the
-  /// query substructure.
-  virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+  /**
+   * Returns @c true if the molecule in @p sourceRow matches the query
+   * substructure.
+   */
+  virtual bool filterAcceptsRow(int source_row,
+                                const QModelIndex &source_parent) const;
 
 private:
   QString m_smiles;

@@ -18,22 +18,21 @@
 #define MAINWINDOW_H
 
 #include <QtGui/QMainWindow>
-#include <QtCore/QModelIndex>
 #include <QtCore/QMap>
 
 #include <vtkNew.h>
-#include <vtkType.h>
-#include <vtkAnnotationLink.h>
-#include <vtkEventQtSlotConnect.h>
 
 #include <mongochem/gui/moleculeref.h>
 
+class vtkAnnotationLink;
+class vtkEventQtSlotConnect;
+
 namespace mongo {
-  class DBClientConnection;
+class DBClientConnection;
 }
 
 namespace Ui {
-  class MainWindow;
+class MainWindow;
 }
 
 namespace MongoChem {
@@ -62,7 +61,7 @@ public:
 
 public slots:
   /** Queries the database for molecules that are similar to the molecule
-    * specified by \p ref. Replaces the current selection with the \p count
+    * specified by @p ref. Replaces the current selection with the @p count
     * most similar molecules.
     *
     * By default, this uses the tanimoto coefficent of the FP2 fingerprints
@@ -73,7 +72,7 @@ public slots:
   /** Calculates and stores the fingerprint for each molecule in the
     * database.
     *
-    * Returns \c false if the fingerprint specified by name is not valid.
+    * Returns @c false if the fingerprint specified by name is not valid.
     */
   bool calculateAndStoreFingerprints(const std::string &name = "fp2");
 
@@ -144,7 +143,7 @@ private:
 
 private slots:
   /** Show the molecule details dialog for the molecule referred to
-   *  by \p ref. */
+   *  by @p ref. */
   void showMoleculeDetailsDialog(MongoChem::MoleculeRef ref);
 
   /** Show the server settings dialog. */
