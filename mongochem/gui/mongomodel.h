@@ -42,6 +42,12 @@ public:
 
   void setQuery(const mongo::Query &query);
 
+  /** Adds a new column with @p name. */
+  void addFieldColumn(const QString &name);
+
+  /** Removes the column at @p index. */
+  void removeFieldColumn(int index);
+
   QModelIndex parent(const QModelIndex & index) const;
   int rowCount(const QModelIndex & parent = QModelIndex()) const;
   int columnCount(const QModelIndex & parent = QModelIndex()) const;

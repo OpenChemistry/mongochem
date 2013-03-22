@@ -34,6 +34,7 @@
 #include <QtGui/QMessageBox>
 #include <QtGui/QScrollBar>
 #include <QtGui/QHeaderView>
+#include <QtGui/QInputDialog>
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QProcess>
@@ -322,6 +323,10 @@ QModelIndex MongoTableView::currentSourceModelIndex() const
 void MongoTableView::columnHeaderCustomContextMenuRequested(const QPoint &pos_)
 {
   QMenu menu;
+  QAction *addColumnAction = menu.addAction(QString("Add Column"));
+  QAction *removeColumnAction = menu.addAction(QString("Remove Column"));
+  menu.addSeparator();
+
   for (int i = 0; i < horizontalHeader()->count(); i++) {
     QAction *action =
       menu.addAction(model()->headerData(i, Qt::Horizontal).toString());
@@ -331,7 +336,24 @@ void MongoTableView::columnHeaderCustomContextMenuRequested(const QPoint &pos_)
     connect(action, SIGNAL(triggered()),
             this, SLOT(headerItemVisibilityToggled()));
   }
-  menu.exec(horizontalHeader()->mapToGlobal(pos_));
+  QAction *action = menu.exec(horizontalHeader()->mapToGlobal(pos_));
+  if (action == addColumnAction) {
+    QString name = QInputDialog::getText(this,
+                                         tr("Column Name"),
+                                         tr("Column Name"));
+    MongoModel *mongoModel = qobject_cast<MongoModel *>(model());
+    if (mongoModel)
+      mongoModel->addFieldColumn(name);
+  }
+  else if (action == removeColumnAction) {
+    int index_ = horizontalHeader()->logicalIndexAt(pos_);
+
+    if (index_ != -1) {
+      MongoModel *mongoModel = qobject_cast<MongoModel *>(model());
+      if (mongoModel)
+        mongoModel->removeFieldColumn(index_);
+    }
+  }
 }
 
 void MongoTableView::headerItemVisibilityToggled()

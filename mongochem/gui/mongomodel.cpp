@@ -118,6 +118,33 @@ void MongoModel::setQuery(const mongo::Query &query)
   }
 }
 
+void MongoModel::addFieldColumn(const QString &name)
+{
+  if (d->m_fields.contains(name))
+    return;
+
+  emit layoutAboutToBeChanged();
+
+  d->m_fields.append(name);
+  d->m_titles[name] = name;
+
+  emit layoutChanged();
+}
+
+void MongoModel::removeFieldColumn(int index_)
+{
+  if (index_ < 0 || index_ >= d->m_fields.size())
+    return;
+
+  emit layoutAboutToBeChanged();
+
+  QString name = d->m_fields[index_];
+  d->m_fields.removeAt(index_);
+  d->m_titles.remove(name);
+
+  emit layoutChanged();
+}
+
 QModelIndex MongoModel::parent(const QModelIndex &) const
 {
   return QModelIndex();
@@ -140,7 +167,9 @@ int MongoModel::columnCount(const QModelIndex &parent_) const
 QVariant MongoModel::headerData(int section, Qt::Orientation orientation,
                                 int role) const
 {
-  if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+  if (section >= d->m_titles.size())
+    return QVariant();
+  else if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     if (d->m_titles.contains(d->m_fields[section]))
       return d->m_titles[d->m_fields[section]];
     else
@@ -155,6 +184,9 @@ QVariant MongoModel::headerData(int section, Qt::Orientation orientation,
 QVariant MongoModel::data(const QModelIndex &index_, int role) const
 {
   Q_UNUSED(index_);
+
+  if (index_.column() < 0 || index_.column() >= d->m_fields.size())
+    return QVariant();
 
   BSONObj *obj = static_cast<BSONObj *>(index_.internalPointer());
   if (obj) {
