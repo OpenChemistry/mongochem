@@ -35,6 +35,10 @@ namespace Ui {
 class MainWindow;
 }
 
+namespace chemkit {
+class Molecule;
+}
+
 namespace MongoChem {
 class AbstractImportDialog;
 class AbstractVtkChartWidgetFactory;
@@ -68,6 +72,17 @@ public slots:
     * to determine similarity between molecules.
     */
   void showSimilarMolecules(MongoChem::MoleculeRef ref, size_t count = 10);
+
+  /** Queries the database for molecules that are similar to the molecule
+    * specified by @p identifier in @format. Replaces the current selection
+    * with the @p count most similar molecules.
+    *
+    * By default, this uses the tanimoto coefficent of the FP2 fingerprints
+    * to determine similarity between molecules.
+    */
+  void showSimilarMolecules(const std::string &identifier,
+                            const std::string &format,
+                            size_t count = 10);
 
   /** Calculates and stores the fingerprint for each molecule in the
     * database.
@@ -103,6 +118,8 @@ public slots:
 private:
   void setupTable();
   void setupCharts();
+  void showSimilarMolecules(
+    const boost::shared_ptr<chemkit::Molecule> &molecule, size_t count);
 
   /** Connects to MongoDB */
   void connectToDatabase();
