@@ -121,6 +121,22 @@ void RpcListener::messageReceived(const MoleQueue::Message &message)
     response.setResult(QString::fromStdString(result));
     response.send();
   }
+  else if (method == "findSimilarMolecules") {
+    std::string identifier = params["identifier"].toString().toStdString();
+    std::string inputFormat = params["inputFormat"].toString().toStdString();
+
+    MongoChem::MoleculeRef molecule =
+      db->findMoleculeFromIdentifier(identifier, inputFormat);
+
+    if (!molecule.isValid()) {
+      MoleQueue::Message response = message.generateErrorResponse();
+      response.setErrorCode(-1);
+      response.setErrorMessage("Invalid Molecule Identifier");
+      response.send();
+      return;
+    }
+
+  }
   else if (method == "kill") {
     // Only allow MongoChem to be killed through RPC if it was started with the
     // '--testing' flag.
