@@ -160,6 +160,7 @@ private slots:
   void showChartWidget();
   void showClusteringWidget();
   void showImportDialog();
+  void showAboutDialog();
 
 signals:
   void connectionFailed();

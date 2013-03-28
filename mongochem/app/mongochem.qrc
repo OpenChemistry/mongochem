@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="/" >
     <file>icons/mongochem.png</file>
+    <file>icons/MongoChem_About.png</file>
   </qresource>
 </RCC>

@@ -11,6 +11,7 @@ include(BuildType)
 include(BuildLocation)
 include(CompilerFlags)
 include(InstallLocation)
+include(DetermineVersion)
 
 # Set up our version.
 set(MongoChem_VERSION_MAJOR   "0")
@@ -18,6 +19,8 @@ set(MongoChem_VERSION_MINOR   "1")
 set(MongoChem_VERSION_PATCH   "0")
 set(MongoChem_VERSION
   "${MongoChem_VERSION_MAJOR}.${MongoChem_VERSION_MINOR}.${MongoChem_VERSION_PATCH}")
+find_package(Git)
+determine_version(${MongoChem_SOURCE_DIR} ${GIT_EXECUTABLE} "MongoChem")
 
 #option(BUILD_SHARED_LIBS "Build with shared libraries" ON)
 # FIXME: Shared libs doesn't work right now.
