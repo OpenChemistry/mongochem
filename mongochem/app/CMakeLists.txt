@@ -28,13 +28,19 @@ if(ENABLE_TESTING)
   add_definitions(-DQTTESTING)
 endif()
 
+configure_file(mongochemconfig.h.in mongochemconfig.h)
+
 set(SOURCES
   main.cpp
   mainwindow.cpp
+  aboutdialog.cpp
 )
 
 qt4_add_resources(RCC_SOURCES mongochem.qrc)
-qt4_wrap_ui(UI_SOURCES mainwindow.ui)
+qt4_wrap_ui(UI_SOURCES
+  mainwindow.ui
+  aboutdialog.ui
+)
 
 add_executable(mongochem MACOSX_BUNDLE ${SOURCES} ${UI_SOURCES} ${RCC_SOURCES})
 set_target_properties(mongochem PROPERTIES AUTOMOC TRUE)

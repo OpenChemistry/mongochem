@@ -41,6 +41,7 @@
 #include <chemkit/molecule.h>
 #include <chemkit/fingerprint.h>
 
+#include "aboutdialog.h"
 #include "abstractvtkchartwidget.h"
 #include "abstractclusteringwidget.h"
 #include "abstractimportdialog.h"
@@ -296,6 +297,8 @@ MainWindow::MainWindow()
   queryDockWidget->setWidget(m_queryWidget);
   addDockWidget(Qt::TopDockWidgetArea, queryDockWidget);
   queryDockWidget->hide();
+
+  connect(m_ui->actionAbout, SIGNAL(triggered()), SLOT(showAboutDialog()));
 
 #ifdef QTTESTING
   QMenu *menu = menuBar()->addMenu(tr("&Testing"));
@@ -750,5 +753,11 @@ void MainWindow::playTestLater(const QString &fileName, bool exitAfterTest)
                             Q_ARG(bool, exitAfterTest));
 }
 #endif
+
+void MainWindow::showAboutDialog()
+{
+  AboutDialog about(this);
+  about.exec();
+}
 
 } // end MongoChem namespace
