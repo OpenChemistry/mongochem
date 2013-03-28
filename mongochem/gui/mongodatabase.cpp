@@ -220,7 +220,7 @@ std::vector<mongo::BSONObj> MongoDatabase::fetchMolecules(const std::vector<Mole
 boost::shared_ptr<chemkit::Molecule> MongoDatabase::createMolecule(const MoleculeRef &ref)
 {
   if (!ref.isValid())
-    return boost::shared_ptr<chemkit::Molecule>();
+    return boost::make_shared<chemkit::Molecule>();
 
   // fetch molecule object
   mongo::BSONObj obj = fetchMolecule(ref);
@@ -228,7 +228,7 @@ boost::shared_ptr<chemkit::Molecule> MongoDatabase::createMolecule(const Molecul
   // get inchi formula
   mongo::BSONElement inchiElement = obj.getField("inchi");
   if (inchiElement.eoo())
-    return boost::shared_ptr<chemkit::Molecule>();
+    return boost::make_shared<chemkit::Molecule>();
 
   std::string inchi = inchiElement.str();
 
