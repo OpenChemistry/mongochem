@@ -42,7 +42,6 @@
       <string>Import</string>
      </property>
     </widget>
-    <addaction name="actionAddNewData"/>
     <addaction name="menuImport"/>
     <addaction name="actionServerSettings"/>
     <addaction name="actionQuit"/>
@@ -87,11 +86,6 @@
   <action name="actionQuit">
    <property name="text">
     <string>&amp;Quit</string>
-   </property>
-  </action>
-  <action name="actionAddNewData">
-   <property name="text">
-    <string>&amp;Add New Data</string>
    </property>
   </action>
   <action name="actionGraphs">

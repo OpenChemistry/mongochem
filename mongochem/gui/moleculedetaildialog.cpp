@@ -318,6 +318,10 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
   m_computationalResultsTableView->resizeColumnsToContents();
 
+  if (m_computationalResultsModel->rowCount(QModelIndex()) == 0)
+    ui->tabWidget->removeTab(ui->tabWidget->indexOf(
+      ui->computationalResultsTab));
+
   // setup annotations tab
   reloadAnnotations();
 }

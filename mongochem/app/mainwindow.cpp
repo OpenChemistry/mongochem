@@ -318,7 +318,6 @@ MainWindow::MainWindow()
 #endif
 
   connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
-  connect(m_ui->actionAddNewData, SIGNAL(activated()), SLOT(addNewRecord()));
   connect(m_ui->tableView, SIGNAL(showMoleculeDetails(MongoChem::MoleculeRef)),
           this, SLOT(showMoleculeDetailsDialog(MongoChem::MoleculeRef)));
   connect(m_ui->tableView, SIGNAL(showSimilarMolecules(MongoChem::MoleculeRef)),
