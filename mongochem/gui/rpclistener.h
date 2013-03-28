@@ -19,6 +19,8 @@
 
 #include <QObject>
 
+#include <mongochem/gui/moleculeref.h>
+
 #include <molequeue/transport/connectionlistener.h>
 
 namespace MoleQueue {
@@ -40,6 +42,10 @@ public:
   ~RpcListener();
 
   void start();
+
+signals:
+  void showSimilarMolecules(const std::string &identifier,
+                            const std::string &format);
 
 private slots:
   void connectionError(MoleQueue::ConnectionListener::Error, const QString &);

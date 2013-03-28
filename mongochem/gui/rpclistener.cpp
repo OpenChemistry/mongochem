@@ -73,8 +73,6 @@ void RpcListener::messageReceived(const MoleQueue::Message &message)
   QString method = message.method();
   QJsonObject params = message.params().toObject();
 
-  qDebug() << "got method: " << method;
-
   if (method == "getChemicalJson") {
     std::string inchi = params["inchi"].toString().toStdString();
 
@@ -119,6 +117,16 @@ void RpcListener::messageReceived(const MoleQueue::Message &message)
 
     MoleQueue::Message response = message.generateResponse();
     response.setResult(QString::fromStdString(result));
+    response.send();
+  }
+  else if (method == "findSimilarMolecules") {
+    std::string identifier = params["identifier"].toString().toStdString();
+    std::string inputFormat = params["inputFormat"].toString().toStdString();
+
+    emit showSimilarMolecules(identifier, inputFormat);
+
+    MoleQueue::Message response = message.generateResponse();
+    response.setResult(QString("ok"));
     response.send();
   }
   else if (method == "kill") {

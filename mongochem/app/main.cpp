@@ -130,6 +130,10 @@ int main(int argc, char *argv[])
 #ifdef MongoChem_ENABLE_RPC
   // create rpc listener
   MongoChem::RpcListener listener;
+  QObject::connect(&listener,
+                   SIGNAL(showSimilarMolecules(std::string, std::string)),
+                   &window,
+                   SLOT(showSimilarMolecules(std::string, std::string)));
   listener.start();
 #endif
 

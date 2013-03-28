@@ -490,9 +490,27 @@ void MainWindow::runQuery()
 
 void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
 {
-  // Update the UI to show an empty table while the query is performed.
-  m_ui->tableView->setModel(0);
-  qApp->processEvents();
+  // get access to the database to lookup molecule
+  MongoDatabase *db = MongoDatabase::instance();
+
+  showSimilarMolecules(db->createMolecule(ref), count);
+}
+
+void MainWindow::showSimilarMolecules(const std::string &identifier,
+                                      const std::string &format,
+                                      size_t count)
+{
+  showSimilarMolecules(
+    boost::make_shared<chemkit::Molecule>(identifier, format), count);
+}
+
+void MainWindow::showSimilarMolecules(
+  const boost::shared_ptr<chemkit::Molecule> &molecule, size_t count)
+{
+  if(!molecule) {
+    qDebug() << "Null molecule";
+    return;
+  }
 
   // create fp2 fingerprint
   boost::scoped_ptr<chemkit::Fingerprint>
@@ -502,12 +520,15 @@ void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
     return;
   }
 
-  // get access to the database
-  MongoDatabase *db = MongoDatabase::instance();
+  // Update the UI to show an empty table while the query is performed.
+  m_ui->tableView->setModel(0);
+  qApp->processEvents();
 
   // calculate fingerprint for the input molecule
-  boost::shared_ptr<chemkit::Molecule> molecule = db->createMolecule(ref);
   chemkit::Bitset fingerprint = fp2->value(molecule.get());
+
+  // get access to the database
+  MongoDatabase *db = MongoDatabase::instance();
 
   // calculate tanimoto similarity value for each molecule
   std::map<float, MoleculeRef> sorted;
@@ -542,12 +563,19 @@ void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
     else {
       // there is not a fingerprint calculated for the molecule so
       // create the molecule and calculate the fingerprint directly
-      molecule = db->createMolecule(refs[i]);
+      boost::shared_ptr<chemkit::Molecule> otherMolecule =
+        db->createMolecule(refs[i]);
 
-      similarity =
-        static_cast<float>(
-          chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
-                                                    fp2->value(molecule.get())));
+      if (otherMolecule) {
+        similarity =
+          static_cast<float>(
+            chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                      fp2->value(
+                                                        otherMolecule.get())));
+      }
+      else {
+        similarity = 0.f;
+      }
     }
 
     sorted[similarity] = refs[i];
