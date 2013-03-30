@@ -76,7 +76,9 @@ mongo::Query QuickQueryWidget::query() const
     return QUERY(field_.toStdString() << value_.toStdString());
   }
   else if(mode == "contains"){
-    return QUERY(field_.toStdString() << BSON("$regex" << value_.toStdString()));
+    QString escapedValue = QRegExp::escape(value_);
+    return QUERY(field_.toStdString() << BSON("$regex" <<
+      escapedValue.toStdString()));
   }
 
   return mongo::Query();
