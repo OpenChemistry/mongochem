@@ -644,6 +644,10 @@ void MainWindow::setShowSelectedMolecules(bool enabled)
     m_ui->tableView->model()->deleteLater();
   m_ui->tableView->setModel(m_model);
 
+  // first load all data (because the selection can contain any molecule)
+  while (m_model->hasMoreData())
+    m_model->loadMoreData();
+
   // add a selection filter model if enabled
   if (enabled) {
     SelectionFilterModel *filterModel = new SelectionFilterModel(this);
