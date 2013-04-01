@@ -650,8 +650,8 @@ void MainWindow::setShowSelectedMolecules(bool enabled)
     filterModel->setSourceModel(m_model);
     filterModel->setSelection(m_annotationLink->GetCurrentSelection());
     m_ui->tableView->setModel(filterModel);
-    m_ui->tableView->resizeColumnsToContents();
   }
+  m_ui->tableView->resizeColumnsToContents();
 }
 
 void MainWindow::updateSelectionFilterModel()
