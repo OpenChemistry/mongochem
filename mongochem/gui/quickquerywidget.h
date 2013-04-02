@@ -41,6 +41,7 @@ public:
 
 signals:
   void queryClicked();
+  void resetQueryClicked();
 
 private:
   Ui::QuickQueryWidget *ui;

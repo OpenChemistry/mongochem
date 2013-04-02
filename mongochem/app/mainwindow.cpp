@@ -292,6 +292,7 @@ MainWindow::MainWindow()
   // add query dock widget
   m_queryWidget = new QuickQueryWidget;
   connect(m_queryWidget, SIGNAL(queryClicked()), SLOT(runQuery()));
+  connect(m_queryWidget, SIGNAL(resetQueryClicked()), SLOT(resetQuery()));
   QDockWidget *queryDockWidget = new QDockWidget("Query", this);
   m_ui->menu_View->addAction(queryDockWidget->toggleViewAction());
   queryDockWidget->setWidget(m_queryWidget);
@@ -484,6 +485,22 @@ void MainWindow::runQuery()
     m_ui->tableView->setModel(m_model);
   }
 
+  m_ui->tableView->resizeColumnsToContents();
+}
+
+void MainWindow::resetQuery()
+{
+  if (m_ui->tableView->model() != m_model)
+    m_ui->tableView->model()->deleteLater();
+
+  m_ui->tableView->setModel(0);
+
+  // Update the UI to show an empty table while the query is performed.
+  qApp->processEvents();
+
+  m_model->setQuery(mongo::Query());
+
+  m_ui->tableView->setModel(m_model);
   m_ui->tableView->resizeColumnsToContents();
 }
 

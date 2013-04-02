@@ -170,6 +170,7 @@ private slots:
   void clearDatabase();
 
   void runQuery();
+  void resetQuery();
 
   void setShowSelectedMolecules(bool enabled);
   void updateSelectionFilterModel();

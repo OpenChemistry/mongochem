@@ -28,6 +28,10 @@ QuickQueryWidget::QuickQueryWidget(QWidget *parent_)
   ui->setupUi(this);
 
   connect(ui->queryButton, SIGNAL(clicked()), this, SIGNAL(queryClicked()));
+  connect(ui->clearButton, SIGNAL(clicked()),
+          this, SIGNAL(resetQueryClicked()));
+  connect(ui->clearButton, SIGNAL(clicked()),
+          ui->queryLineEdit, SLOT(clear()));
   connect(ui->queryLineEdit, SIGNAL(returnPressed()), SIGNAL(queryClicked()));
 }
 
