@@ -33,11 +33,15 @@ public:
   explicit SubstructureFilterModel(QObject *parent = 0);
   ~SubstructureFilterModel();
 
-  /** Set the SMILES formula for the query molecule. */
-  void setSmiles(const QString &smiles);
+  /**
+   * Set the identifier for the query molecule. If the identifier starts
+   * with "InChI=" it will be interpreted as an InChI, otherwise it will
+   * be interpreted as a SMILES.
+   */
+  void setIdentifier(const QString &identifier);
 
-  /** Returns the SMILES formula for the query molecule. */
-  QString smiles() const;
+  /** Returns the identifier for the query molecule. */
+  QString identifier() const;
 
 protected:
   virtual bool filterAcceptsColumn(int source_column,
@@ -51,7 +55,7 @@ protected:
                                 const QModelIndex &source_parent) const;
 
 private:
-  QString m_smiles;
+  QString m_identifier;
   chemkit::SubstructureQuery m_query;
 };
 
