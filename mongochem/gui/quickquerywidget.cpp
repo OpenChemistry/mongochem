@@ -61,7 +61,12 @@ mongo::Query QuickQueryWidget::query() const
     return QUERY("tags" << BSON("$in" << builder.arr()));
   }
   else if(field_ == "structure"){
-    chemkit::Molecule molecule(value_.toStdString(), "smiles");
+    std::string format;
+    if(value_.startsWith("InChI="))
+      format = "inchi";
+    else
+      format = "smiles";
+    chemkit::Molecule molecule(value_.toStdString(), format);
     int heavyAtomCount =
       static_cast<int>(molecule.atomCount() - molecule.atomCount("H"));
 

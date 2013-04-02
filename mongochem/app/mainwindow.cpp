@@ -476,7 +476,7 @@ void MainWindow::runQuery()
 
   if (m_queryWidget->field() == "Structure") {
     SubstructureFilterModel *model = new SubstructureFilterModel;
-    model->setSmiles(m_queryWidget->value());
+    model->setIdentifier(m_queryWidget->value());
     model->setSourceModel(m_model);
     m_ui->tableView->setModel(model);
   }

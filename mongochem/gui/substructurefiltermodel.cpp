@@ -35,15 +35,21 @@ SubstructureFilterModel::~SubstructureFilterModel()
 {
 }
 
-void SubstructureFilterModel::setSmiles(const QString &smiles_)
+void SubstructureFilterModel::setIdentifier(const QString &identifier_)
 {
-  m_smiles = smiles_;
-  m_query.setMolecule(smiles_.toStdString(), "smiles");
+  m_identifier = identifier_;
+
+  std::string format;
+  if(identifier_.startsWith("InChI="))
+    format = "inchi";
+  else
+    format = "smiles";
+  m_query.setMolecule(identifier_.toStdString(), format);
 }
 
-QString SubstructureFilterModel::smiles() const
+QString SubstructureFilterModel::identifier() const
 {
-  return m_smiles;
+  return m_identifier;
 }
 
 bool SubstructureFilterModel::filterAcceptsColumn(int sourceColumn, const QModelIndex &sourceParent) const
