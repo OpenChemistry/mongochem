@@ -43,6 +43,9 @@ signals:
   void queryClicked();
   void resetQueryClicked();
 
+private slots:
+  void updatePlaceholderText(const QString &field_);
+
 private:
   Ui::QuickQueryWidget *ui;
 };

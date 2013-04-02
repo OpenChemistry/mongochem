@@ -33,6 +33,8 @@ QuickQueryWidget::QuickQueryWidget(QWidget *parent_)
   connect(ui->clearButton, SIGNAL(clicked()),
           ui->queryLineEdit, SLOT(clear()));
   connect(ui->queryLineEdit, SIGNAL(returnPressed()), SIGNAL(queryClicked()));
+  connect(ui->fieldComboBox, SIGNAL(currentIndexChanged(const QString&)),
+          SLOT(updatePlaceholderText(const QString&)));
 }
 
 QuickQueryWidget::~QuickQueryWidget()
@@ -65,7 +67,12 @@ mongo::Query QuickQueryWidget::query() const
     return QUERY("tags" << BSON("$in" << builder.arr()));
   }
   else if(field_ == "structure"){
-    chemkit::Molecule molecule(value_.toStdString(), "smiles");
+    std::string format;
+    if(value_.startsWith("InChI="))
+      format = "inchi";
+    else
+      format = "smiles";
+    chemkit::Molecule molecule(value_.toStdString(), format);
     int heavyAtomCount =
       static_cast<int>(molecule.atomCount() - molecule.atomCount("H"));
 
@@ -86,6 +93,16 @@ mongo::Query QuickQueryWidget::query() const
   }
 
   return mongo::Query();
+}
+
+void QuickQueryWidget::updatePlaceholderText(const QString &field_)
+{
+    ui->queryLineEdit->setPlaceholderText(QString());
+
+    if (field_ == tr("Structure")) {
+      ui->queryLineEdit->setPlaceholderText(
+        tr("SMILES or InChI (e.g. \"CO\" or \"InChI=1S/CH4O/c1-2/h2H,1H3\")"));
+    }
 }
 
 } // end MongoChem namespace
