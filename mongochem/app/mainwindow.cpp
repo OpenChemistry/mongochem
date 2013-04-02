@@ -325,8 +325,6 @@ MainWindow::MainWindow()
           this, SLOT(showSimilarMolecules(MongoChem::MoleculeRef)));
   connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
 
-  connect(m_ui->actionCalculateFingerprints, SIGNAL(activated()),
-          this, SLOT(calculateAndStoreFingerprints()));
   connect(m_ui->actionShowSelectedMolecules, SIGNAL(toggled(bool)),
           this, SLOT(setShowSelectedMolecules(bool)));
 

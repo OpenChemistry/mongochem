@@ -30,7 +30,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -69,17 +69,10 @@
      <string>C&amp;lustering</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuTools">
-    <property name="title">
-     <string>&amp;Tools</string>
-    </property>
-    <addaction name="actionCalculateFingerprints"/>
-   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuChart"/>
    <addaction name="menuClustering"/>
    <addaction name="menu_View"/>
-   <addaction name="menuTools"/>
    <addaction name="menu_Help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
