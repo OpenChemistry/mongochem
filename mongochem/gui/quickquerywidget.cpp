@@ -31,6 +31,8 @@ QuickQueryWidget::QuickQueryWidget(QWidget *parent_)
 
   connect(ui->queryButton, SIGNAL(clicked()), this, SIGNAL(queryClicked()));
   connect(ui->queryLineEdit, SIGNAL(returnPressed()), SIGNAL(queryClicked()));
+  connect(ui->fieldComboBox, SIGNAL(currentIndexChanged(const QString&)),
+          SLOT(updatePlaceholderText(const QString&)));
 }
 
 QuickQueryWidget::~QuickQueryWidget()
@@ -89,6 +91,15 @@ mongo::Query QuickQueryWidget::query() const
   }
 
   return mongo::Query();
+}
+
+void QuickQueryWidget::updatePlaceholderText(const QString &field_)
+{
+    ui->queryLineEdit->setPlaceholderText(QString());
+
+    if (field_ == "Structure")
+      ui->queryLineEdit->setPlaceholderText(
+        "SMILES or InChI (e.g. \"CO\" or \"InChI=1S/CH4O/c1-2/h2H,1H3\")");
 }
 
 } // end MongoChem namespace
