@@ -50,6 +50,7 @@
 #include "moleculedetaildialog.h"
 #include "mongodatabase.h"
 #include "selectionfiltermodel.h"
+#include "queryprogressdialog.h"
 
 #include <mongochem/plugins/pluginmanager.h>
 
@@ -661,6 +662,21 @@ void MainWindow::setShowSelectedMolecules(bool enabled)
 
   // add a selection filter model if enabled
   if (enabled) {
+    // first load all data (because the selection can contain any molecule)
+    QueryProgressDialog progressDialog(this);
+
+    while (m_model->hasMoreData()) {
+      // update ui
+      qApp->processEvents();
+
+      // stop loading data if the user clicked cancel
+      if (progressDialog.wasCanceled())
+        break;
+
+      // load next batch of data
+      m_model->loadMoreData();
+    }
+
     SelectionFilterModel *filterModel = new SelectionFilterModel(this);
     filterModel->setSourceModel(m_model);
     filterModel->setSelection(m_annotationLink->GetCurrentSelection());
