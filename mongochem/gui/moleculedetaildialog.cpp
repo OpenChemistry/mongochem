@@ -52,8 +52,7 @@ namespace MongoChem {
 
 MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   : QDialog(parent_),
-    ui(new Ui::MoleculeDetailDialog), m_scenePlugin(NULL), m_molecule(NULL),
-    m_toolPlugin(NULL)
+    ui(new Ui::MoleculeDetailDialog), m_molecule(NULL)
 {
   ui->setupUi(this);
 
@@ -105,19 +104,17 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
       Avogadro::QtPlugins::PluginManager::instance()->
         pluginFactory<Avogadro::QtGui::ScenePluginFactory>("BallStick");
 
-  if (scenePluginFactory) {
-    m_scenePlugin = scenePluginFactory->createInstance();
-  }
-  else {
+  if (scenePluginFactory)
+    ui->glWidget->sceneModel().addItem(scenePluginFactory->createInstance());
+  else
     qDebug() << "Unable to load \"Ball and Stick\" scene plugin factory.";
-  }
 
   Avogadro::QtGui::ToolPluginFactory *toolPluginFactory =
     Avogadro::QtPlugins::PluginManager::instance()->
        pluginFactory<Avogadro::QtGui::ToolPluginFactory>("Navigator");
   if (toolPluginFactory) {
-    m_toolPlugin = toolPluginFactory->createInstance();
-    m_toolPlugin->setParent(this);
+    ui->glWidget->addTool(toolPluginFactory->createInstance());
+    ui->glWidget->setActiveTool(ui->glWidget->tools().back());
   }
   else {
     qDebug() << "Unable to load \"Navigator\" tool plugin factory.";
@@ -128,7 +125,6 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
 MoleculeDetailDialog::~MoleculeDetailDialog()
 {
   delete ui;
-  delete m_scenePlugin;
 }
 
 void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
@@ -268,8 +264,8 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
       *m_molecule, cjson, "cjson");
 
     if (success) {
-      updateScenePlugins();
-      updateToolPlugins();
+      ui->glWidget->setMolecule(m_molecule);
+      ui->glWidget->updateScene();
       ui->glWidget->resetCamera();
     }
     else {
@@ -569,28 +565,6 @@ void MoleculeDetailDialog::tagsRightClicked(const QPoint &pos_)
 
   // clear selection
   ui->tagsTextEdit->setTextCursor(QTextCursor());
-}
-
-void MoleculeDetailDialog::updateScenePlugins()
-{
-  Avogadro::Rendering::Scene &scene = ui->glWidget->renderer().scene();
-  scene.clear();
-  if (m_molecule && m_scenePlugin)
-    m_scenePlugin->process(*m_molecule, scene.rootNode());
-  ui->glWidget->update();
-}
-
-void MoleculeDetailDialog::updateToolPlugins()
-{
-  if (m_molecule && m_toolPlugin) {
-    QList<Avogadro::QtGui::ToolPlugin *> toolPluginsToLoad;
-    toolPluginsToLoad.push_back(m_toolPlugin);
-    ui->glWidget->setTools(toolPluginsToLoad);
-    m_toolPlugin->setGLWidget(ui->glWidget);
-    m_toolPlugin->setMolecule(m_molecule);
-    ui->glWidget->setDefaultTool(m_toolPlugin);
-    ui->glWidget->update();
-  }
 }
 
 } // end MongoChem namespace
