@@ -42,18 +42,37 @@ qt4_wrap_ui(UI_SOURCES
   aboutdialog.ui
 )
 
+# Handle Mac OS X specific icons etc.
+if(APPLE)
+  list(APPEND SOURCES icons/mongochem.icns)
+  set(MACOSX_BUNDLE_ICON_FILE mongochem.icns)
+  set(MACOSX_BUNDLE_BUNDLE_VERSION "${MongoChem_VERSION}")
+  set_source_files_properties(icons/mongochem.icns PROPERTIES
+    MACOSX_PACKAGE_LOCATION Resources)
+endif()
+
 add_executable(mongochem MACOSX_BUNDLE ${SOURCES} ${UI_SOURCES} ${RCC_SOURCES})
 set_target_properties(mongochem PROPERTIES AUTOMOC TRUE)
 target_link_libraries(mongochem
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
   MongoChemGui MongoChemPlugins
 )
+if(APPLE)
+  set_target_properties(mongochem PROPERTIES
+    OUTPUT_NAME ${MACOSX_BUNDLE_NAME})
+endif()
 if(ENABLE_TESTING)
   target_link_libraries(mongochem QtTesting)
 endif()
-install(TARGETS mongochem DESTINATION "${INSTALL_RUNTIME_DIR}")
+install(TARGETS mongochem
+  RUNTIME DESTINATION "${INSTALL_RUNTIME_DIR}"
+  BUNDLE DESTINATION .)
 
 if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
+  set(pfx "")
+  if(NOT APPLE)
+    set(pfx "bin/")
+  endif()
   set(sfx "")
   if(APPLE)
     set(sfx ".app")
@@ -73,5 +92,7 @@ if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
   set(dirs ${dirs} "${vtk_dlls_dir}")
 
   include(DeployQt4)
-  install_qt4_executable(bin/mongochem${sfx} "" "" "${dirs}")
+
+  get_target_property(output_name mongochem OUTPUT_NAME)
+  install_qt4_executable(${pfx}${output_name}${sfx} "" "" "${dirs}")
 endif()
