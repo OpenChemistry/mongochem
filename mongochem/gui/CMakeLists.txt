@@ -68,5 +68,5 @@ target_link_libraries(MongoChemGui
 )
 
 if(MongoChem_ENABLE_RPC)
-  target_link_libraries(MongoChemGui mqlocalsocketconnectionlistener)
+  target_link_libraries(MongoChemGui MoleQueueServerCore)
 endif()
