@@ -22,6 +22,15 @@ set(MongoChem_VERSION
 find_package(Git)
 determine_version(${MongoChem_SOURCE_DIR} ${GIT_EXECUTABLE} "MongoChem")
 
+# Handle installation prefix for Mac bundles...
+if(APPLE)
+  set(MACOSX_BUNDLE_NAME "MongoChem")
+  set(prefix "${MACOSX_BUNDLE_NAME}.app/Contents")
+  set(INSTALL_INCLUDE_DIR "${prefix}/${INSTALL_INCLUDE_DIR}")
+  set(INSTALL_LIBRARY_DIR "${prefix}/${INSTALL_LIBRARY_DIR}")
+  set(INSTALL_ARCHIVE_DIR "${prefix}/${INSTALL_ARCHIVE_DIR}")
+endif()
+
 #option(BUILD_SHARED_LIBS "Build with shared libraries" ON)
 # FIXME: Shared libs doesn't work right now.
 set(BUILD_SHARED_LIBS OFF)
