@@ -25,6 +25,7 @@
 
 namespace MoleQueue {
 class JsonRpc;
+class JsonRpcClient;
 }
 
 namespace MongoChem {
@@ -49,11 +50,13 @@ signals:
 
 private slots:
   void connectionError(MoleQueue::ConnectionListener::Error, const QString &);
+  void receivePingResponse(const QJsonObject &response = QJsonObject());
   void messageReceived(const MoleQueue::Message &message);
 
 private:
   MoleQueue::JsonRpc *m_rpc;
   MoleQueue::ConnectionListener *m_connectionListener;
+  MoleQueue::JsonRpcClient *m_pingClient;
 };
 
 } // end MongoChem namespace
