@@ -57,7 +57,7 @@ if(BUILD_DOCUMENTATION)
   add_subdirectory(docs)
 endif()
 
-include(CPack)
+include(MongoChemCPack)
 
 if(ENABLE_TESTING)
   include(BuildPackageTest)
