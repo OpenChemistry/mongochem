@@ -17,6 +17,7 @@
 #include "importsdffiledialog.h"
 #include "ui_importsdffiledialog.h"
 
+#include <QDebug>
 #include <QString>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -25,6 +26,7 @@
 #include <chemkit/moleculefile.h>
 
 #include <mongochem/gui/mongodatabase.h>
+#include <mongochem/gui/svggenerator.h>
 
 ImportSdfFileDialog::ImportSdfFileDialog(QWidget *parent_)
   : AbstractImportDialog(parent_),
@@ -133,8 +135,72 @@ void ImportSdfFileDialog::import()
     db->setMoleculeProperty(ref, "descriptors.tpsa", tpsa);
     db->setMoleculeProperty(ref, "descriptors.xlogp3", xlogp3);
     db->setMoleculeProperty(ref, "descriptors.vabc", vabc);
+
+    // generate svg diagram
+    if (!inchi.empty()) {
+      // create and setup svg generator
+      MongoChem::SvgGenerator *svgGenerator =
+        new MongoChem::SvgGenerator(this);
+      svgGenerator->setInputData(inchi.c_str());
+      svgGenerator->setInputFormat("inchi");
+
+      // listen to finished signal
+      connect(svgGenerator, SIGNAL(finished(int)),
+              this, SLOT(moleculeDiagramReady(int)));
+
+      // store generator so we can clean it up later
+      m_svgGenerators.insert(svgGenerator);
+
+      // start the generation process in the background
+      svgGenerator->start();
+
+      if (m_svgGenerators.size() >= 5)
+        break;
+    }
+  }
+
+  // wait until all diagrams are generated
+  while (!m_svgGenerators.isEmpty()) {
+    qApp->processEvents();
   }
 
   // close the dialog
   accept();
+}
+
+void ImportSdfFileDialog::moleculeDiagramReady(int errorCode)
+{
+  MongoChem::SvgGenerator *svgGenerator =
+    qobject_cast<MongoChem::SvgGenerator *>(sender());
+  if (!svgGenerator) {
+    return;
+  }
+
+  QByteArray svg = svgGenerator->svg();
+
+  if (errorCode != 0 || svg.isEmpty()) {
+    qDebug() << "error generating svg";
+    return;
+  }
+
+  // get molecule data
+  QByteArray identifier = svgGenerator->inputData();
+
+  // get molecule ref
+  MongoChem::MongoDatabase *db = MongoChem::MongoDatabase::instance();
+  MongoChem::MoleculeRef molecule =
+    db->findMoleculeFromIdentifier(identifier.constData(), "inchi");
+
+  // set molecule diagram
+  if (molecule) {
+    db->connection()->update(db->moleculesCollectionName(),
+                             QUERY("_id" << molecule.id()),
+                             BSON("$set" << BSON("svg" << svg.constData())),
+                             true,
+                             true);
+  }
+
+  // remove and delete generator
+  m_svgGenerators.remove(svgGenerator);
+  svgGenerator->deleteLater();
 }

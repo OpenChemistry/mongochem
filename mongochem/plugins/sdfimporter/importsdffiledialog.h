@@ -17,10 +17,16 @@
 #ifndef IMPORTSDFFILEDIALOG_H
 #define IMPORTSDFFILEDIALOG_H
 
+#include <QSet>
+
 #include <mongochem/gui/abstractimportdialog.h>
 
 namespace Ui {
 class ImportSdfFileDialog;
+}
+
+namespace MongoChem {
+class SvgGenerator;
 }
 
 /**
@@ -43,10 +49,12 @@ public slots:
 
 private slots:
   void import();
+  void moleculeDiagramReady(int errorCode);
 
 private:
   Ui::ImportSdfFileDialog *ui;
   QString m_fileName;
+  QSet<MongoChem::SvgGenerator *> m_svgGenerators;
 };
 
 #endif // IMPORTSDFFILEDIALOG_H
