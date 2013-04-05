@@ -1,5 +1,10 @@
-# find Qt
-find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork REQUIRED)
+# Find Qt4, including QtMain if on Windows.
+if(WIN32)
+  set(qtmain QtMain)
+else()
+  unset(qtmain)
+endif()
+find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork ${qtmain} REQUIRED)
 include(${QT_USE_FILE})
 
 # VTK is used for the charting and infovis components.
@@ -49,9 +54,12 @@ if(APPLE)
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${MongoChem_VERSION}")
   set_source_files_properties(icons/mongochem.icns PROPERTIES
     MACOSX_PACKAGE_LOCATION Resources)
+elseif(WIN32)
+  list(APPEND SOURCES icons/mongochem.rc)
 endif()
 
-add_executable(mongochem MACOSX_BUNDLE ${SOURCES} ${UI_SOURCES} ${RCC_SOURCES})
+add_executable(mongochem WIN32 MACOSX_BUNDLE
+  ${SOURCES} ${UI_SOURCES} ${RCC_SOURCES})
 set_target_properties(mongochem PROPERTIES AUTOMOC TRUE)
 target_link_libraries(mongochem
   ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY}
@@ -94,5 +102,11 @@ if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
   include(DeployQt4)
 
   get_target_property(output_name mongochem OUTPUT_NAME)
-  install_qt4_executable(${pfx}${output_name}${sfx} "" "" "${dirs}")
+  if(output_name)
+    set(exe "${pfx}${output_name}${sfx}")
+  else()
+    set(exe "${pfx}mongochem${sfx}")
+  endif()
+
+  install_qt4_executable(${exe} "" "" "${dirs}")
 endif()
