@@ -98,6 +98,10 @@ if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
   get_property(loc TARGET vtkChartsCore PROPERTY LOCATION_RELEASE)
   get_filename_component(vtk_dlls_dir "${loc}" PATH)
   set(dirs ${dirs} "${vtk_dlls_dir}")
+  # Same for MoleQueue - on Mac these might be in the .app dir
+  get_property(loc TARGET MoleQueueClient PROPERTY LOCATION_RELEASE)
+  get_filename_component(molequeue_dir "${loc}" PATH)
+  list(APPEND dirs "${molequeue_dir}")
 
   include(DeployQt4)
 
