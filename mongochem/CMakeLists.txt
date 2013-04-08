@@ -2,18 +2,13 @@ find_package(MongoDB)
 include_directories(SYSTEM ${MongoDB_INCLUDE_DIR})
 # MongoDB built with unicode strings
 add_definitions("-D_UNICODE")
-if(WIN32)
-  if(MSVC)
-    add_definitions("-D_CRT_SECURE_NO_WARNINGS")
-  endif()
-  set(Boost_USE_STATIC_LIBS ON)
+if(MSVC)
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS")
 endif()
 
 # MongoDB uses several boost components we need to link in
-find_package(Boost COMPONENTS thread chrono filesystem program_options system iostreams)
-if(WIN32)
-  add_definitions("-DBOOST_ALL_NO_LIB")
-endif()
+find_package(Boost
+  COMPONENTS thread chrono filesystem program_options system iostreams)
 include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
 # MongoDB also seems to require pthread on Linux (but not Apple)
 if(UNIX AND NOT APPLE)

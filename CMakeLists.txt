@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 2.8.6 FATAL_ERROR)
 
 project(MongoChem)
 
-include(CTest)
-enable_testing()
-
 set(CMAKE_MODULE_PATH ${MongoChem_SOURCE_DIR}/cmake)
 
 include(BuildType)
@@ -46,6 +43,12 @@ option(ENABLE_TESTING "Enable testing and building the tests." OFF)
 if(ENABLE_TESTING)
   include(CTest)
   enable_testing()
+endif()
+
+# Make Boost behave on Windows...
+if(WIN32)
+  add_definitions("-DBOOST_ALL_NO_LIB")
+  set(Boost_USE_STATIC_LIBS ON)
 endif()
 
 # source directory
