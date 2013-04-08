@@ -14,12 +14,12 @@
 
 ******************************************************************************/
 
-#ifndef IMPORTSDFFILEDIALOG_H
-#define IMPORTSDFFILEDIALOG_H
-
-#include <QSet>
+#ifndef MONGOCHEM_IMPORTSDFFILEDIALOG_H
+#define MONGOCHEM_IMPORTSDFFILEDIALOG_H
 
 #include <mongochem/gui/abstractimportdialog.h>
+
+#include <QtCore/QSet>
 
 namespace Ui {
 class ImportSdfFileDialog;
@@ -57,4 +57,4 @@ private:
   QSet<MongoChem::SvgGenerator *> m_svgGenerators;
 };
 
-#endif // IMPORTSDFFILEDIALOG_H
+#endif // MONGOCHEM_IMPORTSDFFILEDIALOG_H

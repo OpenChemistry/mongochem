@@ -17,10 +17,9 @@
 #include "importsdffiledialog.h"
 #include "ui_importsdffiledialog.h"
 
-#include <QDebug>
-#include <QString>
-#include <QFileDialog>
-#include <QMessageBox>
+#include <QtCore/QDebug>
+#include <QtGui/QFileDialog>
+#include <QtGui/QMessageBox>
 
 #include <chemkit/molecule.h>
 #include <chemkit/moleculefile.h>
@@ -158,23 +157,14 @@ void ImportSdfFileDialog::import()
         break;
     }
   }
-
-  // wait until all diagrams are generated
-  while (!m_svgGenerators.isEmpty()) {
-    qApp->processEvents();
-  }
-
-  // close the dialog
-  accept();
 }
 
 void ImportSdfFileDialog::moleculeDiagramReady(int errorCode)
 {
   MongoChem::SvgGenerator *svgGenerator =
     qobject_cast<MongoChem::SvgGenerator *>(sender());
-  if (!svgGenerator) {
+  if (!svgGenerator)
     return;
-  }
 
   QByteArray svg = svgGenerator->svg();
 
@@ -203,4 +193,7 @@ void ImportSdfFileDialog::moleculeDiagramReady(int errorCode)
   // remove and delete generator
   m_svgGenerators.remove(svgGenerator);
   svgGenerator->deleteLater();
+
+  if (m_svgGenerators.isEmpty())
+    accept();
 }
