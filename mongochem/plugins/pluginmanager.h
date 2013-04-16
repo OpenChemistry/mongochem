@@ -1,6 +1,6 @@
 /******************************************************************************
 
-  This source file is part of the Avogadro project.
+  This source file is part of the MongoChem project.
 
   Copyright 2012 Kitware, Inc.
 
