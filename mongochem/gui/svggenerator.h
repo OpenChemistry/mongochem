@@ -17,10 +17,15 @@
 #ifndef SVGGENERATOR_H
 #define SVGGENERATOR_H
 
+#include <QQueue>
 #include <QObject>
 #include <QProcess>
+#include <QImage>
+#include <QByteArray>
 
 namespace MongoChem {
+
+struct OBabelJob;
 
 /**
  * The SvgGenerator class generates SVG diagrams for molecules.
@@ -66,6 +71,16 @@ public:
   QByteArray svg() const;
 
   /**
+   * Returns a PNG generated from the SVG.
+   */
+  QByteArray png() const;
+
+  /**
+   * Returns an image generated from the SVG.
+   */
+  QImage image() const;
+
+  /**
    * Starts the generation process. When finished, the finished() signal will
    * be emitted.
    */
@@ -82,12 +97,17 @@ private slots:
   void obabelFinished(int errorCode, QProcess::ExitStatus exitStatus);
 
 private:
+  void runJob(const OBabelJob &job);
+
+private:
   Q_DISABLE_COPY(SvgGenerator)
 
   QProcess m_process;
   QByteArray m_inputData;
   QByteArray m_inputFormat;
   QByteArray m_svg;
+  static QQueue<OBabelJob> m_jobs;
+  static int m_runningJobs;
 };
 
 } // end MongoChem namespace

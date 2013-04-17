@@ -14,13 +14,21 @@
 
 ******************************************************************************/
 
-#ifndef IMPORTSDFFILEDIALOG_H
-#define IMPORTSDFFILEDIALOG_H
+#ifndef MONGOCHEM_IMPORTSDFFILEDIALOG_H
+#define MONGOCHEM_IMPORTSDFFILEDIALOG_H
 
 #include <mongochem/gui/abstractimportdialog.h>
 
+#include <QtCore/QSet>
+
+class QProgressDialog;
+
 namespace Ui {
 class ImportSdfFileDialog;
+}
+
+namespace MongoChem {
+class SvgGenerator;
 }
 
 /**
@@ -43,10 +51,13 @@ public slots:
 
 private slots:
   void import();
+  void moleculeDiagramReady(int errorCode);
 
 private:
   Ui::ImportSdfFileDialog *ui;
   QString m_fileName;
+  QSet<MongoChem::SvgGenerator *> m_svgGenerators;
+  QProgressDialog *m_progressDialog;
 };
 
-#endif // IMPORTSDFFILEDIALOG_H
+#endif // MONGOCHEM_IMPORTSDFFILEDIALOG_H
