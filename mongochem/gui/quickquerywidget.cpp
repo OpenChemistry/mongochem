@@ -62,9 +62,28 @@ mongo::Query QuickQueryWidget::query() const
     return mongo::Query();
   }
   else if (field_ == "tag") {
-    mongo::BSONArrayBuilder builder;
-    builder.append(value_.toStdString());
-    return QUERY("tags" << BSON("$in" << builder.arr()));
+    if (mode == "is") {
+      mongo::BSONArrayBuilder builder;
+      builder.append(value_.toStdString());
+      return QUERY("tags" << BSON("$in" << builder.arr()));
+    }
+    else if (mode == "contains") {
+      std::stringstream function;
+      function << "function()\n"
+                  "{\n"
+                  "  if (!this.tags)\n"
+                  "    return false;\n"
+                  "  for (var i = 0; i < this.tags.length; i++){\n"
+                  "    if (this.tags[i].indexOf(\"" <<
+                  value_.toStdString() <<
+                  "\") != -1){\n"
+                  "      return true;\n"
+                  "    }\n"
+                  "  }\n"
+                  "  return false;\n"
+                  "}\n";
+      return QUERY("$where" << function.str());
+    }
   }
   else if(field_ == "structure"){
     std::string format;
