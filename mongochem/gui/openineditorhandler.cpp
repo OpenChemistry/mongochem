@@ -68,16 +68,34 @@ void OpenInEditorHandler::openInEditor()
   MongoDatabase *db = MongoDatabase::instance();
   mongo::BSONObj moleculeObj = db->fetchMolecule(m_moleculeRef);
 
+  // json-rpc request
+  QJsonObject request(m_rpcClient->emptyRequest());
+  request["method"] = QLatin1String("loadMolecule");
+
   // check for atoms in the molecule
-  if (!moleculeObj.hasField("atoms")) {
+  if (moleculeObj.hasField("atoms")) {
+    // generate chemical json
+    std::string cjson = CjsonExporter::toCjson(moleculeObj);
+
+    // create json rpc method
+    QJsonObject params;
+    params["content"] = QLatin1String(cjson.c_str());
+    params["format"] = QLatin1String("cjson");
+    request["params"] = params;
+  }
+  else if (moleculeObj.hasField("inchi")) {
+    // create json rpc method
+    QJsonObject params;
+    params["content"] = QLatin1String(moleculeObj.getStringField("inchi"));
+    params["format"] = QLatin1String("inchi");
+    request["params"] = params;
+  }
+  else {
     QMessageBox::critical(qobject_cast<QWidget *>(parent()),
                           tr("Incomplete Molecule"),
                           tr("Error: Molecule does not have 3D coordinates"));
     return;
   }
-
-  // generate chemical json
-  std::string cjson = CjsonExporter::toCjson(moleculeObj);
 
   // connect to avogadro
   if (!m_rpcClient->isConnected()) {
@@ -89,14 +107,6 @@ void OpenInEditorHandler::openInEditor()
       return;
     }
   }
-
-  // create json rpc method
-  QJsonObject request(m_rpcClient->emptyRequest());
-  request["method"] = QLatin1String("loadMolecule");
-  QJsonObject params;
-  params["content"] = QLatin1String(cjson.c_str());
-  params["format"] = QLatin1String("cjson");
-  request["params"] = params;
 
   // connect to signals
   connect(m_rpcClient, SIGNAL(resultReceived(QJsonObject)),
