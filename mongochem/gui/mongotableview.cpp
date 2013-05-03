@@ -60,6 +60,8 @@ MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
   connect(horizontalHeader(),
           SIGNAL(customContextMenuRequested(const QPoint&)),
           this, SLOT(columnHeaderCustomContextMenuRequested(const QPoint&)));
+  connect(horizontalHeader(), SIGNAL(sectionClicked(int)),
+          this, SLOT(headerItemClicked(int)));
   connect(verticalScrollBar(), SIGNAL(sliderMoved(int)),
           this, SLOT(scollBarMoved(int)));
 
@@ -366,6 +368,15 @@ void MongoTableView::headerItemVisibilityToggled()
   int i = action->data().toInt();
   horizontalHeader()->setSectionHidden(
     i, !horizontalHeader()->isSectionHidden(i));
+}
+
+void MongoTableView::headerItemClicked(int index)
+{
+  qDebug() << "clicked: " << index;
+
+  MongoModel *mongoModel = qobject_cast<MongoModel *>(model());
+  if (mongoModel)
+    mongoModel->setSortColumn(index);
 }
 
 } // end MongoChem namespace

@@ -41,6 +41,18 @@ public:
 
   void setQuery(const mongo::Query &query);
 
+  /**
+   * Sets the field to sort by to @p field. @p direction of 1 indicates
+   * ascending order, -1 indicates descending order.
+   */
+  void setSortField(const std::string &field, int direction = 1);
+
+  /**
+   * Sets the column to sort by to @p index. @p direction of 1 indicates
+   * ascending order, -1 indicates descending order.
+   */
+  void setSortColumn(int index, int direction = 1);
+
   /** Adds a new column with @p name. */
   void addFieldColumn(const QString &name);
 
