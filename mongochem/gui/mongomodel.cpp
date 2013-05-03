@@ -74,6 +74,9 @@ public:
   QMap<QString, QString> m_titles;
   DBClientConnection *db;
   auto_ptr<DBClientCursor> cursor;
+  mongo::Query m_query;
+  std::string m_sortField;
+  int m_sortDirection;
 };
 
 MongoModel::MongoModel(mongo::DBClientConnection *db, QObject *parent_)
@@ -104,11 +107,23 @@ void MongoModel::setQuery(const mongo::Query &query)
 {
   d->m_rowObjects.clear();
 
+  // store query
+  d->m_query = query;
+
   try {
     QSettings settings;
     std::string collection =
         settings.value("collection", "chem").toString().toStdString();
-    d->cursor = d->db->query(collection + ".molecules", query);
+
+    if(d->m_sortField.empty()){
+      d->cursor = d->db->query(collection + ".molecules", query);
+    }
+    else {
+      // add sort criteria to query
+      mongo::Query sortQuery = query;
+      sortQuery.sort(d->m_sortField, d->m_sortDirection);
+      d->cursor = d->db->query(collection + ".molecules", sortQuery);
+    }
 
     // load first 250 rows
     loadMoreData(250);
@@ -116,6 +131,24 @@ void MongoModel::setQuery(const mongo::Query &query)
   catch (mongo::SocketException &e) {
     std::cerr << "Failed to query MongoDB: " << e.what() << std::endl;
   }
+}
+
+void MongoModel::setSortField(const std::string &field, int direction)
+{
+  d->m_sortField = field;
+  d->m_sortDirection = direction;
+
+  // re-run current query with new sorting parameters
+  setQuery(d->m_query);
+}
+
+void MongoModel::setSortColumn(int index_, int direction)
+{
+  if (index_ >= d->m_fields.size())
+    return;
+
+  std::string field = d->m_fields[index_].toStdString();
+  setSortField(field, direction);
 }
 
 void MongoModel::addFieldColumn(const QString &name)
@@ -329,6 +362,11 @@ void MongoModel::loadMoreData(int count)
             << std::endl;
 
   emit layoutChanged();
+}
+
+void MongoModel::sort(int column, Qt::SortOrder order)
+{
+  setSortColumn(column, order == Qt::AscendingOrder ? 1 : -1);
 }
 
 } // End of namespace
