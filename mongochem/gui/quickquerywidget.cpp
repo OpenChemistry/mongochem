@@ -34,6 +34,8 @@ QuickQueryWidget::QuickQueryWidget(QWidget *parent_)
           ui->queryLineEdit, SLOT(clear()));
   connect(ui->queryLineEdit, SIGNAL(returnPressed()), SIGNAL(queryClicked()));
   connect(ui->fieldComboBox, SIGNAL(currentIndexChanged(const QString&)),
+          SLOT(updateModeComboBox(const QString&)));
+  connect(ui->fieldComboBox, SIGNAL(currentIndexChanged(const QString&)),
           SLOT(updatePlaceholderText(const QString&)));
 }
 
@@ -102,6 +104,9 @@ mongo::Query QuickQueryWidget::query() const
       return QUERY("heavyAtomCount" << BSON("$gte" << heavyAtomCount)).sort("heavyAtomCount");
     }
   }
+  else if (field_ == "field") {
+    return QUERY(value_.toStdString() << BSON("$exists" << (mode == "exists")));
+  }
   else if(mode == "is"){
     return QUERY(field_.toStdString() << value_.toStdString());
   }
@@ -112,6 +117,20 @@ mongo::Query QuickQueryWidget::query() const
   }
 
   return mongo::Query();
+}
+
+void QuickQueryWidget::updateModeComboBox(const QString &field_)
+{
+  if (field_ == "Field") {
+    ui->modeComboBox->clear();
+    ui->modeComboBox->addItem("exists");
+    ui->modeComboBox->addItem("not exists");
+  }
+  else {
+    ui->modeComboBox->clear();
+    ui->modeComboBox->addItem("is");
+    ui->modeComboBox->addItem("contains");
+  }
 }
 
 void QuickQueryWidget::updatePlaceholderText(const QString &field_)

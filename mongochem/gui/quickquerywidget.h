@@ -44,6 +44,7 @@ signals:
   void resetQueryClicked();
 
 private slots:
+  void updateModeComboBox(const QString &field_);
   void updatePlaceholderText(const QString &field_);
 
 private:

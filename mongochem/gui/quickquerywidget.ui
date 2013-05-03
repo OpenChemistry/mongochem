@@ -46,6 +46,11 @@
        <string>Structure</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>Field</string>
+      </property>
+     </item>
     </widget>
    </item>
    <item>
