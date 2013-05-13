@@ -332,6 +332,7 @@ void MongoTableView::columnHeaderCustomContextMenuRequested(const QPoint &pos_)
   QMenu menu;
   QAction *addColumnAction = menu.addAction(QString("Add Column"));
   QAction *removeColumnAction = menu.addAction(QString("Remove Column"));
+  QAction *clearSortAction = menu.addAction(tr("Clear Sort"));
   menu.addSeparator();
 
   for (int i = 0; i < horizontalHeader()->count(); i++) {
@@ -360,6 +361,11 @@ void MongoTableView::columnHeaderCustomContextMenuRequested(const QPoint &pos_)
       if (mongoModel)
         mongoModel->removeFieldColumn(index_);
     }
+  }
+  else if (action == clearSortAction) {
+    MongoModel *mongoModel = qobject_cast<MongoModel *>(model());
+    if (mongoModel)
+      mongoModel->sort(-1);
   }
 }
 

@@ -82,7 +82,8 @@ public:
   void loadMoreData(int count = 100);
 
   /**
-   * Sorts the model by @p column in @order.
+   * Sorts the model by @p column in @order. column of -1 indicates
+   * no sorting.
    */
   void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
 

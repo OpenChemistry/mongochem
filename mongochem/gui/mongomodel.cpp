@@ -144,11 +144,19 @@ void MongoModel::setSortField(const std::string &field, int direction)
 
 void MongoModel::setSortColumn(int index_, int direction)
 {
-  if (index_ >= d->m_fields.size())
-    return;
+  if (index_ == -1) {
+    d->m_sortField.clear();
 
-  std::string field = d->m_fields[index_].toStdString();
-  setSortField(field, direction);
+    // re-run current query without sorting
+    setQuery(d->m_query);
+  }
+  else if (index_ >= d->m_fields.size()) {
+    return;
+  }
+  else {
+    std::string field = d->m_fields[index_].toStdString();
+    setSortField(field, direction);
+  }
 }
 
 void MongoModel::addFieldColumn(const QString &name)
