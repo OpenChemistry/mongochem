@@ -81,7 +81,24 @@ public:
    */
   void loadMoreData(int count = 100);
 
+  /**
+   * Sorts the model by @p column in @order.
+   */
+  void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
+
 private:
+  /**
+   * Sets the field to sort by to @p field. @p direction of 1 indicates
+   * ascending order, -1 indicates descending order.
+   */
+  void setSortField(const std::string &field, int direction = 1);
+
+  /**
+   * Sets the column to sort by to @p index. @p direction of 1 indicates
+   * ascending order, -1 indicates descending order.
+   */
+  void setSortColumn(int index, int direction = 1);
+
   class Private;
   Private *d;
 

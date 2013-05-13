@@ -86,6 +86,11 @@ protected slots:
    */
   void headerItemVisibilityToggled();
 
+  /**
+   * Called when the user clicks on a column header.
+   */
+  void headerItemClicked(int index);
+
 private:
   /** Returns the currently selected model index. */
   QModelIndex currentSourceModelIndex() const;
