@@ -407,7 +407,6 @@ void MainWindow::setupTable()
 
   m_ui->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
-  m_ui->tableView->setSortingEnabled(false);
   m_ui->tableView->resizeColumnsToContents();
   m_ui->tableView->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   m_ui->tableView->resizeRowsToContents();

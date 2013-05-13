@@ -68,7 +68,7 @@ MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
   setSortingEnabled(true);
   horizontalHeader()->setMovable(true);
   horizontalHeader()->setClickable(true);
-  horizontalHeader()->setSortIndicatorShown(true);
+  horizontalHeader()->setSortIndicatorShown(false);
 
   m_openInEditorHandler = new OpenInEditorHandler(this);
 }
@@ -364,8 +364,10 @@ void MongoTableView::columnHeaderCustomContextMenuRequested(const QPoint &pos_)
   }
   else if (action == clearSortAction) {
     MongoModel *mongoModel = qobject_cast<MongoModel *>(model());
-    if (mongoModel)
+    if (mongoModel) {
       mongoModel->sort(-1);
+      horizontalHeader()->setSortIndicatorShown(false);
+    }
   }
 }
 
@@ -381,7 +383,7 @@ void MongoTableView::headerItemVisibilityToggled()
 
 void MongoTableView::headerItemClicked(int index)
 {
-  sortByColumn(index);
+  horizontalHeader()->setSortIndicatorShown(index != 0);
 }
 
 } // end MongoChem namespace
