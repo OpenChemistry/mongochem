@@ -135,6 +135,11 @@ void MongoModel::setQuery(const mongo::Query &query)
 
 void MongoModel::setSortField(const std::string &field, int direction)
 {
+  if (field == "diagram" || field == "3d") {
+    // sorting not supported for diagrams or 3d coordinate
+    return;
+  }
+
   d->m_sortField = field;
   d->m_sortDirection = direction;
 
