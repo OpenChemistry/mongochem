@@ -29,8 +29,8 @@
 #include "qjsonobject.h"
 
 #include <molequeue/client/jsonrpcclient.h>
-#include <molequeue/transport/jsonrpc.h>
-#include <molequeue/transport/localsocketconnectionlistener.h>
+#include <molequeue/servercore/jsonrpc.h>
+#include <molequeue/servercore/localsocketconnectionlistener.h>
 
 namespace MongoChem {
 
