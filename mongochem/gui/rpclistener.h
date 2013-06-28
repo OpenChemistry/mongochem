@@ -23,9 +23,12 @@
 
 #include <molequeue/servercore/connectionlistener.h>
 
+#include <qjsonobject.h>
+
 namespace MoleQueue {
 class JsonRpc;
 class JsonRpcClient;
+class Message;
 }
 
 namespace MongoChem {
