@@ -22,6 +22,7 @@
 #include <mongochem/gui/moleculeref.h>
 
 #include <molequeue/servercore/connectionlistener.h>
+#include <molequeue/servercore/message.h>
 
 namespace MoleQueue {
 class JsonRpc;
