@@ -2,7 +2,7 @@
 
   This source file is part of the MongoChem project.
 
-  Copyright 2011-2012 Kitware, Inc.
+  Copyright 2011-2013 Kitware, Inc.
 
   This source code is released under the New BSD License, (the "License").
 
@@ -17,11 +17,9 @@
 #ifndef EXPORTMOLECULEHANDLER_H
 #define EXPORTMOLECULEHANDLER_H
 
-#include <QObject>
+#include <QtCore/QObject>
 
-#include <boost/shared_ptr.hpp>
-
-#include <chemkit/molecule.h>
+#include "moleculeref.h"
 
 namespace MongoChem {
 
@@ -33,13 +31,13 @@ public:
   ExportMoleculeHandler(QObject *parent = 0);
   ~ExportMoleculeHandler();
 
-  void setMolecule(const boost::shared_ptr<chemkit::Molecule> &molecule);
+  void setMolecule(const MoleculeRef &molecule);
 
 public slots:
   void exportMolecule();
 
 private:
-  boost::shared_ptr<chemkit::Molecule> m_molecule;
+  MoleculeRef m_molecule;
 };
 
 } // end MongoChem namespace

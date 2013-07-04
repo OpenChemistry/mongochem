@@ -21,12 +21,12 @@
 #include <boost/make_shared.hpp>
 #include <boost/algorithm/string/join.hpp>
 
-#include <QMenu>
-#include <QSettings>
-#include <QWebView>
+#include <QtCore/QDebug>
 #include <QtCore/QList>
-
-#include <chemkit/molecule.h>
+#include <QtCore/QSettings>
+#include <QtCore/QString>
+#include <QtGui/QMenu>
+#include <QtWebKit/QWebView>
 
 #include "addtagdialog.h"
 #include "mongodatabase.h"
@@ -42,8 +42,6 @@
 #include <avogadro/qtgui/sceneplugin.h>
 #include <avogadro/qtgui/toolplugin.h>
 #include <avogadro/qtplugins/pluginmanager.h>
-
-#include <QtCore/QDebug>
 
 #include <iostream>
 #include <fstream>
@@ -129,44 +127,36 @@ MoleculeDetailDialog::~MoleculeDetailDialog()
 
 void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
 {
-  // store the molecule ref
+  // Store the molecule reference.
   m_ref = moleculeRef;
 
-  // load molecule from database
+  // Load molecule from database.
   MongoDatabase *db = MongoDatabase::instance();
   if (!db)
     return;
 
   mongo::BSONObj obj = db->fetchMolecule(moleculeRef);
 
-  // create molecule from inchi
-  boost::shared_ptr<chemkit::Molecule> molecule;
+  // Set the InChI.
   mongo::BSONElement inchiElement = obj.getField("inchi");
   if (!inchiElement.eoo()) {
     std::string inchi = inchiElement.str();
     ui->inchiLineEdit->setText(inchi.c_str());
-
-    // create molecule from inchi
-    molecule = boost::make_shared<chemkit::Molecule>(inchi, "inchi");
   }
 
-  // set name
+  // Set the name.
   mongo::BSONElement nameElement = obj.getField("name");
   if (!nameElement.eoo()) {
     std::string name = nameElement.str();
     ui->nameLineEdit->setText(name.c_str());
 
-    // trim name to 50 characters for group box title
+    // Trim the name to 50 characters for group box title.
     QString title(name.c_str());
     if (title.length() > 50) {
       title.truncate(47);
       title.append("...");
     }
     ui->diagramGroupBox->setTitle(title);
-
-    // set molecule name
-    if (molecule)
-      molecule->setName(name);
   }
 
   // set formula
@@ -190,10 +180,23 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     ui->inchikeyLineEdit->setText(inchikey.c_str());
   }
 
-  // set smiles
-  if (molecule) {
-      std::string smiles = molecule->formula("smiles");
-      ui->smilesLineEdit->setText(smiles.c_str());
+  // set inchikey
+  mongo::BSONElement smilesElement = obj.getField("smiles");
+  if (!smilesElement.eoo()) {
+    QString smiles(smilesElement.str().c_str());
+    ui->smilesLineEdit->setText(smiles);
+  }
+  else if (false) {
+    // FIXME: This would generate a SMILES string, but really this should just
+    // be stored in the database as the other fields are.
+    Avogadro::Core::Molecule inchiMol;
+    std::string inchi = inchiElement.str();
+    Avogadro::Io::FileFormatManager::instance().readString(inchiMol, inchi,
+                                                           "inchi");
+    std::string smiles;// = molecule->formula("smiles");
+    Avogadro::Io::FileFormatManager::instance().writeString(inchiMol, smiles,
+                                                            "smiles");
+    ui->smilesLineEdit->setText(smiles.c_str());
   }
 
   // set tags
@@ -274,7 +277,7 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
             Avogadro::Io::FileFormatManager::instance().error());
     }
   }
-  // Remove 3D tab as we have not atoms
+  // Remove 3D tab as we have no atoms.
   else {
     int index = ui->diagramTabWidget->indexOf(ui->molecule3DTab);
     ui->diagramTabWidget->removeTab(index);
@@ -301,11 +304,11 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     }
   }
 
-  // setup open in editor handler
+  // Setup the open in editor handler.
   m_openInEditorHandler->setMolecule(moleculeRef);
 
   // setup export handler
-  m_exportHandler->setMolecule(molecule);
+  m_exportHandler->setMolecule(moleculeRef);
 
   // setup computational results tab
   m_computationalResultsTableView->setModel(0);

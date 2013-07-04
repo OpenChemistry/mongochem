@@ -20,8 +20,6 @@
 #include <QObject>
 #include <qjsonobject.h>
 
-#include <chemkit/molecule.h>
-
 #include "moleculeref.h"
 
 namespace MoleQueue {

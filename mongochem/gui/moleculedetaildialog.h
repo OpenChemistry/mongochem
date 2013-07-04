@@ -17,9 +17,7 @@
 #ifndef MOLECULEDETAILDIALOG_H
 #define MOLECULEDETAILDIALOG_H
 
-#include <mongo/client/dbclient.h>
-
-#include <QDialog>
+#include <QtGui/QDialog>
 
 #include "moleculeref.h"
 

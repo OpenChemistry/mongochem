@@ -2,7 +2,7 @@
 
   This source file is part of the MongoChem project.
 
-  Copyright 2011-2012 Kitware, Inc.
+  Copyright 2011-2013 Kitware, Inc.
 
   This source code is released under the New BSD License, (the "License").
 
@@ -19,9 +19,16 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include <chemkit/moleculefile.h>
+#include "cjsonexporter.h"
+#include "mongodatabase.h"
+
+#include <avogadro/core/molecule.h>
+#include <avogadro/io/fileformatmanager.h>
 
 namespace MongoChem {
+
+using Avogadro::Core::Molecule;
+using Avogadro::Io::FileFormatManager;
 
 ExportMoleculeHandler::ExportMoleculeHandler(QObject *parent_)
   : QObject(parent_)
@@ -32,49 +39,57 @@ ExportMoleculeHandler::~ExportMoleculeHandler()
 {
 }
 
-void ExportMoleculeHandler::setMolecule(const boost::shared_ptr<chemkit::Molecule> &molecule)
+void ExportMoleculeHandler::setMolecule(const MoleculeRef &molecule)
 {
   m_molecule = molecule;
 }
 
 void ExportMoleculeHandler::exportMolecule()
 {
-  if (m_molecule) {
-    // get molecule name to set default file name
-    QString moleculeName = m_molecule->name().c_str();
+  if (m_molecule.isValid()) {
+    // Retrieve the molecule from the database.
+    MongoDatabase *db = MongoDatabase::instance();
+    mongo::BSONObj moleculeObj = db->fetchMolecule(m_molecule);
 
-    if (moleculeName.isEmpty()) {
-      // if molecule has no name, just use 'molecule'
-      moleculeName = "molecule";
+    Avogadro::Core::Molecule mol;
+
+    // Check for atoms in the molecule.
+    if (moleculeObj.hasField("atoms")) {
+      // Generate chemical json string.
+      std::string cjson = CjsonExporter::toCjson(moleculeObj);
+
+      // Create a molecule object for export.
+      FileFormatManager::instance().readString(mol, cjson, "cjson");
+    }
+    else if (moleculeObj.hasField("inchi")) {
+      // Attempt to load from InChI otherwise.
+      FileFormatManager::instance().readString(mol,
+                                               moleculeObj.getStringField("inchi"),
+                                               "inchi");
     }
 
-    // pop-up dialog and get file name
+    // get molecule name to set default file name
+    QString moleculeName = moleculeObj.getStringField("name");
+
+    if (moleculeName.isEmpty())
+      moleculeName = "molecule";
+
+    // Pop-up dialog and get file name
     QString fileName = QFileDialog::getSaveFileName(0,
                                                     tr("Save File"),
                                                     QDir::currentPath() +
                                                     QDir::separator() +
                                                     moleculeName + ".cml");
 
-    if (fileName.isEmpty()) {
-      // user clicked cancel, so do nothing
+    if (fileName.isEmpty())
       return;
-    }
 
-    // convert file name to std::string
-    std::string fileNameString = fileName.toStdString();
-
-    // create file and add molecule
-    chemkit::MoleculeFile file(fileNameString);
-    file.addMolecule(m_molecule);
-
-    // write file
-    bool ok = file.write();
+    bool ok = FileFormatManager::instance().writeFile(mol,
+                                                      fileName.toStdString());
     if(!ok) {
       // writing failed, display an error dialog
       QString errorMessage =
-          QString("Failed to write molecule to file (%1): %2")
-          .arg(fileName)
-          .arg(file.errorString().c_str());
+          QString("Failed to write molecule to file (%1).").arg(fileName);
 
       QMessageBox::critical(0, "Molecule Export Failed", errorMessage);
     }
