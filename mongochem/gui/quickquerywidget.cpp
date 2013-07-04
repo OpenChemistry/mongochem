@@ -17,7 +17,7 @@
 #include "quickquerywidget.h"
 #include "ui_quickquerywidget.h"
 
-#include <chemkit/molecule.h>
+#include "chemkit.h"
 
 namespace MongoChem {
 
@@ -60,7 +60,7 @@ mongo::Query QuickQueryWidget::query() const
   QString value_ = ui->queryLineEdit->text();
   QString mode = ui->modeComboBox->currentText();
 
-  if(value_.isEmpty()){
+  if (value_.isEmpty()){
     return mongo::Query();
   }
   else if (field_ == "tag") {
@@ -87,30 +87,26 @@ mongo::Query QuickQueryWidget::query() const
       return QUERY("$where" << function.str());
     }
   }
-  else if(field_ == "structure"){
+  else if (field_ == "structure"){
     std::string format;
-    if(value_.startsWith("InChI="))
+    if (value_.startsWith("InChI="))
       format = "inchi";
     else
       format = "smiles";
-    chemkit::Molecule molecule(value_.toStdString(), format);
-    int heavyAtomCount =
-      static_cast<int>(molecule.atomCount() - molecule.atomCount("H"));
+    int heavyAtomCount = ChemKit::heavyAtomCount(value_.toStdString(), format);
 
-    if(mode == "is"){
+    if (mode == "is")
       return QUERY("heavyAtomCount" << heavyAtomCount).sort("heavyAtomCount");
-    }
-    else if(mode == "contains"){
+    else if (mode == "contains")
       return QUERY("heavyAtomCount" << BSON("$gte" << heavyAtomCount)).sort("heavyAtomCount");
-    }
   }
   else if (field_ == "field") {
     return QUERY(value_.toStdString() << BSON("$exists" << (mode == "exists")));
   }
-  else if(mode == "is"){
+  else if (mode == "is"){
     return QUERY(field_.toStdString() << value_.toStdString());
   }
-  else if(mode == "contains"){
+  else if (mode == "contains"){
     QString escapedValue = QRegExp::escape(value_);
     return QUERY(field_.toStdString() << BSON("$regex" <<
       escapedValue.toStdString()));

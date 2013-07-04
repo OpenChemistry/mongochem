@@ -75,6 +75,15 @@ public:
                                                    const std::vector<MoleculeRef> &refs,
                                                    size_t count);
 
+  /**
+   * @brief Obtain the heavy atom count for the supplied structure.
+   * @param identifier The line format identifier.
+   * @param format The format, currently only InChI or SMILES.
+   * @return The heavy atom count for the molecule.
+   */
+  static int heavyAtomCount(const std::string &identifier,
+                            const std::string &format);
+
 };
 
 }

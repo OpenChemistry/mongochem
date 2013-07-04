@@ -23,6 +23,9 @@
 
 namespace MongoChem {
 
+using std::string;
+using std::vector;
+
 ChemKit::ChemKit()
 {
 }
@@ -42,7 +45,7 @@ boost::shared_ptr<chemkit::Molecule> ChemKit::createMolecule(
   if (inchiElement.eoo())
     return boost::make_shared<chemkit::Molecule>();
 
-  std::string inchi = inchiElement.str();
+  string inchi = inchiElement.str();
 
   // Create a chemkit molecule from the InChI.
   chemkit::Molecule *molecule = new chemkit::Molecule(inchi, "inchi");
@@ -53,8 +56,8 @@ boost::shared_ptr<chemkit::Molecule> ChemKit::createMolecule(
   return boost::shared_ptr<chemkit::Molecule>(molecule);
 }
 
-MoleculeRef ChemKit::importMoleculeFromIdentifier(const std::string &identifier,
-                                                  const std::string &format)
+MoleculeRef ChemKit::importMoleculeFromIdentifier(const string &identifier,
+                                                  const string &format)
 {
   MongoDatabase *db = MongoDatabase::instance();
   if (!db || !db->connection())
@@ -68,7 +71,7 @@ MoleculeRef ChemKit::importMoleculeFromIdentifier(const std::string &identifier,
     return MoleculeRef();
 
   // Generate an InChI key for the molecule.
-  std::string inchikey = molecule->formula("inchikey");
+  string inchikey = molecule->formula("inchikey");
 
   // Check if molecule already exists in the database
   MoleculeRef ref = db->findMoleculeFromInChIKey(inchikey);
@@ -78,9 +81,9 @@ MoleculeRef ChemKit::importMoleculeFromIdentifier(const std::string &identifier,
   }
 
   // generate identifiers
-  std::string formula = molecule->formula();
-  std::string inchi = molecule->formula("inchi");
-  std::string smiles = molecule->formula("smiles");
+  string formula = molecule->formula();
+  string inchi = molecule->formula("inchi");
+  string smiles = molecule->formula("smiles");
 
   // generate descriptors
   double mass = molecule->mass();
@@ -109,10 +112,10 @@ MoleculeRef ChemKit::importMoleculeFromIdentifier(const std::string &identifier,
 }
 
 std::vector<MoleculeRef> ChemKit::similarMolecules(const MoleculeRef &ref,
-                                                   const std::vector<MoleculeRef> &refs,
+                                                   const vector<MoleculeRef> &refs,
                                                    size_t count)
 {
-  std::vector<MoleculeRef> molecules;
+  vector<MoleculeRef> molecules;
   boost::shared_ptr<chemkit::Molecule> molecule(createMolecule(ref));
   if (!molecule)
     return molecules;
@@ -140,7 +143,7 @@ std::vector<MoleculeRef> ChemKit::similarMolecules(const MoleculeRef &ref,
       // that for calculating the similarity value.
       int len = 0;
       const char *binData = element.binData(len);
-      std::vector<size_t> binDataBlockVector(fingerprint.num_blocks());
+      vector<size_t> binDataBlockVector(fingerprint.num_blocks());
 
       memcpy(&binDataBlockVector[0],
              binData,
@@ -188,6 +191,12 @@ std::vector<MoleculeRef> ChemKit::similarMolecules(const MoleculeRef &ref,
     molecules[i] = iter++->second;
 
   return molecules;
+}
+
+int ChemKit::heavyAtomCount(const string &identifier, const string &format)
+{
+  chemkit::Molecule molecule(identifier, format);
+  return static_cast<int>(molecule.atomCount() - molecule.atomCount("H"));
 }
 
 }
