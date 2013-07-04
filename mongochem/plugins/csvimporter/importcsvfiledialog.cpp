@@ -27,6 +27,7 @@
 #include <QInputDialog>
 
 #include <mongochem/gui/mongodatabase.h>
+#include <mongochem/gui/chemkit.h>
 #include <mongochem/gui/svggenerator.h>
 
 ImportCsvFileDialog::ImportCsvFileDialog(QWidget *parent_)
@@ -289,8 +290,8 @@ void ImportCsvFileDialog::import()
     // if not found, import the molecule
     if (!molecule) {
       molecule =
-        db->importMoleculeFromIdentifier(key.toStdString(),
-                                         identifierName.toStdString());
+        MongoChem::ChemKit::importMoleculeFromIdentifier(key.toStdString(),
+                                                         identifierName.toStdString());
 
       // automatically generate diagram (if possible)
       if (molecule) {

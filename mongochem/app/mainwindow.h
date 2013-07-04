@@ -73,17 +73,6 @@ public slots:
     */
   void showSimilarMolecules(MongoChem::MoleculeRef ref, size_t count = 10);
 
-  /** Queries the database for molecules that are similar to the molecule
-    * specified by @p identifier in @format. Replaces the current selection
-    * with the @p count most similar molecules.
-    *
-    * By default, this uses the tanimoto coefficent of the FP2 fingerprints
-    * to determine similarity between molecules.
-    */
-  void showSimilarMolecules(const std::string &identifier,
-                            const std::string &format,
-                            size_t count = 10);
-
 #ifdef QTTESTING
   /**
    * Starts recording a GUI test.

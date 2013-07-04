@@ -15,6 +15,7 @@
 ******************************************************************************/
 
 #include "mongodatabase.h"
+#include "chemkit.h"
 
 #include "kmeansclusteringdialog.h"
 #include "ui_kmeansclusteringdialog.h"
@@ -168,7 +169,8 @@ void KMeansClusteringDialog::setMolecules(const std::vector<MongoChem::MoleculeR
       break;
 
     // create molecule object
-    boost::shared_ptr<const chemkit::Molecule> molecule = db->createMolecule(ref);
+    boost::shared_ptr<const chemkit::Molecule> molecule =
+        MongoChem::ChemKit::createMolecule(ref);
 
     // calculate descriptors for the molecule
     for (size_t i = 0; i < 3; i++)

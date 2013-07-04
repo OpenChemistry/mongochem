@@ -17,6 +17,7 @@
 #include "mainwindow.h"
 
 #include "mongomodel.h"
+#include "chemkit.h"
 #include "substructurefiltermodel.h"
 
 #include "ui_mainwindow.h"
@@ -536,18 +537,7 @@ void MainWindow::resetQuery()
 
 void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
 {
-  // get access to the database to lookup molecule
-  MongoDatabase *db = MongoDatabase::instance();
-
-  showSimilarMolecules(db->createMolecule(ref), count);
-}
-
-void MainWindow::showSimilarMolecules(const std::string &identifier,
-                                      const std::string &format,
-                                      size_t count)
-{
-  showSimilarMolecules(
-    boost::make_shared<chemkit::Molecule>(identifier, format), count);
+  showSimilarMolecules(MongoChem::ChemKit::createMolecule(ref), count);
 }
 
 void MainWindow::showSimilarMolecules(
@@ -610,7 +600,7 @@ void MainWindow::showSimilarMolecules(
       // there is not a fingerprint calculated for the molecule so
       // create the molecule and calculate the fingerprint directly
       boost::shared_ptr<chemkit::Molecule> otherMolecule =
-        db->createMolecule(refs[i]);
+        MongoChem::ChemKit::createMolecule(refs[i]);
 
       if (otherMolecule) {
         similarity =

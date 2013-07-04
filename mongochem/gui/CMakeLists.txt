@@ -32,6 +32,7 @@ set(SOURCES
   substructurefiltermodel.cpp
   svggenerator.cpp
   cjsonexporter.cpp
+  chemkit.cpp
 )
 
 qt4_wrap_ui(UI_SOURCES

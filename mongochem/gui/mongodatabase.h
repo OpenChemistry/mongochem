@@ -23,11 +23,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include <mongo/client/dbclient.h>
-
-#include <chemkit/molecule.h>
 
 namespace MongoChem {
 
@@ -106,22 +102,6 @@ public:
   MoleculeRef findMoleculeFromBSONObj(const mongo::BSONObj *obj);
 
   /**
-   * Creates a new molecule for @p identifier with @p format. Returns a
-   * reference to the newly created molecule.
-   *
-   * If the molecule already exists in the database no action is performed
-   * and a reference to the existing molecule is returned.
-   *
-   * The following line formats are supported:
-   *   - InChI
-   *   - SMILES
-   *
-   * If @p format is not supported a null reference is returned.
-   */
-  MoleculeRef importMoleculeFromIdentifier(const std::string &identifier,
-                                           const std::string &format);
-
-  /**
    * Returns a BSONObj containing the data for the molecule referenced by @p
    * molecule.
    */
@@ -132,12 +112,6 @@ public:
    * referenced by @p molecules.
    */
   std::vector<mongo::BSONObj> fetchMolecules(const std::vector<MoleculeRef> &molecules);
-
-  /**
-   * Creates a new molecule object for @p ref. The ownership of the returned
-   * molecule object is passed to the caller.
-   */
-  boost::shared_ptr<chemkit::Molecule> createMolecule(const MoleculeRef &ref);
 
   /**
    * Set the @p property for the molecule contained in @p ref to @p value. This

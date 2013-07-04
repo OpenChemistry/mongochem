@@ -15,6 +15,7 @@
 ******************************************************************************/
 
 #include "mongodatabase.h"
+#include "chemkit.h"
 
 #include "fingerprintsimilaritydialog.h"
 #include "ui_fingerprintsimilaritydialog.h"
@@ -65,15 +66,14 @@ void FingerprintSimilarityDialog::setMolecules(const std::vector<MongoChem::Mole
 
 void FingerprintSimilarityDialog::setFingerprint(const QString &name)
 {
-  MongoChem::MongoDatabase *db = MongoChem::MongoDatabase::instance();
-
   // calculate fingerprints
   boost::scoped_ptr<Fingerprint> fingerprint_(Fingerprint::create(name.toStdString()));
 
   std::vector<Bitset> fingerprints;
   for (size_t i = 0; i < m_molecules.size(); ++i) {
     const MongoChem::MoleculeRef &ref = m_molecules[i];
-    boost::shared_ptr<const chemkit::Molecule> molecule = db->createMolecule(ref);
+    boost::shared_ptr<const chemkit::Molecule> molecule =
+        MongoChem::ChemKit::createMolecule(ref);
 
     if (molecule)
       fingerprints.push_back(fingerprint_->value(molecule.get()));

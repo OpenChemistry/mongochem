@@ -14,20 +14,27 @@
 
 ******************************************************************************/
 
-#include <set>
-
 #include "mongodatabase.h"
 
 #include <boost/range/algorithm.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-#include <QSettings>
+#include <QtCore/QSettings>
+
+#include <set>
 
 namespace MongoChem {
 
-MongoDatabase::MongoDatabase()
+using std::string;
+using std::stringstream;
+using std::cerr;
+using std::cout;
+using std::endl;
+using std::flush;
+using std::vector;
+
+MongoDatabase::MongoDatabase() : m_db(NULL)
 {
-  m_db = 0;
 }
 
 MongoDatabase::~MongoDatabase()
@@ -44,20 +51,20 @@ MongoDatabase* MongoDatabase::instance()
     mongo::DBClientConnection *db = new mongo::DBClientConnection;
 
     QSettings settings;
-    std::string host = settings.value("hostname").toString().toStdString();
+    string host = settings.value("hostname").toString().toStdString();
     try {
-      std::cout << "connecting to: " << host;
-      std::flush(std::cout);
+      cout << "connecting to: " << host;
+      flush(cout);
       db->connect(host);
-      std::cout << " -- success" << std::endl;
+      cout << " -- success" << endl;
     }
     catch (mongo::DBException &e) {
-      std::cout << " -- failure" << std::endl;
-      std::cerr << "Error: Failed to connect to MongoDB at '"
-                << host
-                << "': "
-                << e.what()
-                << std::endl;
+      cout << " -- failure" << endl;
+      cerr << "Error: Failed to connect to MongoDB at '"
+           << host
+           << "': "
+           << e.what()
+           << endl;
       delete db;
       db = 0;
     }
@@ -85,7 +92,7 @@ mongo::DBClientConnection* MongoDatabase::connection() const
 }
 
 std::auto_ptr<mongo::DBClientCursor>
-MongoDatabase::query(const std::string &collection,
+MongoDatabase::query(const string &collection,
                      const mongo::Query &query_,
                      int limit,
                      int skip)
@@ -102,29 +109,29 @@ MongoDatabase::queryMolecules(const mongo::Query &query_, int limit, int skip)
   return query(moleculesCollectionName(), query_, limit, skip);
 }
 
-std::string MongoDatabase::userName() const
+string MongoDatabase::userName() const
 {
   QSettings settings;
   return settings.value("user", "unknown").toString().toStdString();
 }
 
-MoleculeRef MongoDatabase::findMoleculeFromIdentifier(const std::string &identifier,
-                                                      const std::string &format)
+MoleculeRef MongoDatabase::findMoleculeFromIdentifier(const string &identifier,
+                                                      const string &format)
 {
   if (!m_db)
     return MoleculeRef();
 
-  std::string collection = moleculesCollectionName();
+  string collection = moleculesCollectionName();
   mongo::BSONObj obj = m_db->findOne(collection, QUERY(format << identifier));
   return createMoleculeRefForBSONObj(obj);
 }
 
-MoleculeRef MongoDatabase::findMoleculeFromInChI(const std::string &inchi)
+MoleculeRef MongoDatabase::findMoleculeFromInChI(const string &inchi)
 {
   return findMoleculeFromIdentifier(inchi, "inchi");
 }
 
-MoleculeRef MongoDatabase::findMoleculeFromInChIKey(const std::string &inchikey)
+MoleculeRef MongoDatabase::findMoleculeFromInChIKey(const string &inchikey)
 {
   return findMoleculeFromIdentifier(inchikey, "inchikey");
 }
@@ -141,75 +148,18 @@ MoleculeRef MongoDatabase::findMoleculeFromBSONObj(const mongo::BSONObj *obj)
   return findMoleculeFromInChIKey(inchikeyElement.str());
 }
 
-MoleculeRef
-MongoDatabase::importMoleculeFromIdentifier(const std::string &identifier,
-                                            const std::string &format)
-{
-  if (!m_db)
-    return MoleculeRef();
-
-  // create molecule
-  boost::scoped_ptr<chemkit::Molecule>
-    molecule(new chemkit::Molecule(identifier, format));
-
-  if (!molecule) {
-    // format is not supported or identifier is invalid
-    return MoleculeRef();
-  }
-
-  // generate inchikey
-  std::string inchikey = molecule->formula("inchikey");
-
-  // check if molecule already exists
-  MoleculeRef ref = findMoleculeFromInChIKey(inchikey);
-  if (ref) {
-    // molecule exists so just return a reference to it
-    return ref;
-  }
-
-  // generate identifiers
-  std::string formula = molecule->formula();
-  std::string inchi = molecule->formula("inchi");
-  std::string smiles = molecule->formula("smiles");
-
-  // generate descriptors
-  double mass = molecule->mass();
-  int atomCount = static_cast<int>(molecule->atomCount());
-  int heavyAtomCount =
-    static_cast<int>(molecule->atomCount() - molecule->atomCount("H"));
-
-  // create object id
-  mongo::OID id = mongo::OID::gen();
-
-  // create bson object
-  mongo::BSONObjBuilder b;
-  b << "_id" << id;
-  b << "formula" << formula;
-  b << "inchi" << inchi;
-  b << "inchikey" << inchikey;
-  b << "smiles" << smiles;
-  b << "mass" << mass;
-  b << "atomCount" << atomCount;
-  b << "heavyAtomCount" << heavyAtomCount;
-
-  // insert molecule
-  m_db->insert(moleculesCollectionName(), b.obj());
-
-  return MoleculeRef(id);
-}
-
 mongo::BSONObj MongoDatabase::fetchMolecule(const MoleculeRef &molecule)
 {
   if (!m_db)
     return mongo::BSONObj();
 
-  std::string collection = moleculesCollectionName();
+  string collection = moleculesCollectionName();
   return m_db->findOne(collection, QUERY("_id" << molecule.id()));
 }
 
-std::vector<mongo::BSONObj> MongoDatabase::fetchMolecules(const std::vector<MoleculeRef> &molecules)
+vector<mongo::BSONObj> MongoDatabase::fetchMolecules(const vector<MoleculeRef> &molecules)
 {
-  std::vector<mongo::BSONObj> objs;
+  vector<mongo::BSONObj> objs;
 
   for (size_t i = 0; i < molecules.size(); ++i)
     objs.push_back(fetchMolecule(molecules[i]));
@@ -217,34 +167,8 @@ std::vector<mongo::BSONObj> MongoDatabase::fetchMolecules(const std::vector<Mole
   return objs;
 }
 
-boost::shared_ptr<chemkit::Molecule> MongoDatabase::createMolecule(const MoleculeRef &ref)
-{
-  if (!ref.isValid())
-    return boost::make_shared<chemkit::Molecule>();
-
-  // fetch molecule object
-  mongo::BSONObj obj = fetchMolecule(ref);
-
-  // get inchi formula
-  mongo::BSONElement inchiElement = obj.getField("inchi");
-  if (inchiElement.eoo())
-    return boost::make_shared<chemkit::Molecule>();
-
-  std::string inchi = inchiElement.str();
-
-  // create molecule from inchi
-  chemkit::Molecule *molecule = new chemkit::Molecule(inchi, "inchi");
-
-  // set molecule name
-  mongo::BSONElement nameElement = obj.getField("name");
-  if (!nameElement.eoo())
-    molecule->setName(nameElement.str());
-
-  return boost::shared_ptr<chemkit::Molecule>(molecule);
-}
-
 void MongoDatabase::addAnnotation(const MoleculeRef &ref,
-                                  const std::string &comment)
+                                  const string &comment)
 {
   if (!ref.isValid())
     return;
@@ -268,7 +192,7 @@ void MongoDatabase::deleteAnnotation(const MoleculeRef &ref, size_t index)
     return;
 
   // identifer for the item in the annotations array
-  std::stringstream id;
+  stringstream id;
   id << "annotations." << index;
 
   // set the value at index to null
@@ -290,13 +214,13 @@ void MongoDatabase::deleteAnnotation(const MoleculeRef &ref, size_t index)
 
 void MongoDatabase::updateAnnotation(const MoleculeRef &ref,
                                      size_t index,
-                                     const std::string &comment)
+                                     const string &comment)
 {
   if (!ref.isValid())
     return;
 
   // identifer for the item in the annotations array
-  std::stringstream id;
+  stringstream id;
   id << "annotations." << index << ".comment";
 
   // update the record with the new comment
@@ -307,7 +231,7 @@ void MongoDatabase::updateAnnotation(const MoleculeRef &ref,
                true);
 }
 
-void MongoDatabase::addTag(const MoleculeRef &ref, const std::string &tag)
+void MongoDatabase::addTag(const MoleculeRef &ref, const string &tag)
 {
   if (!ref.isValid())
     return;
@@ -319,7 +243,7 @@ void MongoDatabase::addTag(const MoleculeRef &ref, const std::string &tag)
                true);
 }
 
-void MongoDatabase::removeTag(const MoleculeRef &ref, const std::string &tag)
+void MongoDatabase::removeTag(const MoleculeRef &ref, const string &tag)
 {
   if (!ref.isValid())
     return;
@@ -331,9 +255,9 @@ void MongoDatabase::removeTag(const MoleculeRef &ref, const std::string &tag)
                true);
 }
 
-std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
+vector<string> MongoDatabase::fetchTags(const MoleculeRef &ref)
 {
-  std::vector<std::string> tags;
+  vector<string> tags;
 
   mongo::BSONObj obj = fetchMolecule(ref);
   if (obj.hasField("tags") && obj["tags"].isABSONObj()) {
@@ -351,15 +275,14 @@ std::vector<std::string> MongoDatabase::fetchTags(const MoleculeRef &ref)
   return tags;
 }
 
-std::vector<std::string>
-MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
-                                   const std::string &prefix,
-                                   size_t limit)
+vector<string> MongoDatabase::fetchTagsWithPrefix(const string &collection,
+                                                  const string &prefix,
+                                                  size_t limit)
 {
   // get full collection name (e.g. "chem.molecules")
   QSettings settings;
   QString base_collection = settings.value("collection", "chem").toString();
-  std::string collection_string = base_collection.toStdString()
+  string collection_string = base_collection.toStdString()
                                   + "."
                                   + collection;
 
@@ -377,7 +300,7 @@ MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
                 &to_return);
 
   // build set of tags
-  std::set<std::string> tags;
+  std::set<string> tags;
 
   // add each tag to the set
   while (cursor->more() && tags.size() < limit) {
@@ -387,10 +310,10 @@ MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
 
     if (obj.hasField("tags") && obj["tags"].isABSONObj()) {
       try {
-        std::vector<mongo::BSONElement> array = obj["tags"].Array();
+        vector<mongo::BSONElement> array = obj["tags"].Array();
 
         for (size_t i = 0; i < array.size() && tags.size() < limit; i++) {
-          std::string tag = array[i].str();
+          string tag = array[i].str();
           if (boost::starts_with(tag, prefix))
             tags.insert(tag);
         }
@@ -403,10 +326,10 @@ MongoDatabase::fetchTagsWithPrefix(const std::string &collection,
   }
 
   // return as a vector
-  return std::vector<std::string>(tags.begin(), tags.end());
+  return vector<string>(tags.begin(), tags.end());
 }
 
-std::string MongoDatabase::moleculesCollectionName() const
+string MongoDatabase::moleculesCollectionName() const
 {
   QSettings settings;
   QString collection = settings.value("collection", "chem").toString();
