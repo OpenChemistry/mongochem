@@ -68,6 +68,9 @@ public slots:
     * to determine similarity between molecules.
     */
   void showSimilarMolecules(MongoChem::MoleculeRef ref, size_t count = 10);
+  void showSimilarMolecules(const std::string &identifier,
+                            const std::string &format,
+                            size_t count = 10);
 
 #ifdef QTTESTING
   /**

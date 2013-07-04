@@ -56,6 +56,13 @@ boost::shared_ptr<chemkit::Molecule> ChemKit::createMolecule(
   return boost::shared_ptr<chemkit::Molecule>(molecule);
 }
 
+boost::shared_ptr<chemkit::Molecule> ChemKit::createMolecule(const string &identifier,
+                                                             const string &format)
+{
+  chemkit::Molecule *molecule = new chemkit::Molecule(identifier, format);
+  return boost::shared_ptr<chemkit::Molecule>(molecule);
+}
+
 MoleculeRef ChemKit::importMoleculeFromIdentifier(const string &identifier,
                                                   const string &format)
 {
@@ -111,12 +118,18 @@ MoleculeRef ChemKit::importMoleculeFromIdentifier(const string &identifier,
   return MoleculeRef(id);
 }
 
-std::vector<MoleculeRef> ChemKit::similarMolecules(const MoleculeRef &ref,
-                                                   const vector<MoleculeRef> &refs,
-                                                   size_t count)
+vector<MoleculeRef> ChemKit::similarMolecules(const MoleculeRef &ref,
+                                              const vector<MoleculeRef> &refs,
+                                              size_t count)
+{
+  return similarMolecules(createMolecule(ref), refs, count);
+}
+
+vector<MoleculeRef> ChemKit::similarMolecules(const boost::shared_ptr<chemkit::Molecule> &molecule,
+                                              const vector<MoleculeRef> &refs,
+                                              size_t count)
 {
   vector<MoleculeRef> molecules;
-  boost::shared_ptr<chemkit::Molecule> molecule(createMolecule(ref));
   if (!molecule)
     return molecules;
 

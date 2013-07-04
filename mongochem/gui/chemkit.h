@@ -47,6 +47,15 @@ public:
       const MoleculeRef &ref);
 
   /**
+   * @brief Create a molecule object for the supplied identifer.
+   * @param identifier The line format identifier.
+   * @param format The format, currently only InChI or SMILES.
+   * @return The molecule object, can be null if invalid.
+   */
+  static boost::shared_ptr<chemkit::Molecule> createMolecule(
+      const std::string &identifier, const std::string &format);
+
+  /**
    * Creates a new molecule for @p identifier with @p format. Returns a
    * reference to the newly created molecule.
    *
@@ -72,6 +81,19 @@ public:
    * determined by the tanimoto similarity value).
    */
   static std::vector<MoleculeRef> similarMolecules(const MoleculeRef &ref,
+                                                   const std::vector<MoleculeRef> &refs,
+                                                   size_t count);
+
+  /**
+   * @brief Find similar molecules to @p ref in @p refs up to a maximum of @p
+   * count.
+   * @param molecule The target molecule.
+   * @param refs The set of molecules to compare the target molecule to.
+   * @param count The maximum number of results to return.
+   * @return A vector of similar molecules, in  order to similarity (as
+   * determined by the tanimoto similarity value).
+   */
+  static std::vector<MoleculeRef> similarMolecules(const boost::shared_ptr<chemkit::Molecule> &molecule,
                                                    const std::vector<MoleculeRef> &refs,
                                                    size_t count);
 

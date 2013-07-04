@@ -249,6 +249,8 @@ using Avogadro::Io::FileFormatManager;
 using Avogadro::QtGui::ExtensionPlugin;
 using Avogadro::QtGui::ExtensionPluginFactory;
 
+using std::string;
+
 template<class Factory>
 inline QMap<QString, Factory *>
 MainWindow::loadFactoryPlugins(QMenu *menu, const char *slot)
@@ -537,6 +539,24 @@ void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
 
   std::vector<MoleculeRef> similarMolecules =
       ChemKit::similarMolecules(ref, m_model->molecules(), count);
+
+  // set the similar molecules to show in the model
+  m_model->setMolecules(similarMolecules);
+
+  // update the view for the updated model
+  m_ui->tableView->setModel(m_model);
+  m_ui->tableView->resizeColumnsToContents();
+}
+
+void MainWindow::showSimilarMolecules(const string &id, const string &format,
+                                      size_t count)
+{
+  m_ui->tableView->setModel(0);
+  qApp->processEvents();
+
+  std::vector<MoleculeRef> similarMolecules =
+      ChemKit::similarMolecules(ChemKit::createMolecule(id, format),
+                                m_model->molecules(), count);
 
   // set the similar molecules to show in the model
   m_model->setMolecules(similarMolecules);
