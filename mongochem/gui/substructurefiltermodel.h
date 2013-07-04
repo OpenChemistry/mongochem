@@ -19,8 +19,6 @@
 
 #include <QSortFilterProxyModel>
 
-#include <boost/shared_ptr.hpp>
-
 #include <chemkit/substructurequery.h>
 
 namespace MongoChem {

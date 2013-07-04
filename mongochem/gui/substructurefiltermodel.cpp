@@ -40,7 +40,7 @@ void SubstructureFilterModel::setIdentifier(const QString &identifier_)
   m_identifier = identifier_;
 
   std::string format;
-  if(identifier_.startsWith("InChI="))
+  if (identifier_.startsWith("InChI="))
     format = "inchi";
   else
     format = "smiles";
@@ -52,33 +52,28 @@ QString SubstructureFilterModel::identifier() const
   return m_identifier;
 }
 
-bool SubstructureFilterModel::filterAcceptsColumn(int sourceColumn, const QModelIndex &sourceParent) const
+bool SubstructureFilterModel::filterAcceptsColumn(int, const QModelIndex &) const
 {
-  Q_UNUSED(sourceColumn);
-  Q_UNUSED(sourceParent);
-
-  // accept and display all columns
+  // Accept and display all columns.
   return true;
 }
 
-bool SubstructureFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
+bool SubstructureFilterModel::filterAcceptsRow(int sourceRow,
+                                               const QModelIndex &sourceParent) const
 {
-  if(!m_query.molecule() || m_query.molecule()->isEmpty()){
+  if (!m_query.molecule() || m_query.molecule()->isEmpty())
     return false;
-  }
 
   // get the bson object for the row
   QModelIndex index_ = sourceModel()->index(sourceRow, 0, sourceParent);
   BSONObj *obj = static_cast<BSONObj *>(index_.internalPointer());
-  if(!obj){
+  if (!obj)
     return false;
-  }
 
   // get the molecule's inchi
   BSONElement elem = obj->getField("inchi");
-  if(elem.eoo()){
+  if (elem.eoo())
     return false;
-  }
 
   // create a molecule from the inchi formula
   chemkit::Molecule molecule(elem.str(), "inchi");
