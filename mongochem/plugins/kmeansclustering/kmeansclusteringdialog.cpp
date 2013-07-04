@@ -129,9 +129,6 @@ void KMeansClusteringDialog::setMolecules(const std::vector<MongoChem::MoleculeR
   // pop-up progress dialog immediately
   progressDialog.setMinimumDuration(0);
 
-  // connect to the database
-  MongoChem::MongoDatabase *db = MongoChem::MongoDatabase::instance();
-
   // set molecules
   d->molecules = molecules_;
 

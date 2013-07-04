@@ -18,6 +18,7 @@
 
 #include "mongodatabase.h"
 
+#include <chemkit/fingerprint.h>
 #include <chemkit/molecule.h>
 
 namespace MongoChem {
@@ -105,6 +106,88 @@ MoleculeRef ChemKit::importMoleculeFromIdentifier(const std::string &identifier,
   db->connection()->insert(db->moleculesCollectionName(), b.obj());
 
   return MoleculeRef(id);
+}
+
+std::vector<MoleculeRef> ChemKit::similarMolecules(const MoleculeRef &ref,
+                                                   const std::vector<MoleculeRef> &refs,
+                                                   size_t count)
+{
+  std::vector<MoleculeRef> molecules;
+  boost::shared_ptr<chemkit::Molecule> molecule(createMolecule(ref));
+  if (!molecule)
+    return molecules;
+
+  // Create an fp2 fingerprint for the molecule given.
+  boost::scoped_ptr<chemkit::Fingerprint>
+      fp2(chemkit::Fingerprint::create("fp2"));
+  if (!fp2)
+    return molecules;
+
+  // Calculate the fingerprint for the input molecule.
+  chemkit::Bitset fingerprint = fp2->value(molecule.get());
+
+  // Get access to the database.
+  MongoDatabase *db = MongoDatabase::instance();
+
+  // Calculate the tanimoto similarity value for each molecule.
+  std::map<float, MoleculeRef> sorted;
+  for (size_t i = 0; i < refs.size(); ++i) {
+    float similarity = 0;
+    mongo::BSONObj obj = db->fetchMolecule(refs[i]);
+    mongo::BSONElement element = obj.getField("fp2_fingerprint");
+    if (element.ok()) {
+      // There is already a fingerprint stored for the molecule so load and use
+      // that for calculating the similarity value.
+      int len = 0;
+      const char *binData = element.binData(len);
+      std::vector<size_t> binDataBlockVector(fingerprint.num_blocks());
+
+      memcpy(&binDataBlockVector[0],
+             binData,
+             binDataBlockVector.size() * sizeof(size_t));
+
+      chemkit::Bitset fingerprintValue(binDataBlockVector.begin(),
+                                       binDataBlockVector.end());
+
+      // Ensure that the fingerprints are the same size. This is necessary
+      // because different platforms may have different padding for the bits.
+      fingerprintValue.resize(fingerprint.size());
+
+      similarity =
+        static_cast<float>(
+          chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                    fingerprintValue));
+    }
+    else {
+      // There is not a fingerprint calculated for the molecule so create the
+      // molecule and calculate the fingerprint directly.
+      boost::shared_ptr<chemkit::Molecule> otherMolecule = createMolecule(refs[i]);
+
+      if (otherMolecule) {
+        similarity =
+          static_cast<float>(
+            chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
+                                                      fp2->value(
+                                                        otherMolecule.get())));
+      }
+      else {
+        similarity = 0.0f;
+      }
+    }
+    sorted[similarity] = refs[i];
+  }
+
+  // Clamp number of output molecules to the number of input molecules.
+  count = std::min(count, refs.size());
+
+  // Build a vector of refs composed of the most similar molecules.
+  molecules.resize(count);
+
+  std::map<float, MoleculeRef>::const_reverse_iterator iter = sorted.rbegin();
+  for (size_t i = 0; i < count; ++i)
+    molecules[i] = iter++->second;
+
+  return molecules;
 }
 
 }

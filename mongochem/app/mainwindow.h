@@ -35,10 +35,6 @@ namespace Ui {
 class MainWindow;
 }
 
-namespace chemkit {
-class Molecule;
-}
-
 namespace MongoChem {
 class AbstractImportDialog;
 class AbstractVtkChartWidgetFactory;
@@ -100,8 +96,6 @@ public slots:
 private:
   void setupTable();
   void setupCharts();
-  void showSimilarMolecules(
-    const boost::shared_ptr<chemkit::Molecule> &molecule, size_t count);
 
   /** Connects to MongoDB */
   void connectToDatabase();

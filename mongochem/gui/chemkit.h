@@ -18,6 +18,7 @@
 #define MONGOCHEM_CHEMKIT_H
 
 #include <boost/shared_ptr.hpp>
+#include <vector>
 
 namespace chemkit {
 class Molecule;
@@ -60,6 +61,19 @@ public:
    */
   static MoleculeRef importMoleculeFromIdentifier(const std::string &identifier,
                                                   const std::string &format);
+
+  /**
+   * @brief Find similar molecules to @p ref in @p refs up to a maximum of @p
+   * count.
+   * @param ref The reference to the target molecule.
+   * @param refs The set of molecules to compare the target molecule to.
+   * @param count The maximum number of results to return.
+   * @return A vector of similar molecules, in  order to similarity (as
+   * determined by the tanimoto similarity value).
+   */
+  static std::vector<MoleculeRef> similarMolecules(const MoleculeRef &ref,
+                                                   const std::vector<MoleculeRef> &refs,
+                                                   size_t count);
 
 };
 

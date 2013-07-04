@@ -22,8 +22,6 @@
 
 #include "ui_mainwindow.h"
 
-#include <boost/make_shared.hpp>
-
 #include <mongo/client/dbclient.h>
 
 #include <QtCore/QDebug>
@@ -38,9 +36,6 @@
 
 #include <vtkAnnotationLink.h>
 #include <vtkEventQtSlotConnect.h>
-
-#include <chemkit/molecule.h>
-#include <chemkit/fingerprint.h>
 
 #include "aboutdialog.h"
 #include "abstractvtkchartwidget.h"
@@ -537,95 +532,11 @@ void MainWindow::resetQuery()
 
 void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
 {
-  showSimilarMolecules(MongoChem::ChemKit::createMolecule(ref), count);
-}
-
-void MainWindow::showSimilarMolecules(
-  const boost::shared_ptr<chemkit::Molecule> &molecule, size_t count)
-{
-  if(!molecule) {
-    qDebug() << "Null molecule";
-    return;
-  }
-
-  // create fp2 fingerprint
-  boost::scoped_ptr<chemkit::Fingerprint>
-      fp2(chemkit::Fingerprint::create("fp2"));
-  if (!fp2) {
-    qDebug() << "Failed to create FP2 fingerprint.";
-    return;
-  }
-
-  // Update the UI to show an empty table while the query is performed.
   m_ui->tableView->setModel(0);
   qApp->processEvents();
 
-  // calculate fingerprint for the input molecule
-  chemkit::Bitset fingerprint = fp2->value(molecule.get());
-
-  // get access to the database
-  MongoDatabase *db = MongoDatabase::instance();
-
-  // calculate tanimoto similarity value for each molecule
-  std::map<float, MoleculeRef> sorted;
-  std::vector<MoleculeRef> refs = m_model->molecules();
-  for (size_t i = 0; i < refs.size(); ++i) {
-    float similarity = 0;
-    mongo::BSONObj obj = db->fetchMolecule(refs[i]);
-    mongo::BSONElement element = obj.getField("fp2_fingerprint");
-    if (element.ok()) {
-      // there is already a fingerprint stored for the molecule so
-      // load and use that for calculating the similarity value
-      int len = 0;
-      const char *binData = element.binData(len);
-      std::vector<size_t> binDataBlockVector(fingerprint.num_blocks());
-
-      memcpy(&binDataBlockVector[0],
-             binData,
-             binDataBlockVector.size() * sizeof(size_t));
-
-      chemkit::Bitset fingerprintValue(binDataBlockVector.begin(),
-                                       binDataBlockVector.end());
-
-      // ensure that the fingerprints are the same size. this is necessary
-      // because different platforms may have different padding for the bits.
-      fingerprintValue.resize(fingerprint.size());
-
-      similarity =
-        static_cast<float>(
-          chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
-                                                    fingerprintValue));
-    }
-    else {
-      // there is not a fingerprint calculated for the molecule so
-      // create the molecule and calculate the fingerprint directly
-      boost::shared_ptr<chemkit::Molecule> otherMolecule =
-        MongoChem::ChemKit::createMolecule(refs[i]);
-
-      if (otherMolecule) {
-        similarity =
-          static_cast<float>(
-            chemkit::Fingerprint::tanimotoCoefficient(fingerprint,
-                                                      fp2->value(
-                                                        otherMolecule.get())));
-      }
-      else {
-        similarity = 0.f;
-      }
-    }
-
-    sorted[similarity] = refs[i];
-  }
-
-  // Clamp number of output molecules to the number of input molecules.
-  count = std::min(count, refs.size());
-
-  // Build a vector of refs composed of the most similar molecules.
-  std::vector<MoleculeRef> similarMolecules(count);
-
-  std::map<float, MoleculeRef>::const_reverse_iterator iter = sorted.rbegin();
-  for (size_t i = 0; i < count; ++i)
-    similarMolecules[i] = iter++->second;
+  std::vector<MoleculeRef> similarMolecules =
+      ChemKit::similarMolecules(ref, m_model->molecules(), count);
 
   // set the similar molecules to show in the model
   m_model->setMolecules(similarMolecules);
