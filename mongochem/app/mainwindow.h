@@ -84,13 +84,6 @@ public slots:
                             const std::string &format,
                             size_t count = 10);
 
-  /** Calculates and stores the fingerprint for each molecule in the
-    * database.
-    *
-    * Returns @c false if the fingerprint specified by name is not valid.
-    */
-  bool calculateAndStoreFingerprints(const std::string &name = "fp2");
-
 #ifdef QTTESTING
   /**
    * Starts recording a GUI test.
@@ -179,6 +172,8 @@ private slots:
   void showClusteringWidget();
   void showImportDialog();
   void showAboutDialog();
+
+  void fileFormatsReady();
 
 signals:
   void connectionFailed();

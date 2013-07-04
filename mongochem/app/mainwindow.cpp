@@ -54,7 +54,10 @@
 
 #include <mongochem/plugins/pluginmanager.h>
 
+#include <avogadro/io/fileformat.h>
+#include <avogadro/io/fileformatmanager.h>
 #include <avogadro/qtplugins/pluginmanager.h>
+#include <avogadro/qtgui/extensionplugin.h>
 
 #ifdef QTTESTING
 #include <pqTestUtility.h>
@@ -245,6 +248,11 @@ protected:
 
 namespace MongoChem {
 
+using Avogadro::Io::FileFormat;
+using Avogadro::Io::FileFormatManager;
+using Avogadro::QtGui::ExtensionPlugin;
+using Avogadro::QtGui::ExtensionPluginFactory;
+
 template<class Factory>
 inline QMap<QString, Factory *>
 MainWindow::loadFactoryPlugins(QMenu *menu, const char *slot)
@@ -358,9 +366,33 @@ MainWindow::MainWindow()
   Avogadro::QtPlugins::PluginManager *plugin =
     Avogadro::QtPlugins::PluginManager::instance();
   plugin->load();
+  QList<ExtensionPluginFactory *> extensions =
+      plugin->pluginFactories<ExtensionPluginFactory>();
+  foreach (ExtensionPluginFactory *factory, extensions) {
+    ExtensionPlugin *extension = factory->createInstance();
+    if (extension) {
+      extension->setParent(this);
+      connect(extension, SIGNAL(fileFormatsReady()), SLOT(fileFormatsReady()));
+    }
+  }
 
   setupTable();
   connectToDatabase();
+}
+
+void MainWindow::fileFormatsReady()
+{
+  ExtensionPlugin *extension(qobject_cast<ExtensionPlugin *>(sender()));
+  if (!extension)
+    return;
+  foreach (FileFormat *format, extension->fileFormats()) {
+    if (!FileFormatManager::registerFormat(format)) {
+      qWarning() << tr("Error while loading FileFormat with id '%1'.")
+                    .arg(QString::fromStdString(format->identifier()));
+      // Need to delete the format if the manager didn't take ownership:
+      delete format;
+    }
+  }
 }
 
 MainWindow::~MainWindow()
@@ -611,44 +643,6 @@ void MainWindow::showSimilarMolecules(
   // update the view for the updated model
   m_ui->tableView->setModel(m_model);
   m_ui->tableView->resizeColumnsToContents();
-}
-
-bool MainWindow::calculateAndStoreFingerprints(const std::string &name)
-{
-  // create the fingerprint
-  boost::scoped_ptr<chemkit::Fingerprint>
-    fingerprint(chemkit::Fingerprint::create(name));
-  if (!fingerprint)
-    return false;
-
-  // get access to the database
-  MongoDatabase *db = MongoDatabase::instance();
-
-  // get a list of the current molecules
-  std::vector<MoleculeRef> refs = m_model->molecules();
-
-  for (size_t i = 0; i < refs.size(); ++i) {
-    // get the molecule from the ref
-    MoleculeRef ref = refs[i];
-    boost::shared_ptr<chemkit::Molecule> molecule = db->createMolecule(ref);
-
-    // calculate the fingerprint value and store it in a vector
-    std::vector<size_t> value;
-    boost::to_block_range(fingerprint->value(molecule.get()),
-                          std::back_inserter(value));
-
-    // store the fingerprint for the molecule in the database
-    mongo::BSONObjBuilder b;
-    b.appendBinData(name + "_fingerprint",
-                    static_cast<int>(value.size() * sizeof(size_t)),
-                    mongo::BinDataGeneral,
-                    reinterpret_cast<char *>(&value[0]));
-    mongo::BSONObjBuilder updateSet;
-    updateSet << "$set" << b.obj();
-    m_db->update("chem.molecules", QUERY("_id" << ref.id()), updateSet.obj());
-  }
-
-  return true;
 }
 
 void MainWindow::setShowSelectedMolecules(bool enabled)
