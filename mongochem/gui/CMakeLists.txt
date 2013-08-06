@@ -10,6 +10,11 @@ include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
 find_package(AvogadroLibs REQUIRED NO_MODULE)
 include_directories(${AvogadroLibs_INCLUDE_DIRS})
+# If we are building statically then we need HDF5 targets.
+# TODO: Should this be moved to the AvogadroLibs config file?
+if(NOT BUILD_SHARED_LIBS)
+  find_package(HDF5 REQUIRED COMPONENTS C)
+endif()
 
 set(SOURCES
   abstractvtkchartwidget.cpp
