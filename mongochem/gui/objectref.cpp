@@ -2,7 +2,7 @@
 
   This source file is part of the MongoChem project.
 
-  Copyright 2012 Kitware, Inc.
+  Copyright 2012-2013 Kitware, Inc.
 
   This source code is released under the New BSD License, (the "License").
 
@@ -14,21 +14,20 @@
 
 ******************************************************************************/
 
-#ifndef MONGOCHEM_MOLECULEREF_H
-#define MONGOCHEM_MOLECULEREF_H
-
 #include "objectref.h"
+
+#include <iostream>
 
 namespace MongoChem {
 
-/** \brief The MoleculeRef class represents a molecule in a database. */
-class MoleculeRef : public ObjectRef
+ObjectRef::ObjectRef(const std::string &id_) : m_id(id_)
 {
-public:
-  /** Creates a new molecule reference with \p str. */
-  MoleculeRef(const std::string &str = "") : ObjectRef(str) { }
-};
+  std::cout << "ObjectRef: " << m_id << std::endl;
+}
 
-} // end MongoChem namespace
+bool ObjectRef::isValid() const
+{
+  return !m_id.empty();
+}
 
-#endif // MONGOCHEM_MOLECULEREF_H
+}

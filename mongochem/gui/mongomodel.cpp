@@ -321,7 +321,7 @@ std::vector<MoleculeRef> MongoModel::molecules() const
     const mongo::BSONObj &obj = d->m_rowObjects[i];
     mongo::BSONElement idElement;
     if (obj.getObjectID(idElement))
-      molecules_.push_back(MoleculeRef(idElement.OID()));
+      molecules_.push_back(MoleculeRef(idElement.OID().str()));
   }
 
   return molecules_;

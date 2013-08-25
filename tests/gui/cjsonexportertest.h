@@ -1,8 +1,8 @@
 /******************************************************************************
 
-  This source file is part of the MongoChem project.
+  This source file is part of the MoleQueue project.
 
-  Copyright 2012 Kitware, Inc.
+  Copyright 2013 Kitware, Inc.
 
   This source code is released under the New BSD License, (the "License").
 
@@ -14,21 +14,19 @@
 
 ******************************************************************************/
 
-#ifndef MONGOCHEM_MOLECULEREF_H
-#define MONGOCHEM_MOLECULEREF_H
+#include <QtCore/QObject>
 
-#include "objectref.h"
-
-namespace MongoChem {
-
-/** \brief The MoleculeRef class represents a molecule in a database. */
-class MoleculeRef : public ObjectRef
+class CjsonExporterTest : public QObject
 {
+  Q_OBJECT
 public:
-  /** Creates a new molecule reference with \p str. */
-  MoleculeRef(const std::string &str = "") : ObjectRef(str) { }
+  CjsonExporterTest()
+    : QObject(NULL)
+  {
+
+  }
+
+private slots:
+  void toCjson();
+
 };
-
-} // end MongoChem namespace
-
-#endif // MONGOCHEM_MOLECULEREF_H

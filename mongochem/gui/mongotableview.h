@@ -19,13 +19,12 @@
 
 #include <QtGui/QTableView>
 
-#include "moleculeref.h"
-
 class QNetworkAccessManager;
 class QNetworkReply;
 
 namespace MongoChem {
 
+class MoleculeRef;
 class OpenInEditorHandler;
 
 class MongoTableView : public QTableView

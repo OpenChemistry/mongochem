@@ -19,8 +19,6 @@
 
 #include <QObject>
 
-#include <mongochem/gui/moleculeref.h>
-
 #include <molequeue/servercore/connectionlistener.h>
 
 #include <qjsonobject.h>
