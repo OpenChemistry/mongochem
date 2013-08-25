@@ -21,6 +21,7 @@
 
 #include "cjsonexporter.h"
 #include "mongodatabase.h"
+#include "moleculeref.h"
 
 #include <avogadro/core/molecule.h>
 #include <avogadro/io/fileformatmanager.h>

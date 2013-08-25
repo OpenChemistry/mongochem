@@ -22,8 +22,6 @@
 
 #include <vtkNew.h>
 
-#include <mongochem/gui/moleculeref.h>
-
 class vtkAnnotationLink;
 class vtkEventQtSlotConnect;
 
@@ -48,6 +46,7 @@ class pqTestUtility;
 
 namespace MongoChem {
 
+class MoleculeRef;
 class MongoModel;
 class QuickQueryWidget;
 
@@ -67,7 +66,7 @@ public slots:
     * By default, this uses the tanimoto coefficent of the FP2 fingerprints
     * to determine similarity between molecules.
     */
-  void showSimilarMolecules(MongoChem::MoleculeRef ref, size_t count = 10);
+  void showSimilarMolecules(const MongoChem::MoleculeRef &ref, size_t count = 10);
   void showSimilarMolecules(const std::string &identifier,
                             const std::string &format,
                             size_t count = 10);
@@ -140,7 +139,7 @@ private:
 private slots:
   /** Show the molecule details dialog for the molecule referred to
    *  by @p ref. */
-  void showMoleculeDetailsDialog(MongoChem::MoleculeRef ref);
+  void showMoleculeDetailsDialog(const MongoChem::MoleculeRef &ref);
 
   /** Show the server settings dialog. */
   void showServerSettings();

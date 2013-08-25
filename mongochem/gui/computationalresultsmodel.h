@@ -21,7 +21,10 @@
 
 #include <QAbstractItemModel>
 
-#include <mongo/client/dbclient.h>
+namespace mongo {
+class Query;
+class BSONObj;
+}
 
 namespace MongoChem {
 

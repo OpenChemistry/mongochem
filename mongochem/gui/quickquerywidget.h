@@ -19,7 +19,9 @@
 
 #include <QWidget>
 
-#include <mongo/client/dbclient.h>
+namespace mongo {
+class Query;
+}
 
 namespace Ui {
 class QuickQueryWidget;

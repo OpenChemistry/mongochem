@@ -19,6 +19,8 @@
 
 #include "chemkit.h"
 
+#include <mongo/client/dbclient.h>
+
 namespace MongoChem {
 
 QuickQueryWidget::QuickQueryWidget(QWidget *parent_)

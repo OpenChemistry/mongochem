@@ -445,7 +445,7 @@ void MainWindow::setupTable()
   m_ui->tableView->setItemDelegateForColumn(2, formulaDelegate);
 }
 
-void MainWindow::showMoleculeDetailsDialog(MongoChem::MoleculeRef ref)
+void MainWindow::showMoleculeDetailsDialog(const MoleculeRef &ref)
 {
   if (ref.isValid()) {
     MoleculeDetailDialog *dialog = new MoleculeDetailDialog(this);
@@ -532,7 +532,7 @@ void MainWindow::resetQuery()
   m_ui->tableView->resizeColumnsToContents();
 }
 
-void MainWindow::showSimilarMolecules(MoleculeRef ref, size_t count)
+void MainWindow::showSimilarMolecules(const MoleculeRef &ref, size_t count)
 {
   m_ui->tableView->setModel(0);
   qApp->processEvents();
