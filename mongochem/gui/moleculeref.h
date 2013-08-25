@@ -14,8 +14,8 @@
 
 ******************************************************************************/
 
-#ifndef MOLECULEREF_H
-#define MOLECULEREF_H
+#ifndef MONGOCHEM_MOLECULEREF_H
+#define MONGOCHEM_MOLECULEREF_H
 
 #include "objectref.h"
 
@@ -25,13 +25,10 @@ namespace MongoChem {
 class MoleculeRef : public ObjectRef
 {
 public:
-  /** Creates a new molecule reference with \p id_. */
-  MoleculeRef(const mongo::OID &id_ = mongo::OID()) : ObjectRef(id_) { }
-
-  /** Destroys the molecule reference. */
-  ~MoleculeRef() { }
+  /** Creates a new molecule reference with \p str. */
+  MoleculeRef(const std::string &str = "") : ObjectRef(str) { }
 };
 
 } // end MongoChem namespace
 
-#endif // MOLECULEREF_H
+#endif // MONGOCHEM_MOLECULEREF_H

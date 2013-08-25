@@ -23,15 +23,10 @@
 
 #include <QString>
 
-#include "moleculeref.h"
 #include <mongochem/gui/abstractclusteringwidget.h>
 
 namespace Ui {
 class KMeansClusteringDialog;
-}
-
-namespace chemkit {
-class Molecule;
 }
 
 class KMeansClusteringDialogPrivate;

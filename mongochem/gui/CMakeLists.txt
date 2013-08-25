@@ -38,6 +38,7 @@ set(SOURCES
   svggenerator.cpp
   cjsonexporter.cpp
   chemkit.cpp
+  objectref.cpp
 )
 
 qt4_wrap_ui(UI_SOURCES

@@ -36,7 +36,6 @@ class QTableWidgetItem;
 
 namespace MongoChem {
 
-class MoleculeRef;
 class OpenInEditorHandler;
 class ExportMoleculeHandler;
 class ComputationalResultsModel;

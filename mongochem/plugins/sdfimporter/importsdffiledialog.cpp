@@ -142,7 +142,7 @@ void ImportSdfFileDialog::import()
         // add molecule
         conn->insert(collection, b.obj());
 
-        ref = MongoChem::MoleculeRef(id);
+        ref = MongoChem::MoleculeRef(id.str());
     }
 
     // read descriptors

@@ -115,7 +115,7 @@ MoleculeRef ChemKit::importMoleculeFromIdentifier(const string &identifier,
   // insert molecule
   db->connection()->insert(db->moleculesCollectionName(), b.obj());
 
-  return MoleculeRef(id);
+  return MoleculeRef(id.str());
 }
 
 vector<MoleculeRef> ChemKit::similarMolecules(const MoleculeRef &ref,
