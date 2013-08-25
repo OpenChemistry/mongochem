@@ -154,7 +154,7 @@ mongo::BSONObj MongoDatabase::fetchMolecule(const MoleculeRef &molecule)
     return mongo::BSONObj();
 
   string collection = moleculesCollectionName();
-  return m_db->findOne(collection, QUERY("_id" << molecule.id()));
+  return m_db->findOne(collection, QUERY("_id" << mongo::OID(molecule.id())));
 }
 
 vector<mongo::BSONObj> MongoDatabase::fetchMolecules(const vector<MoleculeRef> &molecules)
@@ -180,7 +180,7 @@ void MongoDatabase::addAnnotation(const MoleculeRef &ref,
 
   // store annotations
   m_db->update(moleculesCollectionName(),
-               QUERY("_id" << ref.id()),
+               QUERY("_id" << mongo::OID(ref.id())),
                BSON("$push" << BSON("annotations" << annotation.obj())),
                false,
                true);
@@ -197,7 +197,7 @@ void MongoDatabase::deleteAnnotation(const MoleculeRef &ref, size_t index)
 
   // set the value at index to null
   m_db->update(moleculesCollectionName(),
-               QUERY("_id" << ref.id()),
+               QUERY("_id" << mongo::OID(ref.id())),
                BSON("$unset" << BSON(id.str() << 1)),
                false,
                true);
@@ -206,7 +206,7 @@ void MongoDatabase::deleteAnnotation(const MoleculeRef &ref, size_t index)
   mongo::BSONObjBuilder builder;
   builder.appendNull("annotations");
   m_db->update(moleculesCollectionName(),
-               QUERY("_id" << ref.id()),
+               QUERY("_id" << mongo::OID(ref.id())),
                BSON("$pull" << builder.obj()),
                false,
                true);
@@ -225,7 +225,7 @@ void MongoDatabase::updateAnnotation(const MoleculeRef &ref,
 
   // update the record with the new comment
   m_db->update(moleculesCollectionName(),
-               QUERY("_id" << ref.id()),
+               QUERY("_id" << mongo::OID(ref.id())),
                BSON("$set" << BSON(id.str() << comment)),
                false,
                true);
@@ -237,7 +237,7 @@ void MongoDatabase::addTag(const MoleculeRef &ref, const string &tag)
     return;
 
   m_db->update(moleculesCollectionName(),
-               QUERY("_id" << ref.id()),
+               QUERY("_id" << mongo::OID(ref.id())),
                BSON("$addToSet" << BSON("tags" << tag)),
                false,
                true);
@@ -249,7 +249,7 @@ void MongoDatabase::removeTag(const MoleculeRef &ref, const string &tag)
     return;
 
   m_db->update(moleculesCollectionName(),
-               QUERY("_id" << ref.id()),
+               QUERY("_id" << mongo::OID(ref.id())),
                BSON("$pull" << BSON("tags" << tag)),
                false,
                true);
@@ -346,7 +346,7 @@ MoleculeRef MongoDatabase::createMoleculeRefForBSONObj(const mongo::BSONObj &obj
   if (!ok)
     return MoleculeRef();
 
-  return MoleculeRef(idElement.OID());
+  return MoleculeRef(idElement.OID().str());
 }
 
 } // end MongoChem namespace

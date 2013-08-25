@@ -14,6 +14,8 @@
 
 ******************************************************************************/
 
+#include "cjsonexportertest.h"
+
 #include "cjsonexporter.h"
 
 #include "mongochemtestconfig.h"
@@ -22,22 +24,6 @@
 
 #include <QtTest>
 #include <QtCore/QFile>
-
-
-class CjsonExporterTest : public QObject
-{
-  Q_OBJECT
-public:
-  CjsonExporterTest()
-    : QObject(NULL)
-  {
-
-  }
-
-private slots:
-  void toCjson();
-
-};
 
 void CjsonExporterTest::toCjson() {
 
@@ -67,5 +53,3 @@ void CjsonExporterTest::toCjson() {
 }
 
 QTEST_MAIN(CjsonExporterTest)
-
-#include "cjsonexportertest.moc"

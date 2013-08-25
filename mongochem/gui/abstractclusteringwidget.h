@@ -19,11 +19,11 @@
 
 #include "mongochemguiexport.h"
 
-#include "moleculeref.h"
-
 #include <QtGui/QWidget>
 
 namespace MongoChem {
+
+class MoleculeRef;
 
 /**
  * @class AbstractVtkChartWidget
@@ -40,7 +40,7 @@ public:
   virtual void setMolecules(const std::vector<MoleculeRef> &molecules);
 
 signals:
-  void moleculeDoubleClicked(MongoChem::MoleculeRef ref);
+  void moleculeDoubleClicked(const MongoChem::MoleculeRef &ref);
 
 protected:
   /** Creates a new clustering widget. */

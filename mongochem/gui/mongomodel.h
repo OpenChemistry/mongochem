@@ -17,10 +17,10 @@
 #ifndef MongoModel_H
 #define MongoModel_H
 
-#include "moleculeref.h"
-
 #include <QtCore/QModelIndex>
 #include <QtCore/QList>
+
+#include <vector>
 
 namespace mongo {
 class DBClientConnection;
@@ -30,6 +30,8 @@ class Query;
 class vtkTable;
 
 namespace MongoChem {
+
+class MoleculeRef;
 
 class MongoModel : public QAbstractItemModel
 {

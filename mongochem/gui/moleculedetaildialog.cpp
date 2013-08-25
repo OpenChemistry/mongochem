@@ -15,6 +15,9 @@
 ******************************************************************************/
 
 #include "moleculedetaildialog.h"
+
+#include <mongo/client/dbclient.h>
+
 #include "ui_moleculedetaildialog.h"
 
 #include <boost/shared_ptr.hpp>

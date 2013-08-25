@@ -2,7 +2,7 @@
 
   This source file is part of the MongoChem project.
 
-  Copyright 2012 Kitware, Inc.
+  Copyright 2012-2013 Kitware, Inc.
 
   This source code is released under the New BSD License, (the "License").
 
@@ -14,10 +14,10 @@
 
 ******************************************************************************/
 
-#ifndef OBJECTREF_H
-#define OBJECTREF_H
+#ifndef MONGOCHEM_OBJECTREF_H
+#define MONGOCHEM_OBJECTREF_H
 
-#include <mongo/client/dbclient.h>
+#include <string>
 
 namespace MongoChem {
 
@@ -29,17 +29,14 @@ private:
   void trueBoolType() { }
 
 public:
-  /** Creates a new object reference with \p id_. */
-  ObjectRef(const mongo::OID &id_ = mongo::OID()) : m_id(id_) { }
-
-  /** Destroys the object reference. */
-  virtual ~ObjectRef() { }
+  /** Creates a new object reference with \p id. */
+  ObjectRef(const std::string &id = "");
 
   /** Returns the id of the referenced object. */
-  mongo::OID id() const { return m_id; }
+  std::string id() const { return m_id; }
 
   /** Returns \c true if the object reference is valid. */
-  bool isValid() const { return m_id.isSet(); }
+  bool isValid() const;
 
   /**
    * Returns @c true if the ObjectRef refers to a valid object.
@@ -57,9 +54,9 @@ public:
   }
 
 private:
-  mongo::OID m_id;
+  std::string m_id;
 };
 
 } // end MongoChem namespace
 
-#endif // OBJECTREF_H
+#endif // MONGOCHEM_OBJECTREF_H
