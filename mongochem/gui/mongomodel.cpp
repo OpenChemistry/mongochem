@@ -43,14 +43,6 @@ namespace MongoChem {
 class MongoModel::Private
 {
 public:
-  Private()
-  {
-  }
-
-  ~Private()
-  {
-  }
-
   BSONObj * getRecord(unsigned int index)
   {
     if (index < m_rowObjects.size()) {
@@ -85,17 +77,17 @@ MongoModel::MongoModel(mongo::DBClientConnection *db, QObject *parent_)
   d = new MongoModel::Private;
   d->db = db;
 
-  // show entire database by default
-  setQuery(Query());
+  // Show the entire database by default.
+  setQuery(QUERY("diagram" << BSON("$exists" << true)));
 
   d->m_fields << "diagram"
               << "name"
               << "formula"
               << "mass";
-  d->m_titles["diagram"] = "Diagram";
-  d->m_titles["name"] = "Name";
-  d->m_titles["formula"] = "Formula";
-  d->m_titles["mass"] = "Molecular Mass";
+  d->m_titles["diagram"] = tr("Diagram");
+  d->m_titles["name"] = tr("Name");
+  d->m_titles["formula"] = tr("Formula");
+  d->m_titles["mass"] = tr("Mass");
 }
 
 MongoModel::~MongoModel()
@@ -107,7 +99,7 @@ void MongoModel::setQuery(const mongo::Query &query)
 {
   d->m_rowObjects.clear();
 
-  // store query
+  // Store the query.
   d->m_query = query;
 
   try {
@@ -115,18 +107,18 @@ void MongoModel::setQuery(const mongo::Query &query)
     std::string collection =
         settings.value("collection", "chem").toString().toStdString();
 
-    if(d->m_sortField.empty()){
+    if (d->m_sortField.empty()) {
       d->cursor = d->db->query(collection + ".molecules", query);
     }
     else {
-      // add sort criteria to query
+      // Add sort criteria to query.
       mongo::Query sortQuery = query;
       sortQuery.sort(d->m_sortField, d->m_sortDirection);
       d->cursor = d->db->query(collection + ".molecules", sortQuery);
     }
 
-    // load first 250 rows
-    loadMoreData(250);
+    // Load the first 50 rows.
+    loadMoreData(50);
   }
   catch (mongo::SocketException &e) {
     std::cerr << "Failed to query MongoDB: " << e.what() << std::endl;
@@ -136,14 +128,14 @@ void MongoModel::setQuery(const mongo::Query &query)
 void MongoModel::setSortField(const std::string &field, int direction)
 {
   if (field == "diagram" || field == "3d") {
-    // sorting not supported for diagrams or 3d coordinate
+    // Sorting is not supported for diagrams or 3d coordinate.
     return;
   }
 
   d->m_sortField = field;
   d->m_sortDirection = direction;
 
-  // re-run current query with new sorting parameters
+  // Re-run current query with new sorting parameters.
   setQuery(d->m_query);
 }
 
@@ -213,8 +205,9 @@ int MongoModel::columnCount(const QModelIndex &parent_) const
 QVariant MongoModel::headerData(int section, Qt::Orientation orientation,
                                 int role) const
 {
-  if (section >= d->m_titles.size())
+  if (section >= d->m_titles.size()) {
     return QVariant();
+  }
   else if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
     if (d->m_titles.contains(d->m_fields[section]))
       return d->m_titles[d->m_fields[section]];
@@ -229,8 +222,6 @@ QVariant MongoModel::headerData(int section, Qt::Orientation orientation,
 
 QVariant MongoModel::data(const QModelIndex &index_, int role) const
 {
-  Q_UNUSED(index_);
-
   if (index_.column() < 0 || index_.column() >= d->m_fields.size())
     return QVariant();
 
@@ -246,18 +237,18 @@ QVariant MongoModel::data(const QModelIndex &index_, int role) const
         return e.str().c_str();
     }
     else if (role == Qt::SizeHintRole) {
-      if(d->m_fields[index_.column()] == "diagram" &&
-         !obj->getField("diagram").eoo()){
+      if (d->m_fields[index_.column()] == "diagram"
+          && !obj->getObjectField("diagram").getField("png").eoo()){
         return QVariant(QSize(250, 250));
       }
-      else{
+      else {
         return QVariant(QSize(120, 20));
       }
     }
-    else if(role == Qt::DecorationRole){
-      if(d->m_fields[index_.column()] == "diagram"){
-        BSONElement image = obj->getField("diagram");
-        if(!image.eoo()){
+    else if (role == Qt::DecorationRole) {
+      if (d->m_fields[index_.column()] == "diagram") {
+        BSONElement image = obj->getObjectField("diagram").getField("png");
+        if (!image.eoo()) {
           int length = 0;
           const char *data_ = image.binData(length);
           QByteArray inData(data_, length);
@@ -268,7 +259,6 @@ QVariant MongoModel::data(const QModelIndex &index_, int role) const
       }
     }
   }
-
   return QVariant();
 }
 
@@ -279,7 +269,6 @@ bool MongoModel::setData(const QModelIndex &index_,
   Q_UNUSED(index_);
   Q_UNUSED(value);
   Q_UNUSED(role);
-
   return false;
 }
 
@@ -295,9 +284,8 @@ QModelIndex MongoModel::index(int row, int column,
 {
   Q_UNUSED(parent_);
 
-  if (row >= 0 && static_cast<size_t>(row) < d->m_rowObjects.size()) {
+  if (row >= 0 && static_cast<size_t>(row) < d->m_rowObjects.size())
     return createIndex(row, column, &d->m_rowObjects[row]);
-  }
 
   return QModelIndex();
 }
@@ -308,7 +296,7 @@ void MongoModel::setMolecules(const std::vector<MoleculeRef> &molecules_)
 
   d->m_rowObjects.clear();
 
-  for(size_t i = 0; i < molecules_.size(); i++)
+  for (size_t i = 0; i < molecules_.size(); i++)
     d->m_rowObjects.push_back(db->fetchMolecule(molecules_[i]));
 }
 
@@ -317,7 +305,7 @@ std::vector<MoleculeRef> MongoModel::molecules() const
 {
   std::vector<MoleculeRef> molecules_;
 
-  for (size_t i = 0; i < d->m_rowObjects.size(); i++) {
+  for (size_t i = 0; i < d->m_rowObjects.size(); ++i) {
     const mongo::BSONObj &obj = d->m_rowObjects[i];
     mongo::BSONElement idElement;
     if (obj.getObjectID(idElement))
@@ -337,7 +325,8 @@ bool MongoModel::setImage2D(int row, const QByteArray &image)
 
   BSONObj *obj = d->getRecord(row);
   BSONObjBuilder b;
-  b.appendBinData("diagram", image.length(), mongo::BinDataGeneral, image.data());
+  b.appendBinData("diagram", image.length(), mongo::BinDataGeneral,
+                  image.data());
   BSONObjBuilder updateSet;
   updateSet << "$set" << b.obj();
   d->db->update("chem.molecules", *obj, updateSet.obj());

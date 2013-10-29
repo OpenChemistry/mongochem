@@ -60,7 +60,8 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   connect(ui->closeButton, SIGNAL(clicked()), SLOT(close()));
 
   m_exportHandler = new ExportMoleculeHandler(this);
-  connect(ui->exportButton, SIGNAL(clicked()), m_exportHandler, SLOT(exportMolecule()));
+  connect(ui->exportButton, SIGNAL(clicked()),
+          m_exportHandler, SLOT(exportMolecule()));
 
   m_openInEditorHandler = new OpenInEditorHandler(this);
   connect(ui->openInEditorButton, SIGNAL(clicked()),
@@ -68,9 +69,7 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
 
   // setup tags
   ui->tagsTextEdit->setContextMenuPolicy(Qt::CustomContextMenu);
-  connect(ui->tagsTextEdit,
-          SIGNAL(customContextMenuRequested(const QPoint&)),
-          this,
+  connect(ui->tagsTextEdit, SIGNAL(customContextMenuRequested(const QPoint&)),
           SLOT(tagsRightClicked(const QPoint&)));
 
   // setup computational results tab
@@ -83,22 +82,15 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   ui->annotationsTableWidget->setHorizontalHeaderLabels(QStringList()
                                                         << "User"
                                                         << "Comment");
-  connect(ui->addAnnotationButton,
-          SIGNAL(clicked()),
-          this,
+  connect(ui->addAnnotationButton, SIGNAL(clicked()),
           SLOT(addNewAnnotation()));
-  connect(ui->annotationLineEdit,
-          SIGNAL(returnPressed()),
-          this,
+  connect(ui->annotationLineEdit, SIGNAL(returnPressed()),
           SLOT(addNewAnnotation()));
-  connect(ui->annotationsTableWidget,
-          SIGNAL(itemChanged(QTableWidgetItem*)),
-          this,
+  connect(ui->annotationsTableWidget, SIGNAL(itemChanged(QTableWidgetItem*)),
           SLOT(annotationItemChanged(QTableWidgetItem*)));
   ui->annotationsTableWidget->setContextMenuPolicy(Qt::CustomContextMenu);
   connect(ui->annotationsTableWidget,
           SIGNAL(customContextMenuRequested(const QPoint&)),
-          this,
           SLOT(annotationRightClicked(const QPoint&)));
 
   Avogadro::QtGui::ScenePluginFactory * scenePluginFactory =
@@ -162,28 +154,21 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     ui->diagramGroupBox->setTitle(title);
   }
 
-  // set formula
+  // Set the formula.
   mongo::BSONElement formulaElement = obj.getField("formula");
   if (!formulaElement.eoo()) {
     std::string formula = formulaElement.str();
     ui->formulaLineEdit->setText(formula.c_str());
   }
 
-  // set mass
-  mongo::BSONElement massElement = obj.getField("mass");
-  if (!massElement.eoo()) {
-    double mass = massElement.numberDouble();
-    ui->massLineEdit->setText(QString::number(mass) + "g/mol");
-  }
-
-  // set inchikey
+  // Set the InChI key.
   mongo::BSONElement inchikeyElement = obj.getField("inchikey");
   if (!inchikeyElement.eoo()) {
     std::string inchikey = inchikeyElement.str();
     ui->inchikeyLineEdit->setText(inchikey.c_str());
   }
 
-  // set inchikey
+  // Set the SMILES.
   mongo::BSONElement smilesElement = obj.getField("smiles");
   if (!smilesElement.eoo()) {
     QString smiles(smilesElement.str().c_str());
@@ -205,22 +190,22 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   // set tags
   reloadTags();
 
-  // set svg diagram
-  mongo::BSONElement svgElement = obj.getField("svg");
+  // Set the SVG diagram.
+  mongo::BSONElement svgElement = obj.getObjectField("diagram").getField("svg");
   if (!svgElement.eoo()) {
-    // get svg
+    // Get the SVG.
     std::string svg = svgElement.str();
 
-    // create web view
+    // Create web view
     QWebView *widget = new QWebView;
 
-    // set transparent background
+    // Set transparent background
     QPalette palette_ = widget->palette();
     palette_.setBrush(QPalette::Base, Qt::transparent);
     widget->page()->setPalette(palette_);
     widget->setAttribute(Qt::WA_OpaquePaintEvent, false);
 
-    // set content
+    // Set content
     std::stringstream html;
     html << "<html>"
          << "<head>"
@@ -236,22 +221,19 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     std::string content = html.str();
     widget->setContent(QByteArray(content.c_str()));
 
-    // add webview widget
     ui->diagram2DLayout->addWidget(widget);
-
-    // hide label widget
     ui->diagram2DLabel->hide();
   }
   else {
     // set png diagram (if no svg)
-    mongo::BSONElement diagramElement = obj.getField("diagram");
+    mongo::BSONElement diagramElement = obj.getObjectField("diagram")
+        .getField("png");
     if (!diagramElement.eoo()) {
       int length;
       const char *data_ = diagramElement.binData(length);
       QByteArray inData(data_, length);
       QImage in = QImage::fromData(inData, "PNG");
       QPixmap pix = QPixmap::fromImage(in);
-
       ui->diagram2DLabel->setText(QString());
       ui->diagram2DLabel->setPixmap(pix);
     }
@@ -290,7 +272,8 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   mongo::BSONObj descriptorsObj = obj.getObjectField("descriptors");
   if (!descriptorsObj.isEmpty()) {
     ui->descriptorsTableWidget->setColumnCount(2);
-    ui->descriptorsTableWidget->setHorizontalHeaderLabels(QStringList() << "Name" << "Value");
+    ui->descriptorsTableWidget->setHorizontalHeaderLabels(QStringList()
+                                                          << "Name" << "Value");
 
     std::set<std::string> fields;
     descriptorsObj.getFieldNames(fields);
@@ -298,22 +281,22 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
     ui->descriptorsTableWidget->setRowCount(static_cast<int>(fields.size()));
 
     int index = 0;
-    foreach(const std::string &field, fields){
+    foreach (const std::string &field, fields) {
       mongo::BSONElement descriptorElement = descriptorsObj.getField(field);
       double value = descriptorElement.numberDouble();
-      ui->descriptorsTableWidget->setItem(index, 0, new QTableWidgetItem(field.c_str()));
-      ui->descriptorsTableWidget->setItem(index, 1, new QTableWidgetItem(QString::number(value)));
+      ui->descriptorsTableWidget->setItem(index, 0,
+                                          new QTableWidgetItem(field.c_str()));
+      ui->descriptorsTableWidget->setItem(index, 1,
+                                          new QTableWidgetItem(QString::number(value)));
       index++;
     }
   }
 
-  // Setup the open in editor handler.
+  // Setup the handlers.
   m_openInEditorHandler->setMolecule(moleculeRef);
-
-  // setup export handler
   m_exportHandler->setMolecule(moleculeRef);
 
-  // setup computational results tab
+  // Setup the computational results tab
   m_computationalResultsTableView->setModel(0);
   m_computationalResultsModel->setQuery(
     QUERY("inchikey" << obj.getStringField("inchikey")));

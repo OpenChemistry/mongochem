@@ -34,7 +34,6 @@ namespace MongoChem
 class MONGOCHEMGUI_EXPORT CjsonExporter
 {
 public:
-
   /**
    * Converts a MongoChem database object into CJSON.
    *

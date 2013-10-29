@@ -43,8 +43,8 @@ RpcListener::RpcListener(QObject *parent_)
   m_connectionListener =
     new MoleQueue::LocalSocketConnectionListener(this, "mongochem");
 
-  // when testing we forcibly remove any other mongochem rpc listeners
-  // which may have be left over from other failed test runs
+  // When testing we forcibly remove any other MongoChem RPC listeners
+  // which may have be left over from other failed test runs.
   if (qApp->arguments().contains("--testing"))
     QLocalServer::removeServer("mongochem");
 
@@ -98,7 +98,7 @@ void RpcListener::connectionError(MoleQueue::ConnectionListener::Error error,
 
 void RpcListener::receivePingResponse(const QJsonObject &response)
 {
-  // Disconnect and remove the ping client the first time this is called:
+  // Disconnect and remove the ping client the first time this is called.
   if (m_pingClient) {
     m_pingClient->deleteLater();
     m_pingClient = NULL;

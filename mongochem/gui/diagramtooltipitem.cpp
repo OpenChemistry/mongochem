@@ -20,6 +20,7 @@
 
 #include <QtGui>
 
+#include "vtkNew.h"
 #include "vtkContext2D.h"
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
@@ -54,7 +55,7 @@ void DiagramTooltipItem::PrintSelf(ostream &os, vtkIndent indent)
 
 bool DiagramTooltipItem::Paint(vtkContext2D *painter)
 {
-  // name of molecule corresponding to the point
+  // Name of molecule corresponding to the point.
   std::string name = this->GetText();
   if (name.empty())
     return false;
@@ -70,20 +71,20 @@ bool DiagramTooltipItem::Paint(vtkContext2D *painter)
     return Superclass::Paint(painter);
   }
 
-  BSONElement diagram = obj.getField("diagram");
+  BSONElement diagram = obj.getObjectField("diagram").getField("png");
   if (diagram.eoo()) {
-    // just paint the name using the superclass
+    // Just paint the name using the superclass.
     return Superclass::Paint(painter);
   }
 
-  // convert bson bin data in png format to a QImage
+  // Convert the BSON binary data in PNG format to a QImage.
   int binDataLength = 0;
   const char *binData = diagram.binData(binDataLength);
   QImage image = QImage::fromData(reinterpret_cast<const unsigned char *>(binData),
                                   binDataLength,
                                   "png");
 
-  // layout diagram and molecule name vertically and render to a QImage
+  // Layout diagram and molecule name vertically and render to a QImage.
   QWidget widget;
   QVBoxLayout *layout = new QVBoxLayout;
   QLabel imageLabel;
@@ -100,26 +101,24 @@ bool DiagramTooltipItem::Paint(vtkContext2D *painter)
   QPainter qpainter(&tooltipImage);
   widget.render(&qpainter);
 
-  // convert QImage to vtkImageData
-  vtkQImageToImageSource *converter = vtkQImageToImageSource::New();
+  // Convert the QImage to a vtkImageData.
+  vtkNew<vtkQImageToImageSource> converter;
   converter->SetQImage(&tooltipImage);
   converter->Update();
   vtkImageData *vtkImage = converter->GetOutput();
 
-  // setup painter
+  // Setup painter.
   painter->ApplyPen(this->GetPen());
   painter->ApplyBrush(this->GetBrush());
 
-  // determine where to draw the tooltip
+  // Determine where the tooltip should be drawn.
   vtkVector2f drawPosition = this->GetPositionVector();
   int drawPositionX = static_cast<int>(drawPosition.GetX());
   int drawPositionY = static_cast<int>(drawPosition.GetY());
-  if(drawPositionX + tooltipImage.width() > this->Scene->GetViewWidth()){
+  if (drawPositionX + tooltipImage.width() > this->Scene->GetViewWidth())
     drawPosition[0] -= static_cast<float>(tooltipImage.width());
-  }
-  if(drawPositionY + tooltipImage.height() > this->Scene->GetViewHeight()){
+  if (drawPositionY + tooltipImage.height() > this->Scene->GetViewHeight())
     drawPosition[1] -= static_cast<float>(tooltipImage.height());
-  }
 
   // draw background rect
   painter->DrawRect(drawPosition.GetX(),
@@ -131,9 +130,6 @@ bool DiagramTooltipItem::Paint(vtkContext2D *painter)
   painter->DrawImage(drawPosition.GetX(),
                      drawPosition.GetY(),
                      vtkImage);
-
-  // cleanup memory
-  converter->Delete();
 
   return true;
 }
