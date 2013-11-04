@@ -336,6 +336,13 @@ string MongoDatabase::moleculesCollectionName() const
   return collection.toStdString() + ".molecules";
 }
 
+string MongoDatabase::databaseName() const
+{
+  QSettings settings;
+  QString collection = settings.value("collection", "chem").toString();
+  return collection.toStdString();
+}
+
 MoleculeRef MongoDatabase::createMoleculeRefForBSONObj(const mongo::BSONObj &obj) const
 {
   if (obj.isEmpty())
