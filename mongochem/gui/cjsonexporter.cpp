@@ -16,27 +16,50 @@
 
 #include "cjsonexporter.h"
 
+#include "mongodatabase.h"
+
 #include <mongo/client/dbclient.h>
-#include <fstream>
 
 namespace MongoChem {
 
 std::string CjsonExporter::toCjson(const mongo::BSONObj &mongoChemObj)
 {
+  // Follow the database link and convert to CJSON.
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db)
+    return "";
+
+  mongo::BSONObj structure = mongoChemObj.getObjectField("3dStructure");
+  if (!structure.hasField("$ref") || !structure.hasField("$id")
+      || !structure.getField("$id").isSimpleType()) {
+    return "";
+  }
+  std::auto_ptr<mongo::DBClientCursor> cursor =
+      db->query(db->databaseName() + "." + structure.getStringField("$ref"),
+                QUERY("_id" << structure.getField("$id").OID()), 1);
+  mongo::BSONObj object;
+  if (cursor->more())
+    object = cursor->next();
+  else
+    return "";
+
   std::vector<std::string> toCopy;
   toCopy.push_back("name");
   toCopy.push_back("inchi");
   toCopy.push_back("formula");
-  toCopy.push_back("atoms");
-  toCopy.push_back("bonds");
   toCopy.push_back("properties");
-
   mongo::BSONObjBuilder builder;
 
   for (size_t i = 0; i < toCopy.size(); i++) {
-
     mongo::BSONElement field = mongoChemObj.getField(toCopy[i]);
-
+    if (!field.eoo())
+      builder.append(field);
+  }
+  toCopy.clear();
+  toCopy.push_back("atoms");
+  toCopy.push_back("bonds");
+  for (size_t i = 0; i < toCopy.size(); i++) {
+    mongo::BSONElement field = object.getField(toCopy[i]);
     if (!field.eoo())
       builder.append(field);
   }
@@ -48,4 +71,5 @@ std::string CjsonExporter::toCjson(const mongo::BSONObj &mongoChemObj)
 
   return obj.jsonString(mongo::Strict);
 }
+
 } /* namespace MongoChem */

@@ -240,8 +240,8 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   }
 
   // Load into 3D widget if we have atoms to work with
-  if (obj.hasField("atoms")) {
-    // Convert to CJSON
+  if (obj.hasField("3dStructure")) {
+    // Create a chemical JSON object.
     std::string cjson = CjsonExporter::toCjson(obj);
 
     // Clear the scene
