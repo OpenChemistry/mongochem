@@ -16,8 +16,6 @@
 
 #include "computationalresultsmodel.h"
 
-#include <QSettings>
-
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
 
@@ -43,11 +41,9 @@ void ComputationalResultsModel::setQuery(const mongo::Query &query)
   MongoDatabase *db = MongoDatabase::instance();
 
   try {
-    QSettings settings;
-    std::string collection =
-        settings.value("collection", "chem").toString().toStdString();
+    std::string collection = db->databaseName();
     std::auto_ptr<mongo::DBClientCursor> cursor =
-      db->connection()->query(collection + ".quantum", query);
+        db->connection()->query(collection + ".quantum", query);
 
     // Let's read in the results, but limit to 1000 in case of bad queries.
     int i(0);

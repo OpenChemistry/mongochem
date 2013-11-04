@@ -300,14 +300,13 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   m_computationalResultsTableView->setModel(0);
   mongo::BSONElement oid;
   obj.getObjectID(oid);
-  m_computationalResultsModel->setQuery(QUERY("molecule.$id" << oid));
+  m_computationalResultsModel->setQuery(QUERY("molecule.$id" << oid).sort("energy.total", -1));
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
   m_computationalResultsTableView->resizeColumnsToContents();
 
-  /*if (m_computationalResultsModel->rowCount(QModelIndex()) == 0)
-    ui->tabWidget->removeTab(ui->tabWidget->indexOf(
-      ui->computationalResultsTab));
-  */
+  if (m_computationalResultsModel->rowCount(QModelIndex()) == 0)
+    ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->computationalResultsTab));
+
   // Setup the annotations tab.
   reloadAnnotations();
 }
