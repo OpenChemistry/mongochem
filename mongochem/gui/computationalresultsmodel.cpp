@@ -28,8 +28,6 @@ namespace MongoChem {
 ComputationalResultsModel::ComputationalResultsModel(QObject *parent_)
   : QAbstractItemModel(parent_)
 {
-  // show entire database by default
-  setQuery(mongo::Query());
 }
 
 ComputationalResultsModel::~ComputationalResultsModel()
@@ -49,11 +47,12 @@ void ComputationalResultsModel::setQuery(const mongo::Query &query)
     std::string collection =
         settings.value("collection", "chem").toString().toStdString();
     std::auto_ptr<mongo::DBClientCursor> cursor =
-      db->connection()->query(collection + ".jobs", query);
+      db->connection()->query(collection + ".quantum", query);
 
-    while (cursor->more()) {
+    // Let's read in the results, but limit to 1000 in case of bad queries.
+    int i(0);
+    while (cursor->more() && ++i < 1000)
       m_objects.push_back(cursor->next().copy());
-    }
   }
   catch (mongo::SocketException &e) {
     std::cerr << "Failed to query MongoDB: " << e.what() << std::endl;
@@ -64,42 +63,31 @@ void ComputationalResultsModel::setQuery(const mongo::Query &query)
 
 QModelIndex ComputationalResultsModel::index(int row,
                                              int column,
-                                             const QModelIndex &parent_) const
+                                             const QModelIndex &) const
 {
-  Q_UNUSED(parent_);
-
   if (row >= 0 && static_cast<size_t>(row) < m_objects.size())
     return createIndex(row, column, (void *) &m_objects[row]);
 
   return QModelIndex();
 }
 
-QModelIndex ComputationalResultsModel::parent(const QModelIndex &child) const
+QModelIndex ComputationalResultsModel::parent(const QModelIndex &) const
 {
-  Q_UNUSED(child);
-
   return QModelIndex();
 }
 
-int ComputationalResultsModel::rowCount(const QModelIndex &parent_) const
+int ComputationalResultsModel::rowCount(const QModelIndex &) const
 {
-  Q_UNUSED(parent_);
-
   return static_cast<int>(m_objects.size());
 }
 
-int ComputationalResultsModel::columnCount(const QModelIndex &parent_) const
+int ComputationalResultsModel::columnCount(const QModelIndex &) const
 {
-  Q_UNUSED(parent_);
-
   return 5;
 }
 
 QVariant ComputationalResultsModel::data(const QModelIndex &index_, int role) const
 {
-  Q_UNUSED(index_);
-  Q_UNUSED(role);
-
   int row = index_.row();
   int column = index_.column();
 
@@ -110,7 +98,7 @@ QVariant ComputationalResultsModel::data(const QModelIndex &index_, int role) co
 
   const mongo::BSONObj &obj = m_objects[row];
   if (role == Qt::DisplayRole) {
-    switch(column){
+    switch (column) {
     case 0:
       return obj.getStringField("name");
     case 1:
@@ -118,9 +106,16 @@ QVariant ComputationalResultsModel::data(const QModelIndex &index_, int role) co
     case 2:
       return obj.getStringField("type");
     case 3:
-      return obj.getStringField("theory");
+      if (obj.hasField("calculation")
+          && obj.getObjectField("calculation").hasField("theory")) {
+        return obj.getObjectField("calculation").getStringField("theory");
+      }
     case 4:
-      return obj.getIntField("energy");
+      if (obj.hasField("energy")
+          && obj.getObjectField("energy").hasField("total")
+          && obj.getObjectField("energy").getField("total").isNumber()) {
+        return obj.getObjectField("energy").getField("total").Number();
+      }
     }
   }
 
@@ -152,10 +147,8 @@ QVariant ComputationalResultsModel::headerData(int section,
   return QVariant();
 }
 
-Qt::ItemFlags ComputationalResultsModel::flags(const QModelIndex &index_) const
+Qt::ItemFlags ComputationalResultsModel::flags(const QModelIndex &) const
 {
-  Q_UNUSED(index_);
-
   return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 }
 

@@ -72,7 +72,7 @@ MoleculeDetailDialog::MoleculeDetailDialog(QWidget *parent_)
   connect(ui->tagsTextEdit, SIGNAL(customContextMenuRequested(const QPoint&)),
           SLOT(tagsRightClicked(const QPoint&)));
 
-  // setup computational results tab
+  // Setup the computational results tab.
   m_computationalResultsModel = new ComputationalResultsModel(this);
   m_computationalResultsTableView = new ComputationalResultsTableView(this);
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
@@ -296,18 +296,19 @@ void MoleculeDetailDialog::setMolecule(const MoleculeRef &moleculeRef)
   m_openInEditorHandler->setMolecule(moleculeRef);
   m_exportHandler->setMolecule(moleculeRef);
 
-  // Setup the computational results tab
+  // Setup the computational results tab.
   m_computationalResultsTableView->setModel(0);
-  m_computationalResultsModel->setQuery(
-    QUERY("inchikey" << obj.getStringField("inchikey")));
+  mongo::BSONElement oid;
+  obj.getObjectID(oid);
+  m_computationalResultsModel->setQuery(QUERY("molecule.$id" << oid));
   m_computationalResultsTableView->setModel(m_computationalResultsModel);
   m_computationalResultsTableView->resizeColumnsToContents();
 
-  if (m_computationalResultsModel->rowCount(QModelIndex()) == 0)
+  /*if (m_computationalResultsModel->rowCount(QModelIndex()) == 0)
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(
       ui->computationalResultsTab));
-
-  // setup annotations tab
+  */
+  // Setup the annotations tab.
   reloadAnnotations();
 }
 
