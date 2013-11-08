@@ -21,10 +21,12 @@ set(SOURCES
   abstractclusteringwidget.cpp
   abstractimportdialog.cpp
   addtagdialog.cpp
+  avogadrotools.cpp
   computationalresultsmodel.cpp
   computationalresultstableview.cpp
   diagramtooltipitem.cpp
   exportmoleculehandler.cpp
+  inputgeneratormanager.cpp
   moleculedetaildialog.cpp
   mongodatabase.cpp
   mongomodel.cpp

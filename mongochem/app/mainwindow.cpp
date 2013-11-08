@@ -45,6 +45,7 @@
 #include "serversettingsdialog.h"
 #include "moleculedetaildialog.h"
 #include "mongodatabase.h"
+#include "inputgeneratormanager.h"
 #include "selectionfiltermodel.h"
 #include "queryprogressdialog.h"
 
@@ -53,6 +54,7 @@
 #include <avogadro/io/fileformat.h>
 #include <avogadro/io/fileformatmanager.h>
 #include <avogadro/qtplugins/pluginmanager.h>
+#include <avogadro/qtgui/batchjob.h>
 #include <avogadro/qtgui/extensionplugin.h>
 
 #ifdef QTTESTING
@@ -246,6 +248,7 @@ namespace MongoChem {
 
 using Avogadro::Io::FileFormat;
 using Avogadro::Io::FileFormatManager;
+using Avogadro::QtGui::BatchJob;
 using Avogadro::QtGui::ExtensionPlugin;
 using Avogadro::QtGui::ExtensionPluginFactory;
 
@@ -375,6 +378,7 @@ MainWindow::MainWindow()
   }
 
   setupTable();
+  setupInputGenerators();
   connectToDatabase();
 }
 
@@ -390,6 +394,24 @@ void MainWindow::fileFormatsReady()
       // Need to delete the format if the manager didn't take ownership:
       delete format;
     }
+  }
+}
+
+void MainWindow::performBatchCalculation()
+{
+  QAction *action = qobject_cast<QAction*>(sender());
+  if (!action)
+    return;
+
+  MongoModel *model = qobject_cast<MongoModel*>(m_ui->tableView->model());
+  if (!model)
+    return;
+
+  InputGeneratorManager &manager = InputGeneratorManager::instance();
+  BatchJob *batch = manager.performBatchCalculation(this, *action, *model);
+  if (batch) {
+    batch->setParent(this);
+    m_batchJobs.push_back(batch);
   }
 }
 
@@ -443,6 +465,16 @@ void MainWindow::setupTable()
 
   MolecularFormulaDelegate *formulaDelegate = new MolecularFormulaDelegate(this);
   m_ui->tableView->setItemDelegateForColumn(2, formulaDelegate);
+}
+
+void MainWindow::setupInputGenerators()
+{
+  InputGeneratorManager &manager = InputGeneratorManager::instance();
+  foreach (QAction *action, manager.createActions()) {
+    action->setParent(this);
+    connect(action, SIGNAL(triggered()), SLOT(performBatchCalculation()));
+    m_ui->menuCompute->addAction(action);
+  }
 }
 
 void MainWindow::showMoleculeDetailsDialog(const MoleculeRef &ref)

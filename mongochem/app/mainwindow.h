@@ -25,6 +25,12 @@
 class vtkAnnotationLink;
 class vtkEventQtSlotConnect;
 
+namespace Avogadro {
+namespace QtGui {
+class BatchJob;
+} // end namespace QtGui
+} // end namespace Avogadro
+
 namespace mongo {
 class DBClientConnection;
 }
@@ -98,6 +104,7 @@ public slots:
 private:
   void setupTable();
   void setupCharts();
+  void setupInputGenerators();
 
   /** Connects to MongoDB */
   void connectToDatabase();
@@ -129,6 +136,9 @@ private:
    */
   QMap<QString, AbstractImportDialog *> m_importerInstances;
 
+  // TODO Figure out a better way to handle this:
+  QList<Avogadro::QtGui::BatchJob*> m_batchJobs;
+
 #ifdef QTTESTING
   /**
    * Used for the GUI tests when testing is enabled.
@@ -159,6 +169,8 @@ private slots:
   void showAboutDialog();
 
   void fileFormatsReady();
+
+  void performBatchCalculation();
 
 signals:
   void connectionFailed();
