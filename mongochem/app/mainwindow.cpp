@@ -25,6 +25,9 @@
 #include <mongo/client/dbclient.h>
 
 #include <QtCore/QDebug>
+#include <QtCore/QDir>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
 #include <QtCore/QSettings>
 #include <QtGui/QFileDialog>
 #include <QtGui/QPainter>
@@ -41,6 +44,7 @@
 #include "abstractvtkchartwidget.h"
 #include "abstractclusteringwidget.h"
 #include "abstractimportdialog.h"
+#include "batchjobmanager.h"
 #include "quickquerywidget.h"
 #include "serversettingsdialog.h"
 #include "moleculedetaildialog.h"
@@ -53,6 +57,7 @@
 #include <avogadro/io/fileformat.h>
 #include <avogadro/io/fileformatmanager.h>
 #include <avogadro/qtplugins/pluginmanager.h>
+#include <avogadro/qtgui/batchjob.h>
 #include <avogadro/qtgui/extensionplugin.h>
 
 #ifdef QTTESTING
@@ -246,6 +251,7 @@ namespace MongoChem {
 
 using Avogadro::Io::FileFormat;
 using Avogadro::Io::FileFormatManager;
+using Avogadro::QtGui::BatchJob;
 using Avogadro::QtGui::ExtensionPlugin;
 using Avogadro::QtGui::ExtensionPluginFactory;
 
@@ -375,6 +381,7 @@ MainWindow::MainWindow()
   }
 
   setupTable();
+  setupInputGenerators();
   connectToDatabase();
 }
 
@@ -391,6 +398,111 @@ void MainWindow::fileFormatsReady()
       delete format;
     }
   }
+}
+
+void MainWindow::performBatchCalculation()
+{
+  QAction *action = qobject_cast<QAction*>(sender());
+  if (!action)
+    return;
+
+  MongoModel *model = qobject_cast<MongoModel*>(m_ui->tableView->model());
+  if (!model)
+    return;
+
+  BatchJobManager &manager = BatchJobManager::instance();
+  BatchJobDecorator *batch =
+      manager.performBatchCalculation(this, *action, *model);
+  if (batch) {
+    batch->setParent(this);
+    connect(batch,
+            SIGNAL(jobCompleted(Avogadro::QtGui::BatchJob::BatchId,
+                                Avogadro::QtGui::BatchJob::JobState)),
+            SLOT(jobCompleted(Avogadro::QtGui::BatchJob::BatchId,
+                              Avogadro::QtGui::BatchJob::JobState)));
+    m_batchJobs.push_back(batch);
+  }
+}
+
+void MainWindow::jobCompleted(BatchJob::BatchId id, BatchJob::JobState state)
+{
+
+  BatchJobDecorator *batch = qobject_cast<BatchJobDecorator*>(sender());
+  if (!batch)
+    return;
+
+  if (state != BatchJob::Finished) {
+    qDebug() << "Batch job id" << id << "for" << batch->description()
+             << "did not finish successfully.";
+    return;
+  }
+
+  MongoDatabase *db = MongoDatabase::instance();
+  if (!db->connection()) {
+    qDebug() << "mongodb not connected. Cannot add batch job result.";
+    return;
+  }
+
+  MoleculeRef molRef = batch->moleculeRef(id);
+  if (!molRef) {
+    qDebug() << "Invalid MoleculeRef associated with batch job " << id;
+    return;
+  }
+
+  MoleQueue::JobObject jobObject = batch->jobObject(id);
+  QJsonObject calcOpts(batch->inputGeneratorOptions());
+  calcOpts = calcOpts.value("options").toObject();
+
+  // Extract some of the common parameters:
+  QString description = batch->description();
+  QString calcType = calcOpts.value("Calculation Type").toString();
+  QString calcTheory = calcOpts.value("Theory").toString();
+  QString calcBasis = calcOpts.value("Basis").toString();
+
+  mongo::BSONObjBuilder calcBuilder;
+  if (!calcTheory.isEmpty())
+    calcBuilder << "theory" << calcTheory.toStdString();
+  if (!calcBasis.isEmpty())
+    calcBuilder << "basis" << calcBasis.toStdString();
+  mongo::BSONObj calcObj = calcBuilder.obj();
+
+  mongo::BSONObjBuilder docBuilder;
+  docBuilder
+      << "molecule" << BSON("$ref" << "molecules"
+                            << "$id" << mongo::OID(molRef.id()))
+      << "name" << (description.isEmpty() ? std::string("Batch job")
+                                          : description.toStdString());
+  if (!calcType.isEmpty())
+    docBuilder << "type" << calcType.toStdString();
+
+  if (calcObj.nFields() > 0)
+    docBuilder << "calculation" << calcObj;
+
+  // Store files in db.quantum.[files|chunks]
+  mongo::GridFS gridfs(*db->connection(), db->databaseName(), "quantum");
+  mongo::BSONArrayBuilder logFileBuilder;
+  QDir outputDir(jobObject.value("outputDirectory").toString());
+  if (outputDir.isReadable()) {
+    foreach (const QFileInfo &info, outputDir.entryInfoList(QDir::Files)) {
+      QFile file(info.absoluteFilePath());
+      if (!file.open(QFile::ReadOnly) || !file.isReadable())
+        continue;
+      QByteArray fileData = file.readAll();
+      mongo::BSONObj fileObj =
+          gridfs.storeFile(fileData.constData(), fileData.size(),
+                           info.fileName().toStdString());
+      logFileBuilder << fileObj;
+    }
+  }
+
+  mongo::BSONArray logFileArray = logFileBuilder.arr();
+  if (logFileArray.nFields() > 0)
+    docBuilder << "files" << BSON("log" << logFileArray);
+
+  mongo::BSONObj docObj = docBuilder.obj();
+
+  std::cout << "Record:\n" << docObj.jsonString() << std::endl;
+  db->connection()->insert(db->quantumCollectionName(), docObj);
 }
 
 MainWindow::~MainWindow()
@@ -443,6 +555,16 @@ void MainWindow::setupTable()
 
   MolecularFormulaDelegate *formulaDelegate = new MolecularFormulaDelegate(this);
   m_ui->tableView->setItemDelegateForColumn(2, formulaDelegate);
+}
+
+void MainWindow::setupInputGenerators()
+{
+  BatchJobManager &manager = BatchJobManager::instance();
+  foreach (QAction *action, manager.createActions()) {
+    action->setParent(this);
+    connect(action, SIGNAL(triggered()), SLOT(performBatchCalculation()));
+    m_ui->menuCompute->addAction(action);
+  }
 }
 
 void MainWindow::showMoleculeDetailsDialog(const MoleculeRef &ref)

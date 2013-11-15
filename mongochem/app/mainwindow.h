@@ -20,6 +20,8 @@
 #include <QtGui/QMainWindow>
 #include <QtCore/QMap>
 
+#include "batchjobdecorator.h" // for typedefs in slots
+
 #include <vtkNew.h>
 
 class vtkAnnotationLink;
@@ -98,6 +100,7 @@ public slots:
 private:
   void setupTable();
   void setupCharts();
+  void setupInputGenerators();
 
   /** Connects to MongoDB */
   void connectToDatabase();
@@ -129,6 +132,9 @@ private:
    */
   QMap<QString, AbstractImportDialog *> m_importerInstances;
 
+  // TODO Figure out a better way to handle this:
+  QList<BatchJobDecorator*> m_batchJobs;
+
 #ifdef QTTESTING
   /**
    * Used for the GUI tests when testing is enabled.
@@ -159,6 +165,10 @@ private slots:
   void showAboutDialog();
 
   void fileFormatsReady();
+
+  void performBatchCalculation();
+  void jobCompleted(Avogadro::QtGui::BatchJob::BatchId id,
+                    Avogadro::QtGui::BatchJob::JobState state);
 
 signals:
   void connectionFailed();
