@@ -336,6 +336,13 @@ string MongoDatabase::moleculesCollectionName() const
   return collection.toStdString() + ".molecules";
 }
 
+std::string MongoDatabase::quantumCollectionName() const
+{
+  QSettings settings;
+  QString collection = settings.value("collection", "chem").toString();
+  return collection.toStdString() + ".quantum";
+}
+
 string MongoDatabase::databaseName() const
 {
   QSettings settings;

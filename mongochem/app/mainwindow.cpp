@@ -41,6 +41,7 @@
 #include "abstractvtkchartwidget.h"
 #include "abstractclusteringwidget.h"
 #include "abstractimportdialog.h"
+#include "batchjobmanager.h"
 #include "quickquerywidget.h"
 #include "serversettingsdialog.h"
 #include "moleculedetaildialog.h"
@@ -375,6 +376,7 @@ MainWindow::MainWindow()
   }
 
   setupTable();
+  setupInputGenerators();
   connectToDatabase();
 }
 
@@ -391,6 +393,20 @@ void MainWindow::fileFormatsReady()
       delete format;
     }
   }
+}
+
+void MainWindow::performBatchCalculation()
+{
+  QAction *action = qobject_cast<QAction*>(sender());
+  if (!action)
+    return;
+
+  MongoModel *model = qobject_cast<MongoModel*>(m_ui->tableView->model());
+  if (!model)
+    return;
+
+  BatchJobManager &manager = BatchJobManager::instance();
+  manager.performBatchCalculation(this, *action, *model);
 }
 
 MainWindow::~MainWindow()
@@ -443,6 +459,16 @@ void MainWindow::setupTable()
 
   MolecularFormulaDelegate *formulaDelegate = new MolecularFormulaDelegate(this);
   m_ui->tableView->setItemDelegateForColumn(2, formulaDelegate);
+}
+
+void MainWindow::setupInputGenerators()
+{
+  BatchJobManager &manager = BatchJobManager::instance();
+  foreach (QAction *action, manager.createActions()) {
+    action->setParent(this);
+    connect(action, SIGNAL(triggered()), SLOT(performBatchCalculation()));
+    m_ui->menuCompute->addAction(action);
+  }
 }
 
 void MainWindow::showMoleculeDetailsDialog(const MoleculeRef &ref)

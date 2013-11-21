@@ -21,6 +21,9 @@ set(SOURCES
   abstractclusteringwidget.cpp
   abstractimportdialog.cpp
   addtagdialog.cpp
+  avogadrotools.cpp
+  batchjobdecorator.cpp
+  batchjobmanager.cpp
   computationalresultsmodel.cpp
   computationalresultstableview.cpp
   diagramtooltipitem.cpp
