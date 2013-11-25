@@ -25,6 +25,8 @@
 
 namespace MongoChem {
 
+using std::string;
+
 OpenInEditorHandler::OpenInEditorHandler(QObject *parent_) :
     QObject(parent_)
 {
@@ -64,29 +66,30 @@ void OpenInEditorHandler::openInEditor()
   if (!m_moleculeRef.isValid())
     return;
 
-  // load chemical json for the molecule
+  // Load Chemical JSON for the molecule if possible.
   MongoDatabase *db = MongoDatabase::instance();
   mongo::BSONObj moleculeObj = db->fetchMolecule(m_moleculeRef);
 
-  // json-rpc request
+  // Create a JSON-RPC request.
   QJsonObject request(m_rpcClient->emptyRequest());
   request["method"] = QLatin1String("loadMolecule");
 
-  // check for atoms in the molecule
-  if (moleculeObj.hasField("atoms")) {
-    // generate chemical json
-    std::string cjson = CjsonExporter::toCjson(moleculeObj);
+  // Check if the molecule has 3D geometry.
+  if (moleculeObj.hasField("3dStructure")) {
+    // Generate a Chemical JSON file and use that.
+    string cjson = CjsonExporter::toCjson(moleculeObj);
 
-    // create json rpc method
+    // Create the JSON-RPC method call.
     QJsonObject params;
     params["content"] = QLatin1String(cjson.c_str());
     params["format"] = QLatin1String("cjson");
     request["params"] = params;
   }
   else if (moleculeObj.hasField("inchi")) {
-    // create json rpc method
+    // Create a JSON-RPC method call using the InChI.
     QJsonObject params;
-    params["content"] = QLatin1String(moleculeObj.getStringField("inchi"));
+    params["content"] = "InChI="
+        + QLatin1String(moleculeObj.getStringField("inchi"));
     params["format"] = QLatin1String("inchi");
     request["params"] = params;
   }

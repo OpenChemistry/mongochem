@@ -14,10 +14,10 @@
 
 ******************************************************************************/
 
-#ifndef OPENINEDITORHANDLER_H
-#define OPENINEDITORHANDLER_H
+#ifndef MONGOCHEM_OPENINEDITORHANDLER_H
+#define MONGOCHEM_OPENINEDITORHANDLER_H
 
-#include <QObject>
+#include <QtCore/QObject>
 #include <qjsonobject.h>
 
 #include "moleculeref.h"
@@ -27,6 +27,12 @@ class JsonRpcClient;
 }
 
 namespace MongoChem {
+
+/**
+ * @brief The OpenInEditorHandler class takes care of using the best format to
+ * open a molecule in an editor. It is used in several places to handle the
+ * request.
+ */
 
 class OpenInEditorHandler : public QObject
 {
@@ -53,8 +59,7 @@ public:
 
 public slots:
   /**
-   * This slot is called when the molecule should be opened in a molecular
-   * editor.
+   * Called when the molecule should be opened in a molecular editor.
    */
   void openInEditor();
 
@@ -70,4 +75,4 @@ private:
 
 } // end MongoChem namespace
 
-#endif // OPENINEDITORHANDLER_H
+#endif // MONGOCHEM_OPENINEDITORHANDLER_H
