@@ -1,6 +1,6 @@
-# find Qt
-find_package(Qt4 4.7 COMPONENTS QtCore QtGui REQUIRED)
-include(${QT_USE_FILE})
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
 
 # VTK is used for the charting and infovis components.
 find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
@@ -29,7 +29,7 @@ set(BUILD_STATIC_PLUGINS ON)
 # sources is the list of source files for the plugin.
 # uis is the list of UI files that need to be compiled (optional).
 function(mongochem_plugin name description type header pluginClass sources uis)
-  qt4_wrap_ui(ui_srcs ${uis})
+  qt5_wrap_ui(ui_srcs ${uis})
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
   unset(PluginIncludes)
   foreach(_header ${header})
@@ -54,6 +54,7 @@ function(mongochem_plugin name description type header pluginClass sources uis)
 
   add_library(${name} ${_plugin_object} ${sources} ${ui_srcs} ${name}Plugin.cpp)
   target_link_libraries(${name} MongoChemGui)
+  qt5_use_modules(${name} Widgets Network WebKitWidgets)
 
   if("${_plugin_object}" STREQUAL "STATIC")
     set_target_properties(${name} PROPERTIES COMPILE_DEFINITIONS
@@ -96,7 +97,7 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/mongochemstaticqtplugins.h"
 
 foreach(_plugin ${MongoChem_STATIC_PLUGINS})
   file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/mongochemstaticqtplugins.h"
-    "Q_IMPORT_PLUGIN(${_plugin})\n")
+    "Q_IMPORT_PLUGIN(${_plugin}Factory)\n")
 endforeach()
 
 file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/mongochemstaticqtplugins.h"
@@ -116,5 +117,5 @@ set(SOURCES
 
 mongochem_add_private_library(MongoChemPlugins ${HEADERS} ${SOURCES})
 set_target_properties(MongoChemPlugins PROPERTIES AUTOMOC TRUE)
-target_link_libraries(MongoChemPlugins LINK_PUBLIC ${QT_QTCORE_LIBRARY}
-  LINK_PRIVATE ${MongoChem_STATIC_PLUGINS})
+qt5_use_modules(MongoChemPlugins Core)
+target_link_libraries(MongoChemPlugins ${MongoChem_STATIC_PLUGINS})

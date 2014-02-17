@@ -14,10 +14,10 @@
 
  ******************************************************************************/
 
-#ifndef ABOUTDIALOG_H_
-#define ABOUTDIALOG_H_
+#ifndef MONGOCHEM_ABOUTDIALOG_H
+#define MONGOCHEM_ABOUTDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 
 namespace Ui {
 class AboutDialog;
@@ -37,6 +37,6 @@ private:
   Ui::AboutDialog *m_ui;
 };
 
-} /* namespace MongoChem */
+} // End namespace MongoChem
 
-#endif /* ABOUTDIALOG_H_ */
+#endif

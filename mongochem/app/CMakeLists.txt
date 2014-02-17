@@ -1,11 +1,13 @@
-# Find Qt4, including QtMain if on Windows.
+# Find Qt, including QtMain if on Windows.
 if(WIN32)
-  set(qtmain QtMain)
+  set(qtmain Main)
+  find_package(Qt5Main REQUIRED)
 else()
   unset(qtmain)
 endif()
-find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork ${qtmain} REQUIRED)
-include(${QT_USE_FILE})
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
 
 # VTK is used for the charting and infovis components.
 find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
@@ -41,8 +43,8 @@ set(SOURCES
   aboutdialog.cpp
 )
 
-qt4_add_resources(RCC_SOURCES mongochem.qrc)
-qt4_wrap_ui(UI_SOURCES
+qt5_add_resources(RCC_SOURCES mongochem.qrc)
+qt5_wrap_ui(UI_SOURCES
   mainwindow.ui
   aboutdialog.ui
 )
@@ -61,9 +63,8 @@ endif()
 add_executable(mongochem WIN32 MACOSX_BUNDLE
   ${SOURCES} ${UI_SOURCES} ${RCC_SOURCES})
 set_target_properties(mongochem PROPERTIES AUTOMOC TRUE)
-target_link_libraries(mongochem
-  ${QT_LIBRARIES} MongoChemGui MongoChemPlugins
-)
+qt5_use_modules(mongochem Widgets Network WebKitWidgets)
+target_link_libraries(mongochem MongoChemGui MongoChemPlugins)
 if(APPLE)
   set_target_properties(mongochem PROPERTIES
     OUTPUT_NAME ${MACOSX_BUNDLE_NAME})

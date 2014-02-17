@@ -26,13 +26,13 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
-#include <QtGui/QFileDialog>
+#include <QtWidgets/QFileDialog>
 #include <QtGui/QPainter>
-#include <QtGui/QStyledItemDelegate>
+#include <QtWidgets/QStyledItemDelegate>
 #include <QtGui/QTextDocument>
 #include <QtGui/QAbstractTextDocumentLayout>
-#include <QtGui/QDockWidget>
-#include <QtGui/QMessageBox>
+#include <QtWidgets/QDockWidget>
+#include <QtWidgets/QMessageBox>
 
 #include <vtkAnnotationLink.h>
 #include <vtkEventQtSlotConnect.h>
@@ -438,7 +438,7 @@ void MainWindow::setupTable()
   m_ui->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
   m_ui->tableView->resizeColumnsToContents();
-  m_ui->tableView->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+  m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   m_ui->tableView->resizeRowsToContents();
 
   MolecularFormulaDelegate *formulaDelegate = new MolecularFormulaDelegate(this);

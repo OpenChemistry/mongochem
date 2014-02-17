@@ -19,7 +19,7 @@
 
 #include "mongochemguiexport.h"
 
-#include <QtGui/QWidget>
+#include <QtWidgets/QWidget>
 
 class vtkAnnotationLink;
 
@@ -68,6 +68,6 @@ public:
 } // end MongoChem namespace
 
 Q_DECLARE_INTERFACE(MongoChem::AbstractVtkChartWidgetFactory,
-                    "org.openchemistry.mongochem.chartwidgetfactory/0.1")
+                    "org.openchemistry.mongochem.ChartWidgetFactory")
 
 #endif // MONGOCHEMGUI_ABSTRACTVTKCHARTWIDGET_H

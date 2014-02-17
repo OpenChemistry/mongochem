@@ -17,10 +17,10 @@
 #include "similaritygraphwidget.h"
 
 #include <QtCore/QMutex>
-#include <QtCore/QtConcurrentRun>
-#include <QtGui/QProgressDialog>
+#include <QtConcurrent/QtConcurrentRun>
+#include <QtWidgets/QProgressDialog>
 #include <QtGui/QStandardItemModel>
-#include <QtGui/QBoxLayout>
+#include <QtWidgets/QBoxLayout>
 #include <QtGui/QMouseEvent>
 
 #include <vtkNew.h>

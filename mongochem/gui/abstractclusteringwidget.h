@@ -19,7 +19,7 @@
 
 #include "mongochemguiexport.h"
 
-#include <QtGui/QWidget>
+#include <QtWidgets/QWidget>
 
 namespace MongoChem {
 
@@ -64,7 +64,7 @@ public:
 } // end MongoChem namespace
 
 Q_DECLARE_INTERFACE(MongoChem::AbstractClusteringWidgetFactory,
-                    "org.openchemistry.mongochem.clusteringwidgetfactory/0.1")
+                    "org.openchemistry.mongochem.ClusteringWidgetFactory")
 
 
 #endif // MONGOCHEMGUI_ABSTRACTCLUSTERINGWIDGET_H

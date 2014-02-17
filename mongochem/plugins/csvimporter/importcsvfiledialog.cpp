@@ -298,8 +298,8 @@ void ImportCsvFileDialog::import()
         // create and setup svg generator
         MongoChem::SvgGenerator *svgGenerator =
           new MongoChem::SvgGenerator(this);
-        svgGenerator->setInputData(key.toAscii());
-        svgGenerator->setInputFormat(identifierName.toAscii());
+        svgGenerator->setInputData(key.toLatin1());
+        svgGenerator->setInputFormat(identifierName.toLatin1());
 
         // listen to finished signal
         connect(svgGenerator, SIGNAL(finished(int)),

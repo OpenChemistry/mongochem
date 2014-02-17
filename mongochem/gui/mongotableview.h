@@ -17,7 +17,7 @@
 #ifndef MongoTableView_H
 #define MongoTableView_H
 
-#include <QtGui/QTableView>
+#include <QtWidgets/QTableView>
 
 class QNetworkAccessManager;
 class QNetworkReply;

@@ -18,7 +18,11 @@
 
 #include <mongo/client/dbclient.h>
 
-#include <QtGui>
+#include <QtWidgets/QWidget>
+#include <QtWidgets/QVBoxLayout>
+#include <QtWidgets/QLabel>
+#include <QtGui/QPainter>
+#include <QtCore/QSettings>
 
 #include "vtkNew.h"
 #include "vtkContext2D.h"
