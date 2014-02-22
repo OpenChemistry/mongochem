@@ -325,13 +325,14 @@ MainWindow::MainWindow()
   m_testUtility->addEventSource("xml", new XMLEventSource(this));
 #endif
 
-  connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
+  connect(m_ui->actionServerSettings, SIGNAL(triggered()),
+          SLOT(showServerSettings()));
   connect(m_ui->tableView, SIGNAL(showMoleculeDetails(MongoChem::MoleculeRef)),
           this, SLOT(showMoleculeDetailsDialog(MongoChem::MoleculeRef)));
   connect(m_ui->tableView, SIGNAL(showSimilarMolecules(MongoChem::MoleculeRef)),
           this, SLOT(showSimilarMolecules(MongoChem::MoleculeRef)));
-  connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
-
+  connect(this, SIGNAL(connectionFailed()), this,
+          SLOT(showServerSettings()), Qt::QueuedConnection);
   connect(m_ui->actionShowSelectedMolecules, SIGNAL(toggled(bool)),
           this, SLOT(setShowSelectedMolecules(bool)));
 
@@ -461,7 +462,7 @@ void MainWindow::showMoleculeDetailsDialog(const MoleculeRef &ref)
 
 void MainWindow::showServerSettings()
 {
-  ServerSettingsDialog dialog;
+  ServerSettingsDialog dialog(this);
 
   if (dialog.exec() == QDialog::Accepted) {
     QSettings settings;
