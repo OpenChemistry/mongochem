@@ -186,15 +186,15 @@ void HistogramDialog::setDescriptor(const QString &name)
 {
   vtkPlotBar *plot = vtkPlotBar::SafeDownCast(m_chart->GetPlot(0));
 
-  QByteArray extentsArrayName = (name.toLower() + "_extents").toAscii();
-  QByteArray popsArrayName = (name.toLower() + "_pops").toAscii();
+  QByteArray extentsArrayName = (name.toLower() + "_extents").toLatin1();
+  QByteArray popsArrayName = (name.toLower() + "_pops").toLatin1();
 
   plot->SetInputData(m_histogramTable.GetPointer(),
                      extentsArrayName.constData(),
                      popsArrayName.constData());
 
   m_chart->GetAxis(0)->SetTitle("Count");
-  m_chart->GetAxis(1)->SetTitle(name.toAscii().constData());
+  m_chart->GetAxis(1)->SetTitle(name.toLatin1().constData());
 
   m_chart->RecalculateBounds();
   m_chartView->ResetCamera();

@@ -20,7 +20,7 @@
 #include "kmeansclusteringdialog.h"
 #include "ui_kmeansclusteringdialog.h"
 
-#include <QtGui/QProgressDialog>
+#include <QtWidgets/QProgressDialog>
 #include <QtGui/QStandardItemModel>
 
 #include <QVTKWidget.h>

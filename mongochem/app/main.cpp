@@ -15,7 +15,7 @@
 ******************************************************************************/
 
 #include <QtCore/QSettings>
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 
 #include "mainwindow.h"
 

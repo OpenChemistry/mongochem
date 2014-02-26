@@ -26,15 +26,15 @@
 #include <mongo/client/dbclient.h>
 #include <mongo/client/gridfs.h>
 
-#include <QtGui/QApplication>
+#include <QtWidgets/QApplication>
 #include <QtGui/QClipboard>
-#include <QtGui/QMenu>
+#include <QtWidgets/QMenu>
 #include <QtGui/QContextMenuEvent>
-#include <QtGui/QSortFilterProxyModel>
-#include <QtGui/QMessageBox>
-#include <QtGui/QScrollBar>
-#include <QtGui/QHeaderView>
-#include <QtGui/QInputDialog>
+#include <QtCore/QSortFilterProxyModel>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QScrollBar>
+#include <QtWidgets/QHeaderView>
+#include <QtWidgets/QInputDialog>
 #include <QtCore/QDir>
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QProcess>
@@ -66,8 +66,8 @@ MongoTableView::MongoTableView(QWidget *parent_) : QTableView(parent_),
           this, SLOT(scollBarMoved(int)));
 
   setSortingEnabled(true);
-  horizontalHeader()->setMovable(true);
-  horizontalHeader()->setClickable(true);
+  horizontalHeader()->setSectionsMovable(true);
+  horizontalHeader()->setSectionsClickable(true);
   horizontalHeader()->setSortIndicatorShown(false);
 
   m_openInEditorHandler = new OpenInEditorHandler(this);

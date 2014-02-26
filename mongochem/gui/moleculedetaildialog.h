@@ -17,7 +17,7 @@
 #ifndef MOLECULEDETAILDIALOG_H
 #define MOLECULEDETAILDIALOG_H
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 
 #include "moleculeref.h"
 

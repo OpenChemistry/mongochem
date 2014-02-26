@@ -19,7 +19,7 @@
 
 #include "mongochemguiexport.h"
 
-#include <QtGui/QDialog>
+#include <QtWidgets/QDialog>
 
 namespace MongoChem {
 
@@ -59,6 +59,6 @@ public:
 } // end MongoChem namespace
 
 Q_DECLARE_INTERFACE(MongoChem::AbstractImportDialogFactory,
-                    "org.openchemistry.mongochem.importdialogfactory/0.1")
+                    "org.openchemistry.mongochem.ImportDialogFactory")
 
 #endif // MONGOCHEM_ABSTRACTIMPORTDIALOG_H
