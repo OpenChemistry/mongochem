@@ -98,6 +98,7 @@ public slots:
 private:
   void setupTable();
   void setupCharts();
+  void setupInputGenerators();
 
   /** Connects to MongoDB */
   void connectToDatabase();
@@ -159,6 +160,8 @@ private slots:
   void showAboutDialog();
 
   void fileFormatsReady();
+
+  void performBatchCalculation();
 
 signals:
   void connectionFailed();

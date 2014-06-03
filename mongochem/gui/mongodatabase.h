@@ -160,6 +160,9 @@ public:
   /** Returns the name of the molecules collection. */
   std::string moleculesCollectionName() const;
 
+  /** Returns the name of the quantum collection. */
+  std::string quantumCollectionName() const;
+
   /** Returns the name of the current collection. */
   std::string databaseName() const;
 

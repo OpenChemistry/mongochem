@@ -69,9 +69,15 @@
      <string>C&amp;lustering</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuCompute">
+    <property name="title">
+     <string>&amp;Compute</string>
+    </property>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menuChart"/>
    <addaction name="menuClustering"/>
+   <addaction name="menuCompute"/>
    <addaction name="menu_View"/>
    <addaction name="menu_Help"/>
   </widget>

@@ -22,6 +22,9 @@ set(SOURCES
   abstractclusteringwidget.cpp
   abstractimportdialog.cpp
   addtagdialog.cpp
+  avogadrotools.cpp
+  batchjobdecorator.cpp
+  batchjobmanager.cpp
   computationalresultsmodel.cpp
   computationalresultstableview.cpp
   diagramtooltipitem.cpp
@@ -72,7 +75,7 @@ target_link_libraries(MongoChemGui
   vtkChartsCore vtkGUISupportQt vtkViewsContext2D vtkViewsInfovis vtkRenderingQt
   vtkRenderingFreeTypeOpenGL
   AvogadroIO AvogadroQtOpenGL AvogadroQtPlugins AvogadroRendering
-  MoleQueueClient
+  AvogadroMoleQueue
 )
 
 if(MongoChem_ENABLE_RPC)
