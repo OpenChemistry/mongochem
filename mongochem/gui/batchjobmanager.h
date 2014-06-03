@@ -21,8 +21,8 @@
 
 #include "batchjobdecorator.h" // for typedefs in slots
 
-#include <QtGui/QAction>
-#include <QtGui/QDialog>
+#include <QtWidgets/QAction>
+#include <QtWidgets/QDialog>
 
 #include <QtCore/QList>
 #include <QtCore/QMultiMap>
@@ -66,8 +66,8 @@ public:
                                              const MongoModel &model);
 
 private slots:
-  void jobCompleted(Avogadro::QtGui::BatchJob::BatchId id,
-                    Avogadro::QtGui::BatchJob::JobState state);
+  void jobCompleted(Avogadro::MoleQueue::BatchJob::BatchId id,
+                    Avogadro::MoleQueue::BatchJob::JobState state);
 
 private:
   explicit BatchJobManager(QObject *parent = 0);

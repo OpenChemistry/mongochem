@@ -22,12 +22,12 @@
 #include "mongodatabase.h"
 #include "mongomodel.h"
 
-#include <avogadro/qtgui/inputgenerator.h>
-#include <avogadro/qtgui/inputgeneratordialog.h>
-#include <avogadro/qtgui/inputgeneratorwidget.h>
+#include <avogadro/molequeue/inputgenerator.h>
+#include <avogadro/molequeue/inputgeneratordialog.h>
+#include <avogadro/molequeue/inputgeneratorwidget.h>
 #include <avogadro/qtgui/molecule.h>
 
-#include <QtGui/QMessageBox>
+#include <QtWidgets/QMessageBox>
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
@@ -35,10 +35,10 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QScopedPointer>
 
-using Avogadro::QtGui::BatchJob;
-using Avogadro::QtGui::InputGenerator;
-using Avogadro::QtGui::InputGeneratorDialog;
-using Avogadro::QtGui::InputGeneratorWidget;
+using Avogadro::MoleQueue::BatchJob;
+using Avogadro::MoleQueue::InputGenerator;
+using Avogadro::MoleQueue::InputGeneratorDialog;
+using Avogadro::MoleQueue::InputGeneratorWidget;
 using Avogadro::QtGui::Molecule;
 
 namespace MongoChem {

@@ -19,13 +19,13 @@
 namespace MongoChem {
 
 BatchJobDecorator::BatchJobDecorator(QObject *p) :
-  Avogadro::QtGui::BatchJob(p)
+  Avogadro::MoleQueue::BatchJob(p)
 {
 }
 
 BatchJobDecorator::BatchJobDecorator(const QString &scriptFilePath,
                                      QObject *p) :
-  Avogadro::QtGui::BatchJob(scriptFilePath, p)
+  Avogadro::MoleQueue::BatchJob(scriptFilePath, p)
 {
 
 }

@@ -17,17 +17,17 @@
 #ifndef MONGOCHEM_BATCHJOBDECORATOR_H
 #define MONGOCHEM_BATCHJOBDECORATOR_H
 
-#include <avogadro/qtgui/batchjob.h>
+#include <avogadro/molequeue/batchjob.h>
 
 #include "moleculeref.h"
 
 namespace MongoChem {
 
 /**
- * @brief The BatchJobDecorator class decorates Avogadro::QtGui::BatchJob with
- * the ability to map batch ids to MoleculeRefs.
+ * @brief The BatchJobDecorator class decorates Avogadro::MoleQueue::BatchJob
+ * with the ability to map batch ids to MoleculeRefs.
  */
-class BatchJobDecorator : public Avogadro::QtGui::BatchJob
+class BatchJobDecorator : public Avogadro::MoleQueue::BatchJob
 {
   Q_OBJECT
 public:
