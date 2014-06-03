@@ -18,9 +18,9 @@
 #include "ui_importsdffiledialog.h"
 
 #include <QtCore/QDebug>
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QProgressDialog>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QProgressDialog>
 
 #include <chemkit/molecule.h>
 #include <chemkit/moleculefile.h>

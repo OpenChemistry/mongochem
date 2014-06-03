@@ -28,8 +28,8 @@
 #include <QtCore/QList>
 #include <QtCore/QSettings>
 #include <QtCore/QString>
-#include <QtGui/QMenu>
-#include <QtWebKit/QWebView>
+#include <QtWidgets/QMenu>
+#include <QtWebKitWidgets/QWebView>
 
 #include "addtagdialog.h"
 #include "mongodatabase.h"

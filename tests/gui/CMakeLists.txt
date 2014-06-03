@@ -28,8 +28,10 @@ include_directories("${MongoChem_BINARY_DIR}/tests"
 find_package(MongoDB)
 include_directories(SYSTEM ${MongoDB_INCLUDE_DIR})
 
-find_package(Qt4 4.8.0 COMPONENTS QtTest)
-include(${QT_USE_FILE})
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
+find_package(Qt5Test REQUIRED)
 
 find_package(Chemkit COMPONENTS io md REQUIRED)
 include_directories(SYSTEM ${CHEMKIT_INCLUDE_DIRS})
@@ -42,9 +44,7 @@ set(tests
 foreach(test ${tests})
   add_executable(${test}test MACOSX_BUNDLE ${test}test.cpp)
   set_target_properties(${test}test PROPERTIES AUTOMOC TRUE)
-  target_link_libraries(${test}test
-    ${QT_LIBRARIES}
-    MongoChemGui
-    )
+  qt5_use_modules(${test}test Widgets Network WebKitWidgets Test)
+  target_link_libraries(${test}test MongoChemGui)
   add_test(NAME mongochem-${test} COMMAND ${test}test)
 endforeach()

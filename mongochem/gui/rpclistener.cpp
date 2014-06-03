@@ -16,17 +16,16 @@
 
 #include "rpclistener.h"
 
-#include <QtGui/QApplication>
-#include <QtGui/QInputDialog>
+#include <QtWidgets/QApplication>
+#include <QtWidgets/QInputDialog>
 
 #include <QtCore/QTimer>
+#include <QtCore/QJsonValue>
+#include <QtCore/QJsonObject>
 
 #include <QtNetwork/QLocalServer>
 
 #include <mongochem/gui/mongodatabase.h>
-
-#include "qjsonvalue.h"
-#include "qjsonobject.h"
 
 #include <molequeue/client/jsonrpcclient.h>
 #include <molequeue/servercore/jsonrpc.h>

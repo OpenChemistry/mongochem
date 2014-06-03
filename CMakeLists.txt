@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
 
 project(MongoChem)
 
@@ -12,7 +12,7 @@ include(DetermineVersion)
 
 # Set up our version.
 set(MongoChem_VERSION_MAJOR   "0")
-set(MongoChem_VERSION_MINOR   "6")
+set(MongoChem_VERSION_MINOR   "7")
 set(MongoChem_VERSION_PATCH   "0")
 set(MongoChem_VERSION
   "${MongoChem_VERSION_MAJOR}.${MongoChem_VERSION_MINOR}.${MongoChem_VERSION_PATCH}")

@@ -23,6 +23,7 @@ namespace MongoChem {
 class @PluginName@Factory : public QObject, public @PluginType@Factory
 {
   Q_OBJECT
+  Q_PLUGIN_METADATA(IID "org.openchemistry.mongochem.@PluginType@Factory")
   Q_INTERFACES(MongoChem::@PluginType@Factory)
 
 public:
@@ -35,7 +36,5 @@ public:
 };
 
 }
-
-Q_EXPORT_PLUGIN2(@PluginName@, MongoChem::@PluginName@Factory)
 
 #include "@PluginName@Plugin.moc"

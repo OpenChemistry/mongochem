@@ -1,6 +1,7 @@
-# find Qt
-find_package(Qt4 4.7 COMPONENTS QtCore QtGui QtNetwork QtWebKit REQUIRED)
-include(${QT_USE_FILE})
+# Find the Qt components we use.
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
 
 # VTK is used for the charting and infovis components.
 find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
@@ -44,7 +45,7 @@ set(SOURCES
   objectref.cpp
 )
 
-qt4_wrap_ui(UI_SOURCES
+qt5_wrap_ui(UI_SOURCES
   addtagdialog.ui
   moleculedetaildialog.ui
   queryprogressdialog.ui
@@ -64,11 +65,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR})
 
 mongochem_add_library(MongoChemGui ${SOURCES} ${UI_SOURCES})
+qt5_use_modules(MongoChemGui Widgets Network WebKitWidgets)
 set_target_properties(MongoChemGui PROPERTIES AUTOMOC TRUE)
 target_link_libraries(MongoChemGui
   ${MongoDB_LIBRARIES}
   ${Boost_LIBRARIES}
-  ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTWEBKIT_LIBRARY}
   ${CHEMKIT_LIBRARIES}
   ${EXTRA_LINK_LIB}
   vtkChartsCore vtkGUISupportQt vtkViewsContext2D vtkViewsInfovis vtkRenderingQt

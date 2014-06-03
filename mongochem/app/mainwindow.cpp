@@ -26,13 +26,13 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
-#include <QtGui/QFileDialog>
+#include <QtWidgets/QFileDialog>
 #include <QtGui/QPainter>
-#include <QtGui/QStyledItemDelegate>
+#include <QtWidgets/QStyledItemDelegate>
 #include <QtGui/QTextDocument>
 #include <QtGui/QAbstractTextDocumentLayout>
-#include <QtGui/QDockWidget>
-#include <QtGui/QMessageBox>
+#include <QtWidgets/QDockWidget>
+#include <QtWidgets/QMessageBox>
 
 #include <vtkAnnotationLink.h>
 #include <vtkEventQtSlotConnect.h>
@@ -326,13 +326,14 @@ MainWindow::MainWindow()
   m_testUtility->addEventSource("xml", new XMLEventSource(this));
 #endif
 
-  connect(m_ui->actionServerSettings, SIGNAL(activated()), SLOT(showServerSettings()));
+  connect(m_ui->actionServerSettings, SIGNAL(triggered()),
+          SLOT(showServerSettings()));
   connect(m_ui->tableView, SIGNAL(showMoleculeDetails(MongoChem::MoleculeRef)),
           this, SLOT(showMoleculeDetailsDialog(MongoChem::MoleculeRef)));
   connect(m_ui->tableView, SIGNAL(showSimilarMolecules(MongoChem::MoleculeRef)),
           this, SLOT(showSimilarMolecules(MongoChem::MoleculeRef)));
-  connect(this, SIGNAL(connectionFailed()), this, SLOT(showServerSettings()), Qt::QueuedConnection);
-
+  connect(this, SIGNAL(connectionFailed()), this,
+          SLOT(showServerSettings()), Qt::QueuedConnection);
   connect(m_ui->actionShowSelectedMolecules, SIGNAL(toggled(bool)),
           this, SLOT(setShowSelectedMolecules(bool)));
 
@@ -454,7 +455,7 @@ void MainWindow::setupTable()
   m_ui->tableView->setSelectionMode(QAbstractItemView::ContiguousSelection);
 
   m_ui->tableView->resizeColumnsToContents();
-  m_ui->tableView->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+  m_ui->tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
   m_ui->tableView->resizeRowsToContents();
 
   MolecularFormulaDelegate *formulaDelegate = new MolecularFormulaDelegate(this);
@@ -487,7 +488,7 @@ void MainWindow::showMoleculeDetailsDialog(const MoleculeRef &ref)
 
 void MainWindow::showServerSettings()
 {
-  ServerSettingsDialog dialog;
+  ServerSettingsDialog dialog(this);
 
   if (dialog.exec() == QDialog::Accepted) {
     QSettings settings;
