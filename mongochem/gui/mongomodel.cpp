@@ -133,6 +133,8 @@ void MongoModel::setSortField(const std::string &field, int direction)
   }
 
   d->m_sortField = field;
+  if (field == "mass")
+    d->m_sortField = "descriptors.mass";
   d->m_sortDirection = direction;
 
   // Re-run current query with new sorting parameters.
@@ -228,13 +230,22 @@ QVariant MongoModel::data(const QModelIndex &index_, int role) const
   BSONObj *obj = static_cast<BSONObj *>(index_.internalPointer());
   if (obj) {
     if (role == Qt::DisplayRole) {
-      BSONElement e = obj->getField(d->m_fields[index_.column()].toStdString());
-      if (e.eoo() || e.isNull())
-        return QVariant();
-      else if (e.isNumber())
-        return QVariant(e.number());
-      else
-        return e.str().c_str();
+      if (d->m_fields[index_.column()] == "mass") {
+        BSONElement mass = obj->getObjectField("descriptors").getField("mass");
+        if (!mass.eoo() && !mass.isNull() && mass.isNumber())
+          return QVariant(mass.number());
+        else
+          return QVariant();
+      }
+      else {
+        BSONElement e = obj->getField(d->m_fields[index_.column()].toStdString());
+        if (e.eoo() || e.isNull())
+          return QVariant();
+        else if (e.isNumber())
+          return QVariant(e.number());
+        else
+          return e.str().c_str();
+      }
     }
     else if (role == Qt::SizeHintRole) {
       if (d->m_fields[index_.column()] == "diagram"

@@ -1,5 +1,5 @@
 mongochem_plugin(CsvImport
-  "CSV Import"
+  "CSV"
   AbstractImportDialog
   importcsvfiledialog.h
   ImportCsvFileDialog
