@@ -1,5 +1,5 @@
 mongochem_plugin(SdfImport
-  "SDF Import"
+  "SDF"
   AbstractImportDialog
   importsdffiledialog.h
   ImportSdfFileDialog
