@@ -1,12 +1,7 @@
 # Find Qt, including QtMain if on Windows.
-if(WIN32)
-  set(qtmain Main)
-  find_package(Qt5Main REQUIRED)
-else()
-  unset(qtmain)
-endif()
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Qt5OpenGL REQUIRED)
 find_package(Qt5WebKitWidgets REQUIRED)
 
 # VTK is used for the charting and infovis components.
@@ -63,11 +58,13 @@ endif()
 add_executable(mongochem WIN32 MACOSX_BUNDLE
   ${SOURCES} ${UI_SOURCES} ${RCC_SOURCES})
 set_target_properties(mongochem PROPERTIES AUTOMOC TRUE)
-qt5_use_modules(mongochem Widgets Network WebKitWidgets)
+qt5_use_modules(mongochem Widgets Network WebKitWidgets OpenGL Concurrent)
 target_link_libraries(mongochem MongoChemGui MongoChemPlugins)
 if(APPLE)
   set_target_properties(mongochem PROPERTIES
     OUTPUT_NAME ${MACOSX_BUNDLE_NAME})
+elseif(WIN32)
+  target_link_libraries(mongochem Qt5::WinMain)
 endif()
 if(ENABLE_TESTING)
   target_link_libraries(mongochem QtTesting)
