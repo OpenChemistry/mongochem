@@ -87,7 +87,9 @@ if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
 
   set(dirs "")
   if(CMAKE_PREFIX_PATH)
-    set(dirs "${CMAKE_PREFIX_PATH}/bin" "${CMAKE_PREFIX_PATH}/lib")
+    foreach(dir ${CMAKE_PREFIX_PATH})
+      list(APPEND dirs "${dir}/bin" "${dir}/lib")
+    endforeach()
   endif()
 
   # The VTK dlls are not in the CMAKE_PREFIX_PATH when built against
@@ -100,7 +102,7 @@ if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
   get_filename_component(molequeue_dir "${loc}" PATH)
   list(APPEND dirs "${molequeue_dir}")
 
-  include(DeployQt4)
+  include(DeployQt5)
 
   get_target_property(output_name mongochem OUTPUT_NAME)
   if(output_name)
@@ -109,5 +111,5 @@ if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
     set(exe "${pfx}mongochem${sfx}")
   endif()
 
-  install_qt4_executable(${exe} "" "" "${dirs}")
+  install_qt5_executable(${exe} "" "" "${dirs}")
 endif()
