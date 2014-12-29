@@ -279,30 +279,31 @@ vector<string> MongoDatabase::fetchTagsWithPrefix(const string &collection,
                                                   const string &prefix,
                                                   size_t limit)
 {
-  // get full collection name (e.g. "chem.molecules")
+  return std::vector<string>();
+  // Get the full collection name (e.g. "chem.molecules").
   QSettings settings;
   QString base_collection = settings.value("collection", "chem").toString();
   string collection_string = base_collection.toStdString()
                                   + "."
                                   + collection;
 
-  // a limit of zero means we should return all tags
+  // A limit of zero means we should return all tags.
   if (limit == 0)
     limit = std::numeric_limits<size_t>::max();
 
-  // fetch all documents with a tags array and return just the tags array
-  mongo::BSONObj to_return = BSON("tags" << true);
+  // Fetch all documents with a tags array, and return just the tags array.
+  mongo::BSONObj toReturn = BSON("tags" << true);
   std::auto_ptr<mongo::DBClientCursor> cursor =
     m_db->query(collection_string,
                 QUERY("tags" << BSON("$exists" << true)),
                 0,
                 0,
-                &to_return);
+                &toReturn);
 
-  // build set of tags
+  // Build the set of tags.
   std::set<string> tags;
 
-  // add each tag to the set
+  // Add each tag to the set.
   while (cursor->more() && tags.size() < limit) {
     mongo::BSONObj obj = cursor->next();
     if (obj.isEmpty())
