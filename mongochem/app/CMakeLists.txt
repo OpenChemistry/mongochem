@@ -24,6 +24,7 @@ endif()
 
 # find QtTesting
 if(ENABLE_TESTING)
+  find_package(Qt5Test REQUIRED)
   find_package(QtTesting REQUIRED)
   include_directories(${QtTesting_INCLUDE_DIRS})
   link_directories(${QtTesting_LIBRARY_DIR})
