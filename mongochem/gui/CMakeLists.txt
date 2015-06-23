@@ -5,7 +5,7 @@ find_package(Qt5WebKitWidgets REQUIRED)
 
 # VTK is used for the charting and infovis components.
 find_package(VTK COMPONENTS vtkChartsCore vtkGUISupportQt vtkViewsContext2D
-  vtkViewsInfovis vtkRenderingQt vtkRenderingFreeTypeOpenGL REQUIRED NO_MODULE)
+  vtkViewsInfovis vtkRenderingQt vtkRenderingFreeType REQUIRED NO_MODULE)
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS ${VTK_DEFINITIONS})
 include_directories(SYSTEM ${VTK_INCLUDE_DIRS})
 
@@ -73,7 +73,7 @@ target_link_libraries(MongoChemGui
   ${CHEMKIT_LIBRARIES}
   ${EXTRA_LINK_LIB}
   vtkChartsCore vtkGUISupportQt vtkViewsContext2D vtkViewsInfovis vtkRenderingQt
-  vtkRenderingFreeTypeOpenGL
+  vtkRenderingFreeType
   AvogadroIO AvogadroQtOpenGL AvogadroQtPlugins AvogadroRendering
   AvogadroMoleQueue
 )
