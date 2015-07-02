@@ -103,6 +103,7 @@ if((APPLE OR WIN32) AND NOT ${CMAKE_VERSION} VERSION_LESS 2.8.8)
   get_filename_component(molequeue_dir "${loc}" PATH)
   list(APPEND dirs "${molequeue_dir}")
 
+  include(InstallRequiredSystemLibraries)
   include(DeployQt5)
 
   get_target_property(output_name mongochem OUTPUT_NAME)
